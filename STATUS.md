@@ -27,11 +27,14 @@ pandoc) and delegate engineering to `superpowers`.
   all 10 landed in that commit.)*
 - Shared resources: `resources/contracts/experiment-backend.md`,
   `resources/substrate/asset-registry.md`, `resources/rigor/rigor-kit.md`.
+- `resources/templates/` — 12 staged-doc templates (hypothesis / paper / thesis)
+  with the `progress` status-frontmatter, rigor prompts in strategy/findings,
+  named human sign-off on material-decision docs, and a Toulmin-sextet ledger.
 
 ## In progress / this build
 
-- `resources/templates/` — staged-doc templates (hypothesis / paper / thesis)
-  with the `progress` status-frontmatter + rigor prompts. *(final item)*
+- Nothing in flight — the first-cut build is complete. Remaining work is review
+  and the items below.
 
 ## Pending (needs the author, or a follow-up)
 
