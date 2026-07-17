@@ -19,13 +19,19 @@ pandoc) and delegate engineering to `superpowers`.
   - `decisions/` — 22 MADR ADRs + index.
   - `resources/references/` — 8 verified-source digests.
   - `assets/` + `docs/design/visual-identity.md` — v1 visual identity.
+- **All 10 `skills/*/SKILL.md`** authored from the sub-specs (each with valid
+  `name`/`description` frontmatter): `research-init`, `hypothesis-exploration`,
+  `hypothesis-testing`, `paper-exploration`, `paper-synthesis`, `thesis`,
+  `literature`, `dataset`, `progress`, `grill`.
+  *(The commit that introduced them says "7 skill files" — a cosmetic undercount;
+  all 10 landed in that commit.)*
+- Shared resources: `resources/contracts/experiment-backend.md`,
+  `resources/substrate/asset-registry.md`, `resources/rigor/rigor-kit.md`.
 
 ## In progress / this build
 
-- `skills/*/SKILL.md` — authoring the 10 skills from the sub-specs.
-- `resources/contracts/`, `resources/substrate/`, `resources/templates/`,
-  `resources/rigor/` — the experiment-backend contract, the asset-substrate
-  spec, staged-doc templates, and rigor checklists.
+- `resources/templates/` — staged-doc templates (hypothesis / paper / thesis)
+  with the `progress` status-frontmatter + rigor prompts. *(final item)*
 
 ## Pending (needs the author, or a follow-up)
 
