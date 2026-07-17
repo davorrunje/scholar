@@ -1,0 +1,18 @@
+# scholar plugin — consumers create these in THEIR repos, never here
+.datasets-cache/
+.scholar/rclone.conf
+*.rclone.conf
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Python (only if supporting scripts are added)
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

@@ -1,0 +1,22 @@
+{
+  "name": "scholar",
+  "version": "0.1.0",
+  "description": "The scientist's research-workflow plugin for Claude Code — from hypothesis to thesis. Assistants, not researchers: you drive, and you must be able to defend it.",
+  "author": {
+    "name": "Davor Runje"
+  },
+  "homepage": "https://github.com/davorrunje/scholar",
+  "repository": "https://github.com/davorrunje/scholar",
+  "license": "Apache-2.0",
+  "keywords": [
+    "research",
+    "science",
+    "scientific-method",
+    "hypothesis",
+    "thesis",
+    "literature-review",
+    "reproducibility",
+    "phd",
+    "claude-code"
+  ]
+}
