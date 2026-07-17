@@ -1,0 +1,180 @@
+---
+name: grill
+description: Use when a material research decision is about to be recorded (a findings verdict, a publish decision, a thesis defensibility judgment) or a method's rationale is undemonstrated, and whenever an author wants their understanding of a claim, cited work, or method probed. Runs a Socratic probe-teach-reprobe loop that builds and verifies the author's understanding without grading the substance of novel claims.
+---
+
+Grill is a Socratic **tutor-examiner** whose goal is the **author's growth**, not
+production of work they cannot defend. It operationalizes the Understanding
+principle (see `../../docs/design/00-meta-spec.md` §2.2): every material claim,
+decision, and method must be understood by the author to the standard a good
+mentor or reviewer would expect. Self-assessed understanding is unreliable until
+probed (illusion of explanatory depth), and retrieval + self-explanation both
+*reveal* and *build* understanding — so grill does not merely audit, it teaches.
+It is the dual of the agency principle (§2.1): agency says *the human decides and
+is accountable*; grill says *the human must understand well enough to decide and
+defend*. Grounding: `../../resources/references/understanding-and-grilling.md`,
+`../../resources/references/mentor-personas.md`.
+
+## When to use
+
+- **On demand** — the author asks to be grilled on a claim, a cited work, or a
+  method (self-invoked; any stage).
+- **As an automatic guardrail** — before a material decision is recorded:
+  - a hypothesis `findings` verdict (confirmed / refuted / inconclusive),
+  - a paper `decision` (publish / no-go),
+  - a thesis defensibility judgment (a full mock viva),
+  - or whenever a method is invoked whose *rationale* has not been demonstrated
+    (undemonstrated rigor → possible cargo-cult use).
+
+Do **not** use grill to score, rank, or pass/fail the author, and do not use it
+to adjudicate the truth of a novel claim (see Guardrails).
+
+## How it works
+
+The core is a retrieval-practice loop. Repeat per probe until the point holds or
+the author elects to stop and record the gap.
+
+1. **Scope.** Identify the target (`claim | cited-work | methodology`) and the
+   artifact under examination. Load the relevant sources: the author's own cited
+   works, the methodology digests under `../../resources/references/`, and the
+   rigor-kit element in play. Confirm the active persona (see Mentor personas).
+2. **Probe.** Ask one open, reasoning-eliciting question at a time — the
+   reviewer/examiner agenda: novelty vs. prior work, "why this method,"
+   entailments, assumptions, limitations & threats to validity, rival
+   explanations, and "what would change your mind / falsify this?" Reward "let me
+   think"; do not accept fluency as understanding.
+3. **Detect gap.** Judge whether the author could *articulate* the answer — not
+   whether the answer is "right." A gap is an observed inability to explain
+   ("could not state what the test buys," "no answer to the falsification
+   probe"), never a verdict on substance.
+4. **Teach** (source-grounded, scoped by target). On a gap, explain and link the
+   source:
+   - *methodology* and *cited-work* are established → teach freely from the
+     digests, the author's citations, and external authoritative references;
+   - *novel claim* → teach how to reason, structure, and defend it, and cite the
+     relevant literature, but never supply the claim's answer.
+5. **Re-probe.** Ask again (retrieval after teaching is where learning sticks),
+   possibly reframed. Loop until the author can state, in their own words, what
+   the point buys, its key assumption/limitation, and an answer to the one
+   canonical critique.
+6. **Record.** Write an `understanding` status to the artifact frontmatter
+   (feeds the `progress` roll-up) and, optionally, a grill transcript. Unanswered
+   probes and any logged overrides are the accountability trail. If fired as a
+   guardrail, follow Guardrail semantics.
+
+> **TODO (supporting script).** A `grill record` helper to append the
+> `understanding` frontmatter block and persist the transcript is not yet
+> written. **Interim:** edit the artifact's frontmatter directly (add
+> `understanding:` with `status`, `date`, `unresolved:` list) and, if a
+> transcript is kept, write it beside the artifact as `grill-<date>.md`.
+
+## Targets
+
+| Target | What it probes | Teach from |
+|---|---|---|
+| `claim` | the author's own scientific claim — entailments, assumptions, rivals, falsifiers, limitations | *how to reason/defend* only; never the answer key |
+| `cited-work` | do the cited works actually support the claim; what each source really says | the author's citations + the source texts |
+| `methodology` | the *why* behind a rigor-kit method, not the ritual | the methodology digests + authoritative refs |
+
+**Stage presets** (suggested defaults, overridable):
+
+- `hypothesis-testing` → grill the **strategy**: assumptions, entailments,
+  falsifiers, rival explanations, and the methodology it invokes.
+- `paper-synthesis` → grill the **positioning**: novelty vs. prior work and
+  whether the cited works support the claims (`cited-work` on the literature
+  registry).
+- thesis defensibility gate → a full **mock viva** across all three targets.
+
+## Invocation
+
+Two paths, both honoring agency — the human always drives.
+
+- **Self-invoked.** The author requests a grill on a named target/artifact. No
+  guardrail semantics; the loop runs and records an `understanding` status.
+- **Automatic guardrail.** Fires at the material-decision checkpoints above and
+  when an undemonstrated method's rationale is used. It does **not** silently
+  block: it stops, surfaces the gap, and offers to grill/teach (see below).
+
+## Guardrail semantics
+
+When fired as a guardrail:
+
+1. **Stop** before the material decision is recorded.
+2. **Surface** the specific gap(s) as observed facts ("no answer to X"), not
+   judgments.
+3. **Offer** to grill/teach now, or to proceed.
+4. **Record** the outcome. A gap can never be passed *silently*.
+5. **Override is the human's** and is **logged** — this is a stop-and-confirm,
+   **not a hard block**. EU AI Act human-oversight-with-override and the agency
+   principle both require the human be able to proceed. The AI must not decide a
+   gap is "critical."
+
+**Thesis defensibility gate escalation (ADR-0021,
+`../../decisions/0021-thesis-gate-per-gap-confirmation.md`).** This highest-stakes,
+least-reversible decision keeps the same non-blocking posture but replaces the
+single blanket override with a **per-gap acknowledged sign-off**: the author must
+explicitly acknowledge *each* surfaced gap in writing before proceeding. Still
+non-blocking (the AI never adjudicates "critical"), but deliberate and fully on
+record.
+
+## Mentor personas
+
+The grill/advise voice offers a small set of **author-selectable** personas
+(derived from supervision typologies, Lee × Gatfield — *not* personality theory).
+See `../../resources/references/mentor-personas.md`.
+
+- **Sounding board** — high autonomy-support, exploratory; early-stage.
+- **Critical examiner** — *the default*; calibrated difficulty, critical-thinking
+  and emancipation.
+- **Directive editor** — concrete, process-level feedback; deadline-driven.
+- **Devil's advocate** *(opt-in)* — time-boxed, explicit challenge-to-the-argument.
+
+Chosen by three **author-controllable** levers, never inferred:
+
+1. **Self-selected** (default) — the author picks.
+2. **Task/stage-suggested** — a suggested default keyed to the visible
+   artifact/stage (early draft → sounding board; near-submission → examiner);
+   always overridable; keyed to the *work*, never the *person*.
+3. **Feedback-calibrated** — adjusts to explicit author feedback ("too harsh" /
+   "push harder").
+
+**Invariants:** autonomy-support is constant across personas; only *directiveness*
+and *challenge-intensity* vary. Feedback always targets the **argument/process,
+not the person** (the effective feedback level; self/praise feedback is
+ineffective). **Inferring a persona from the author's personality is
+forbidden** — it is unsupported (the learning-styles myth) and a consent/agency
+violation. Rule: *match the voice to the task and the author's stated choice,
+never to an inferred personality.*
+
+## Guardrails / constraints
+
+Hard rules — these are the load-bearing constraints, not preferences.
+
+- **Ask, don't grade substance.** Report observed facts ("you could not explain
+  X," "no answer to the falsification probe"), never "you are wrong about X" — a
+  judgment the AI is not entitled to make on a novel claim.
+- **Never assert a novel claim's answer key.** Contrast with Matt Pocock's
+  `grill-me`: same probe-one-question-at-a-time mechanic, **inverted epistemics** —
+  his elicits requirements the human already holds and lets the AI recommend
+  answers (the human is ground truth); scholar's grill verifies understanding of
+  an **external** truth (claims/methods/literature) and must not supply an answer
+  key for novel claims.
+- **Teach the established freely, source-grounded.** Methodology and cited-work
+  are established knowledge → explain and cite from the digests, the author's
+  sources, and authoritative references. Novel claims → teach reasoning and
+  defense only.
+- **Settled vs. contested calibration.** Grill *hard* on settled errors (e.g.
+  treating a non-significant p as "no effect"). On contested choices (e.g.
+  frequentist vs. Bayesian) grill only for a *defensible justification* and
+  present the standard critique — do **not** impose a school. Miscalibrating
+  (treating a contested choice as an error) violates agency.
+- **Calibrate depth to stakes.** Hardest on the method carrying the central
+  claim. "Enough" = the author can state what it buys, its key
+  assumption/limitation, and an answer to the one canonical critique.
+- **Anti-Goodhart.** Reward *articulable understanding*, not checklist or ritual
+  completion. The grill must not become its own ritual; no scores, no pass/fail,
+  no productivity number.
+- **Firewall + agency.** Grill produces evidence the human acts on; it never
+  adjudicates a claim, decides a verdict, or hard-blocks. The human decides and
+  signs off (`../../docs/design/00-meta-spec.md` §2.1; lifecycle §6,
+  `../../docs/design/01-lifecycle.md`).
