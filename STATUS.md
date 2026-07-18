@@ -1,7 +1,8 @@
 # scholar — build status
 
-Autonomous overnight build (2026-07-17). Authored by Claude; the author (Davor
-Runje) was away and will review. Commits are authored as `Claude` per instruction.
+Built 2026-07-17/18 (initial cut autonomously while the author was away, then
+extended). Commits are authored by **Davor Runje** with `Co-Authored-By: Claude`,
+unsigned. Released `v0.0.0`.
 
 This file is the honest ledger of what is **done**, **drafted**, or **pending**.
 `scholar` is a Claude Code plugin: its primary deliverable is the **skill
@@ -30,26 +31,33 @@ pandoc) and delegate engineering to `superpowers`.
 - `resources/templates/` — 12 staged-doc templates (hypothesis / paper / thesis)
   with the `progress` status-frontmatter, rigor prompts in strategy/findings,
   named human sign-off on material-decision docs, and a Toulmin-sextet ledger.
-
-## In progress / this build
-
-- Nothing in flight — the first-cut build is complete. Remaining work is review
-  and the items below.
+- **Released `v0.0.0`** — self-marketplace (`.claude-plugin/marketplace.json`,
+  `claude plugin validate` ✔); install via `/plugin marketplace add davorrunje/scholar`
+  then `/plugin install scholar@scholar`. mononet enables it in `.claude/settings.json`
+  (mononet PR #131).
+- **`docs/USER-GUIDE.md`** — end-to-end onboarding (install → `research-init` →
+  the hypothesis/paper/thesis loop → progress/grill), domain-neutral example.
+- **Commit attribution / discovery** — `resources/commit-attribution.md` + a
+  `## Commit attribution` footer on every skill (`Generated-with: scholar` +
+  `Scholar-Skill:` trailers).
+- **`docs/design/proposals/`** — 6 first-draft specs (for discussion) for the
+  supporting-script TODOs + cross-repo thesis aggregation. Each is tracked by an
+  issue: **scholar#1–5** (literature graph client; dataset manifest tooling;
+  dataset retrieval/mirror; grill record helper; exploration backlog helper) and
+  **mononet#132** (cross-repo aggregation).
 
 ## Pending (needs the author, or a follow-up)
 
-- **Review of every SKILL.md** — these are drafted autonomously; the author
-  should read and adjust tone/behavior, especially the `grill` guardrail and the
-  agency/understanding wording.
-- **Any supporting scripts** (OpenAlex/Semantic Scholar client, `datasets.yml`
-  loader, rclone wrappers) — kept minimal; deferred where a skill can orchestrate
-  a tool directly. Flagged in the relevant SKILL.md if stubbed.
-- **Install/marketplace wiring** and a first tagged release.
+- **Review of every SKILL.md** — first-cut drafts; adjust tone/behavior, esp. the
+  `grill` guardrail and the agency/understanding wording.
+- **Discuss the 6 draft proposals**, then implement the supporting scripts
+  (tracked: scholar#1–5, mononet#132). Currently each skill uses an interim
+  tool-orchestrated approach.
 - Plan-time open items from the sub-specs (ledger schema, status-frontmatter
   fields, `.scholar/` naming, thesis-milestone schema, the `superpowers`
   delegation seam).
-- Migrating PR #128's four research-workflow reference docs from `mononet`
-  (this build re-derived the digests independently; reconcile if needed).
+- Reconcile with PR #128's four earlier research-workflow reference docs in
+  `mononet` (superseded by this repo — close/repoint).
 
 ## How to review in the morning
 
