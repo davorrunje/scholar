@@ -48,6 +48,11 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
 - **Idempotency:** step 1 must be cheap; only steps 2–3 touch the network.
 - **Version pinning:** the pinned version comes from the installed plugin; upgrades
   are deliberate (bump the pin), not silent.
-- **rclone** (the private-mirror engine) is a separate single binary; if a skill
-  needs it, ensure it by the same detect-then-instruct pattern (it is not a Python
-  dependency).
+- **rclone** (the private-mirror engine) is a separate single static binary — **not
+  a Python dependency**; `scholar-tools` shells out to it. It is **optional**: only
+  private-mirror operations need it (Tier-A git/LFS and Tier-B `pooch` fetch do
+  not). Ensure it by the same **detect → ensure/instruct** pattern: check `rclone`
+  on `PATH`; if missing, prefer an OS package (`apt`/`brew`), else offer to fetch
+  the **checksum-verified** static binary into `$XDG_STATE_HOME/scholar/bin/` **with
+  consent**, else **honest stop** with the official install command (never a silent
+  `curl | sh`). `scholar doctor` reports Python / `uv` / `rclone` presence + versions.
