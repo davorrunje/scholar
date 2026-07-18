@@ -7,14 +7,18 @@ issues (see ADR-0024 and ``docs/design/proposals/tooling-package.md``).
 
 from __future__ import annotations
 
+import dataclasses
+import json
 import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
+from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from honest_scholar import __version__
+from honest_scholar.dataset import manifest as manifest_mod
 
 app = typer.Typer(
     name="honest-scholar",
@@ -168,27 +172,84 @@ def validate(
 ) -> None:
     """Validate a ``datasets.yml`` manifest (the register/audit gate).
 
+    Prints a JSON report ``{ok, errors, warnings}`` and exits non-zero on any
+    hard error.
+
     :param manifest: Path to the manifest to validate.
+    :raises typer.Exit: Code 1 on a malformed manifest or any validation error.
     """
-    _not_implemented(2)
+    try:
+        parsed = manifest_mod.load(manifest)
+    except manifest_mod.ManifestError as exc:
+        typer.echo(json.dumps({"ok": False, "errors": [str(exc)], "warnings": []}))
+        raise typer.Exit(code=1) from exc
+    report = manifest_mod.validate(parsed)
+    typer.echo(
+        json.dumps(
+            {"ok": report.ok, "errors": report.errors, "warnings": report.warnings},
+            indent=2,
+        )
+    )
+    raise typer.Exit(code=0 if report.ok else 1)
 
 
 @dataset.command()
 def ingest(croissant: str) -> None:
-    """Ingest a published Croissant JSON-LD file to bootstrap a manifest entry.
+    """Ingest a published Croissant JSON-LD file to bootstrap a draft entry.
+
+    Prints the draft registry entry as JSON, with the human-owned fields it could
+    not fill listed under ``_needs_human`` (the caller confirms them on register).
 
     :param croissant: Path to the Croissant JSON-LD file.
+    :raises typer.Exit: Code 1 if the file is unreadable or has no ``name``.
     """
-    _not_implemented(2)
+    try:
+        doc = json.loads(Path(croissant).read_text(encoding="utf-8"))
+        entry = manifest_mod.entry_from_croissant(doc)
+    except (OSError, json.JSONDecodeError, manifest_mod.ManifestError) as exc:
+        typer.echo(f"ingest failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    draft = dataclasses.asdict(entry)
+    draft["_needs_human"] = [
+        name
+        for name in ("license", "tier", "access", "datasheet", "sensitivity")
+        if draft.get(name) is None
+    ]
+    typer.echo(json.dumps(draft, indent=2))
+    raise typer.Exit(code=0)
 
 
 @dataset.command()
-def emit(identifier: str) -> None:
-    """Emit a Croissant JSON-LD file for a manifest entry.
+def emit(
+    identifier: str,
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest to read.")
+    ] = "datasets.yml",
+) -> None:
+    """Emit a Croissant JSON-LD document for a manifest entry.
 
-    :param identifier: The dataset id to emit (or ``--all`` in a later revision).
+    :param identifier: The dataset id to emit (``--all`` for the whole registry).
+    :param manifest: Path to the manifest to read.
+    :raises typer.Exit: Code 1 if the manifest is malformed or the id is unknown.
     """
-    _not_implemented(2)
+    try:
+        parsed = manifest_mod.load(manifest)
+    except manifest_mod.ManifestError as exc:
+        typer.echo(f"emit failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    if identifier == "--all":
+        typer.echo(
+            json.dumps(
+                [manifest_mod.croissant_for(e) for e in parsed.datasets], indent=2
+            )
+        )
+        raise typer.Exit(code=0)
+    for entry in parsed.datasets:
+        if entry.id == identifier:
+            typer.echo(json.dumps(manifest_mod.croissant_for(entry), indent=2))
+            raise typer.Exit(code=0)
+    typer.echo(f"emit failed: no entry with id {identifier!r}", err=True)
+    raise typer.Exit(code=1)
 
 
 @dataset.command()
