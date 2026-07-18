@@ -64,9 +64,28 @@ existing one (`adopt`).
 
 ## Install
 
-`scholar` is a Claude Code plugin. (Install instructions will be finalized with
-the first tagged release; for now clone the repo and add it as a local plugin /
-marketplace. See [`STATUS.md`](STATUS.md).)
+`scholar` is a Claude Code plugin; the repo is its own marketplace.
+
+```
+/plugin marketplace add davorrunje/scholar
+/plugin install scholar@scholar
+```
+
+**Enable it for a whole project** (so collaborators get it on trust) — add to the
+consuming repo's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "scholar": { "source": { "source": "github", "repo": "davorrunje/scholar" } }
+  },
+  "enabledPlugins": { "scholar@scholar": true }
+}
+```
+
+Pin a release with `"ref": "v0.0.0"` inside the marketplace `source` if you want a
+fixed version rather than the default branch. **Status:** early — see
+[`STATUS.md`](STATUS.md).
 
 ## Design & reasoning
 

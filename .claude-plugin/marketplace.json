@@ -1,0 +1,15 @@
+{
+  "name": "scholar",
+  "owner": {
+    "name": "Davor Runje",
+    "email": "davor@synthpop.ai"
+  },
+  "description": "scholar — the scientist's research-workflow plugin for Claude Code.",
+  "plugins": [
+    {
+      "name": "scholar",
+      "source": "./",
+      "description": "From hypothesis to thesis — research you can defend. Assistants, not researchers: you drive."
+    }
+  ]
+}
