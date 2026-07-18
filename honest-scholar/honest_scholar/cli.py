@@ -19,6 +19,7 @@ import typer
 
 from honest_scholar import __version__
 from honest_scholar.dataset import manifest as manifest_mod
+from honest_scholar.exploration import backlog as backlog_mod
 
 app = typer.Typer(
     name="honest-scholar",
@@ -310,53 +311,189 @@ def record(claim: str) -> None:
 backlog = typer.Typer(help="Exploration backlog management.", no_args_is_help=True)
 app.add_typer(backlog, name="backlog")
 
+_BacklogPath = Annotated[str, typer.Option("--backlog", help="Path to the backlog.")]
+_LevelOpt = Annotated[str, typer.Option("--level", help="hypothesis | paper.")]
+
+
+def _open_backlog(path: str, level: str) -> backlog_mod.Backlog:
+    """Validate `level` and load the backlog at `path`.
+
+    :raises typer.Exit: Code 2 on an invalid level.
+    """
+    if level not in ("hypothesis", "paper"):
+        typer.echo(f"--level must be 'hypothesis' or 'paper', got {level!r}", err=True)
+        raise typer.Exit(code=2)
+    return backlog_mod.Backlog.load(path, level)  # type: ignore[arg-type]
+
+
+def _emit_row(row: dict[str, str]) -> None:
+    """Print one backlog row as JSON and exit 0."""
+    typer.echo(json.dumps(row, indent=2))
+    raise typer.Exit(code=0)
+
 
 @backlog.command()
-def park(item: str) -> None:
-    """Park a raw one-line idea as a backlog row before it is lost.
+def park(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Park a raw one-line idea as a ``parked`` backlog row.
 
-    :param item: The one-line idea (its origin/provenance is required).
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.park(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command()
-def add(item: str) -> None:
-    """Add an item to the exploration backlog.
+def add(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Add a ``candidate`` row (realizes the ``generate`` verb).
 
-    :param item: The backlog item description.
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.add(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command(name="list")
-def list_() -> None:
-    """List the current exploration backlog."""
-    _not_implemented(5)
+def list_(
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    status: Annotated[str, typer.Option("--status", help="Filter by status.")] = "",
+) -> None:
+    """List backlog rows as JSON (read-only), optionally filtered by status.
 
-
-@backlog.command()
-def rank() -> None:
-    """Rank the exploration backlog by priority."""
-    _not_implemented(5)
-
-
-@backlog.command()
-def promote(item: str) -> None:
-    """Promote a backlog item to an active investigation.
-
-    :param item: The backlog item identifier.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param status: Optional status filter.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    rows = board.listing(status=status or None)
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @backlog.command()
-def drop(item: str) -> None:
-    """Drop an item from the exploration backlog.
+def rank(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    eig: Annotated[str, typer.Option("--eig")] = "",
+    feas: Annotated[str, typer.Option("--feas")] = "",
+    interest: Annotated[str, typer.Option("--interest")] = "",
+    frame: Annotated[str, typer.Option("--frame")] = "",
+) -> None:
+    """Score a row and set it ``ranked`` (advises; never selects).
 
-    :param item: The backlog item identifier.
+    :param row_id: The row to rank.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param eig: Expected-information-gain score (hypothesis level).
+    :param feas: Feasibility score.
+    :param interest: Interest score.
+    :param frame: gap-spotting / problematization (hypothesis level).
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    scores = {
+        k: v
+        for k, v in (
+            ("EIG", eig),
+            ("feas", feas),
+            ("interest", interest),
+            ("frame", frame),
+        )
+        if v
+    }
+    try:
+        row = board.rank(row_id, **scores)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def promote(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Mark a ``ranked`` row ``promoted`` (an explicit human pick).
+
+    Flips the row's status and saves the backlog. Scaffolding the next-stage
+    artifact is a follow-up step (``scaffold_hypothesis`` / ``scaffold_paper``).
+
+    :param row_id: The row to promote.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.promote(row_id)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def drop(
+    row_id: str,
+    reason: Annotated[str, typer.Option("--reason", help="Why it is dropped.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Retire a row as ``dropped`` with a recorded reason (never deletes it).
+
+    :param row_id: The row to drop.
+    :param reason: Why it is dropped; required (file-drawer discipline).
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.drop(row_id, reason)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 if __name__ == "__main__":  # pragma: no cover
