@@ -5,10 +5,13 @@
 ## Context
 
 The `defend` skill's record step (SKILL.md step 6) currently has no tooling. The
-`TODO (supporting script)` note (`../../../skills/defend/SKILL.md`, ~line 65) says
-the write is done by hand: edit the target artifact's frontmatter to add an
-`understanding` block, and — if a transcript is kept — drop it beside the artifact
-as `defend-<date>.md`. Two problems with the manual path:
+`TODO (supporting module)` note (`../../../skills/defend/SKILL.md`, ~line 65) marks
+it unimplemented. **Interim (until the module is implemented):** the skill
+orchestrates the write by hand — editing the target artifact's frontmatter to add an
+`understanding` block, and (if a transcript is kept) dropping it beside the artifact
+as `defend-<date>.md`; once `scholar-tools` is installed (via
+[`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
+`scholar defend record …` instead. Two problems with the manual path:
 
 - **Drift-prone frontmatter.** `progress` rolls up the `understanding` field
   (`../../../skills/progress/SKILL.md`, "Status frontmatter"); a hand-edited block
@@ -24,7 +27,8 @@ it consistently.
 
 ## Goal
 
-A single small helper, `defend record`, that a `defend` session invokes at step 6 to
+A single small module, `scholar_tools/defend/record.py` (exposed as
+`scholar defend record`), that a `defend` session invokes at step 6 to
 (a) append/update the `understanding` status block in a target artifact's markdown
 **frontmatter** so `progress` can roll it up, and (b) append the transcript plus
 any logged overrides / per-gap acknowledgements to an accountability log. It
@@ -112,8 +116,6 @@ entry per examination, and the full transcript beside the artifact as `defend-<d
   the log.
 - **Transcript redaction:** transcripts may quote sources/citations — any policy
   before they land in git?
-- **Invocation surface:** standalone CLI, or a function the skill calls? A CLI is
-  testable in isolation and matches the "supporting script" framing.
 
 ## Acceptance criteria
 

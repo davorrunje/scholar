@@ -11,12 +11,14 @@ in `../../../resources/references/dataset-management-standards.md` (§2 schema, 
 tiers) and the shared base-asset record in
 `../../../resources/substrate/asset-registry.md`.
 
-Today the manifest has **no tooling**. The SKILL's TODO block (helper scripts,
-~line 105) prescribes the interim: hand-load with `yaml.safe_load` and eyeball the
-required fields against the table, and hand-map Croissant on register/export. That
-is error-prone and does not scale to `audit` across a whole manifest, nor does it
-give the venue-mandated Croissant round-trip (NeurIPS D&B now requires a Croissant
-file) any machine backing.
+Today the manifest has **no tooling**. **Interim (until the module is
+implemented):** the skill orchestrates the step manually — loading with
+`yaml.safe_load`, eyeballing the required fields against the table, and hand-mapping
+Croissant on register/export. That is error-prone and does not scale to `audit`
+across a whole manifest, nor does it give the venue-mandated Croissant round-trip
+(NeurIPS D&B now requires a Croissant file) any machine backing. Once `scholar-tools`
+is installed (via [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill
+calls `scholar dataset …` instead.
 
 This proposal covers **only the manifest tooling**: parsing, schema validation, and
 Croissant/DataCite interop. Retrieval, the rclone mirror, fixity re-hashing, and the
@@ -46,7 +48,7 @@ no `pydantic`, no `datasets`); validation is hand-rolled against the documented
 field table, Croissant I/O uses stdlib `json`.
 
 ```
-skills/dataset/scripts/manifest.py       # or a small package if it grows
+scholar_tools/dataset/manifest.py        # module in the scholar-tools package
 ```
 
 ### Data model
@@ -97,6 +99,8 @@ when incomplete, since a citable record may not yet exist; `emit` maps it to
 
 ### API / CLI the skill verbs call
 
+Importable from `scholar_tools.dataset.manifest`:
+
 ```python
 load(path) -> Manifest                       # parse + structural decode; raises with line context
 validate(manifest) -> ValidationReport       # all rule violations, per entry
@@ -104,10 +108,12 @@ entry_from_croissant(json_ld) -> DatasetEntry # ingest → draft (partial, flags
 croissant_for(entry) -> dict                  # emit one entry's JSON-LD
 ```
 
+Exposed under the `scholar dataset` command group:
+
 ```
-manifest.py validate [datasets.yml]                 # register/audit gate; exit!=0 on error
-manifest.py ingest <croissant.json> [--into datasets.yml]
-manifest.py emit <id> [-o <id>.croissant.json]      # or --all
+scholar dataset validate [datasets.yml]              # register/audit gate; exit!=0 on error
+scholar dataset ingest <croissant.json> [--into datasets.yml]
+scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
 ```
 
 - `register` calls `ingest` (if a Croissant is supplied) then `validate` on the new
@@ -154,8 +160,8 @@ manifest.py emit <id> [-o <id>.croissant.json]      # or --all
   tier/retrieval/datasheet/sensitivity as human-TODO.
 - No dependency beyond `pyyaml` + stdlib; no network or filesystem access to data
   files during validate/emit/ingest.
-- `register` and `audit` invoke the module; the SKILL TODO block (~line 105) is
-  updated to point at it instead of the interim `python -c` workaround.
+- `register` and `audit` invoke `scholar dataset …`; the SKILL TODO block (~line 105)
+  is updated to point at the CLI instead of the interim manual workaround.
 
 ## Links
 

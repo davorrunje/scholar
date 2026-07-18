@@ -13,15 +13,17 @@ procedure.
 
 ## Package
 
-`scholar-tools` (distribution name; exposes the **`scholar`** CLI). Isolated env
-(ADR-0024) — free to depend on `typer` + one HTTP client + `pyyaml` + `pooch`
-without touching a consumer's ML environment.
+`scholar-tools` (distribution name; exposes the **`scholar`** CLI). It lives as a
+**`scholar-tools/` subdirectory of this plugin repo** — a monorepo, co-versioned
+with the plugin, not a separate repo. Isolated env (ADR-0024) — free to depend on
+`typer` + `requests` (HTTP) + `pyyaml` + `pooch` without touching a consumer's ML
+environment.
 
 ```
-scholar-tools/
+scholar-tools/                     # subdirectory of the plugin repo
 ├── pyproject.toml                 # deps + [project.scripts] scholar = scholar_tools.cli:app + [project.entry-points] mcp
 ├── scholar_tools/
-│   ├── core/                      # shared: http client, on-disk cache, config read, provenance
+│   ├── core/                      # shared: requests-based http client, on-disk cache, config read, provenance
 │   ├── literature/graph.py        # ← proposal: literature-citation-graph-client
 │   ├── dataset/manifest.py        # ← proposal: dataset-manifest-tooling
 │   ├── dataset/retrieval.py       # ← proposal: dataset-retrieval-mirror-tooling (+ rclone/pooch)
@@ -37,7 +39,7 @@ scholar-tools/
 A Typer command tree that mirrors the skill verbs; each command emits JSON:
 
 ```
-scholar lit        resolve | cites | refs | enrich | neighbors
+scholar literature resolve | cites | refs | enrich | neighbors
 scholar dataset    register | fetch | verify | mirror | audit
 scholar defend     record
 scholar backlog    add | rank | promote | drop        # shared by both exploration skills
@@ -60,19 +62,32 @@ detect `uv`→`pipx`→`python3`, install isolated + pinned (prefer `uv tool ins
 which also provisions Python), record the CLI in `.scholar/config.yml`, stop with
 instructions if the env can't self-heal.
 
+Distribution is **git-install now** (no PyPI yet) — install from the `scholar-tools/`
+subdirectory of the plugin repo:
+
+```
+uv tool install "git+https://github.com/davorrunje/scholar.git#subdirectory=scholar-tools"
+# ad-hoc, no persistent install:
+uvx --from "git+https://github.com/davorrunje/scholar.git#subdirectory=scholar-tools" scholar …
+```
+
+## Decided
+
+- **House HTTP client = `requests`** (applies to `core`, used by literature + any
+  http fetch). `pooch` already pulls it, so it is a zero-net-dep choice; no async
+  surface is needed. Used everywhere an HTTP call is made.
+- **Distribution = git-install now** (no PyPI yet): install from the plugin repo's
+  `scholar-tools/` subdirectory via `uv tool install "git+…#subdirectory=scholar-tools"`
+  (or `uvx --from …` ad-hoc). Avoids a release step early; a PyPI publish can follow.
+
 ## Open questions
 
-- **House HTTP client** (applies to `core`, used by literature + any http fetch):
-  stdlib `urllib` (zero deps) vs `requests` (pooch already pulls it) vs `httpx`.
-  Lean: stdlib `urllib` unless the async surface is needed. Decide once, here.
-- **Distribution:** publish `scholar-tools` to PyPI, or install from the git repo
-  (`uv tool install git+…`)? PyPI is cleaner for `uv tool install`; git avoids a
-  release step early.
 - **Names:** distribution `scholar-tools`, CLI `scholar` — confirm no clash; is
-  `scholar` on PyPI free, or namespace as `scholar-research-tools`?
+  `scholar` on PyPI free (for a later publish), or namespace as `scholar-research-tools`?
 - **MCP timing:** ship the wrapper in v0.1, or wait for a concrete need?
 - **Version pin source:** how the plugin communicates its pinned `scholar-tools`
-  version to `ensure-tooling` (a `VERSION` file in the plugin, read by the skills?).
+  version to `ensure-tooling`. Since the package is co-versioned in the same repo,
+  a git ref/tag (or a `VERSION` file read by the skills) — pick the mechanism.
 
 ## Acceptance criteria
 
@@ -80,7 +95,7 @@ instructions if the env can't self-heal.
 - [ ] `scholar --version` works via an isolated `uv tool` / `pipx` / venv install.
 - [ ] `ensure-tooling` provisions it on a machine with only `uv` (no prior Python).
 - [ ] Each module implemented per its own proposal; CLI subcommands wired.
-- [ ] Skills updated: interim `scripts/*.py` / `curl` approaches replaced with
+- [ ] Skills updated: interim manual / direct-tool-call orchestration replaced with
       `ensure-tooling` + `scholar …` calls.
 - [ ] (Later) MCP wrapper exposing the same functions.
 

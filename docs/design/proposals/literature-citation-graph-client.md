@@ -1,4 +1,4 @@
-# Proposal: Citation-graph client (`scripts/graph.py`)
+# Proposal: Citation-graph client (`scholar_tools/literature/graph.py`)
 
 `Status: draft (for discussion) · Date: 2026-07-18 · Skill: literature`
 
@@ -8,13 +8,17 @@ The `literature` skill's `scout` and `position` modes both walk one citation-gra
 substrate: **OpenAlex** (keyless backbone, `mailto=` polite pool) plus **Semantic
 Scholar** (S2AG — citation contexts, SciCite intents, `isInfluential`,
 recommendations). Today there is no client: `../../../skills/literature/SKILL.md`
-(§ *Helper script*, the `TODO — scripts/graph.py` at ~line 170) marks it
-unimplemented and documents an **interim approach** — operators hit the public APIs
-directly with `curl`, persist raw JSON as the provenance root, and hand-edit
-`references.json` / `triage.yml`. That is unreproducible and pushes pagination,
-degradation, and rate-limit handling onto the human.
+(§ *Helper script*, the `TODO — literature graph module` at ~line 170) marks it
+unimplemented. **Interim (until the module is implemented):** the skill orchestrates
+the graph step manually / via direct tool calls — persisting raw JSON as the
+provenance root and editing `references.json` / `triage.yml` — which is
+unreproducible and pushes pagination, degradation, and rate-limit handling onto the
+operator. Once `scholar-tools` is installed (via
+[`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
+`scholar literature …` instead.
 
-This proposes the first cut of `scripts/graph.py`: the read/enrich half of the
+This proposes the first cut of `scholar_tools/literature/graph.py` (exposed as
+`scholar literature …`): the read/enrich half of the
 substrate (graph traversal + enrichment + neighbor sets). The registry
 loader/appender, triage join, PRISMA-log and concept-matrix generators are noted as
 out of scope here (separate proposal) so this stays focused.
@@ -30,17 +34,18 @@ S2 key is present. Reproducible: same id + filters + search date → same set.
 
 ## Design sketch
 
-**CLI** (`python scripts/graph.py <cmd> [args] --json`), each command prints one
+**CLI** (`scholar literature <cmd> [args] --json`), each command prints one
 JSON document to stdout; raw upstream responses are written to a `--provenance-dir`
-as the provenance root before any enrichment.
+as the provenance root before any enrichment. The same functions are importable
+from `scholar_tools.literature.graph`.
 
 | Command | Purpose | Key args |
 |---|---|---|
-| `resolve <id>` | id → canonical work | `--id` (DOI/arXiv/OpenAlex W…/S2) |
-| `cites <id>` | forward citations (who cited it) | `--per-page`, `--max`, `--since` |
-| `refs <id>` | backward references | `--max` |
-| `enrich <id>...` | per-work metadata bundle | `--fields`, `--context` |
-| `neighbors <id>` | co-citation + coupling sets | `--kind {cocite,couple,both}`, `--top` |
+| `scholar literature resolve <id>` | id → canonical work | `--id` (DOI/arXiv/OpenAlex W…/S2) |
+| `scholar literature cites <id>` | forward citations (who cited it) | `--per-page`, `--max`, `--since` |
+| `scholar literature refs <id>` | backward references | `--max` |
+| `scholar literature enrich <id>...` | per-work metadata bundle | `--fields`, `--context` |
+| `scholar literature neighbors <id>` | co-citation + coupling sets | `--kind {cocite,couple,both}`, `--top` |
 
 **Identifier resolution.** `resolve()` normalizes DOI / `arXiv:` / OpenAlex `W…` /
 S2 (`CorpusId:` / SHA) to a canonical record `{openalex, doi, s2, arxiv, title,
@@ -80,9 +85,10 @@ marker — the caller records it in run provenance.
 ## Dependencies & posture
 
 Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
-- **HTTP:** one small client — `httpx` (already implied by substrate) or stdlib
-  `urllib.request`. No OpenAlex/S2 SDKs, no graph libraries (`networkx` etc.);
-  neighbor math is stdlib `set`/`collections.Counter`.
+- **HTTP:** `requests` — the house HTTP client for `scholar-tools` (decided in
+  `tooling-package.md`; already pulled by `pooch`, so zero net dep). No OpenAlex/S2
+  SDKs, no graph libraries (`networkx` etc.); neighbor math is stdlib
+  `set`/`collections.Counter`.
 - **stdlib** for JSON, argparse, on-disk cache.
 - `mailto=` on every OpenAlex call (polite pool); `x-api-key` header on S2 iff a key
   is configured (env / `.scholar/config.yml`), else omit and degrade.
@@ -94,8 +100,6 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
 
 ## Open questions
 
-- Client lib: adopt `httpx` (async-friendly, matches substrate) or stay stdlib-only
-  for zero added deps?
 - Abstract reconstruction from OpenAlex inverted index — always, or opt-in (size)?
 - Neighbor scoring for large anchors (10k+ citers): cap the frontier, or stream +
   approximate? What `--top` default?
@@ -120,7 +124,7 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
 - [ ] Every command writes raw upstream JSON to `--provenance-dir` before enriching;
       `mailto=` always sent; runs are cache-backed and reproducible.
 - [ ] 429/backoff handled; rate ceilings respected.
-- [ ] Deps limited to one HTTP client + stdlib (+ `pyyaml` for config read); no
+- [ ] Deps limited to `requests` + stdlib (+ `pyyaml` for config read); no
       graph/SDK libraries.
 
 ## Links

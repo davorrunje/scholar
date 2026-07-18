@@ -7,16 +7,20 @@
 The `dataset` skill defines a resolution chain (local cache → private mirror →
 public source → gated instructions) with SHA-256 fixity at every hop, but the
 `fetch`/`verify`/`mirror`/`audit` verbs currently have no executable backing —
-`../../skills/dataset/SKILL.md` (§Retrieval & mirror, ~line 156) lists the pooch
-fetcher and rclone wrappers as unwritten TODOs, with `curl` + `sha256sum` and
-hand-run `rclone` as the interim path. This proposal specifies that tooling.
+`../../../skills/dataset/SKILL.md` (§Retrieval & mirror, ~line 156) lists the pooch
+fetcher and rclone wrappers as unwritten TODOs. **Interim (until the module is
+implemented):** the skill orchestrates the resolution chain manually / via direct
+tool calls — fetch, `sha256sum` fixity checks, and hand-run `rclone` — which is
+error-prone; once `scholar-tools` is installed (via
+[`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
+`scholar dataset …` instead. This proposal specifies that tooling.
 
 The substrate that this tooling implements is already fixed by
-`../../resources/substrate/asset-registry.md`: a git-committed, license-bearing,
+`../../../resources/substrate/asset-registry.md`: a git-committed, license-bearing,
 persistently-identified registry; a backend-agnostic rclone mirror; and a
 **two-layer fixity** model where SHA-256 in the manifest is authoritative and the
 rclone-native per-backend hash is only a transport check. The tooling review in
-`../../resources/references/dataset-tooling-mirror.md` settles the stack: reject
+`../../../resources/references/dataset-tooling-mirror.md` settles the stack: reject
 DVC/DataLad/lakeFS/Quilt on dependency weight; adopt **pooch** (Tier-B fetch) +
 **rclone** (mirror engine, binary subprocess) over a thin resolution-chain core.
 
@@ -74,7 +78,8 @@ is gitignored.
 
 ## API / CLI the verbs call
 
-A single module (e.g. `dataset_core`) exposing the seams the verbs invoke:
+A single module, `scholar_tools/dataset/retrieval.py` (sharing the package's
+`core` cache/http/provenance helpers), exposing the seams the verbs invoke:
 
 ```
 resolve(entry, *, cache_dir, mirror_cfg) -> Path        # full chain, verified
@@ -92,8 +97,9 @@ Verb → core mapping:
 - `audit`  → `verify` + `mirror_check` across every manifest entry, plus
   schema/license/datasheet completeness (owned by the loader/validator TODO)
 
-CLI shape mirrors the verbs: `dataset fetch <id>`, `dataset verify [<id>|--all]`,
-`dataset mirror <id>`, `dataset audit`. All read the mirror remote name + base
+CLI shape mirrors the verbs: `scholar dataset fetch <id>`,
+`scholar dataset verify [<id>|--all]`, `scholar dataset mirror <id>`,
+`scholar dataset audit`. All read the mirror remote name + base
 path from `datasets.yml`; none embed credentials.
 
 ## Dependencies & posture
@@ -146,8 +152,8 @@ gitignored; CI uses env-var remotes sourced from secrets.
 
 ## Links
 
-- `../../skills/dataset/SKILL.md` — the skill and the TODO block this implements
-- `../../resources/substrate/asset-registry.md` — resolution chain + two-layer fixity
-- `../../resources/references/dataset-tooling-mirror.md` — tooling review / stack decision
-- `../../docs/design/03-dataset.md`, `../../docs/design/04-substrate-and-contract.md`
-- ADRs `../../decisions/0010-storage-tiers.md`, `../../decisions/0011-rclone-mirror-sha256.md`, `../../decisions/0012-shared-substrate.md`
+- `../../../skills/dataset/SKILL.md` — the skill and the TODO block this implements
+- `../../../resources/substrate/asset-registry.md` — resolution chain + two-layer fixity
+- `../../../resources/references/dataset-tooling-mirror.md` — tooling review / stack decision
+- `../03-dataset.md`, `../04-substrate-and-contract.md`
+- ADRs `../../../decisions/0010-storage-tiers.md`, `../../../decisions/0011-rclone-mirror-sha256.md`, `../../../decisions/0012-shared-substrate.md`

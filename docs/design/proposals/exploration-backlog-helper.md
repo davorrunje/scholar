@@ -5,7 +5,11 @@
 ## Context
 
 Both **generate** skills run the same small state machine over a markdown backlog
-table, and both currently leave the mechanics as a hand-edit `TODO`:
+table, and both currently leave the mechanics unimplemented. **Interim (until the
+module is implemented):** each skill orchestrates the row edits by hand / via direct
+tool calls; once `scholar-tools` is installed (via
+[`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
+`scholar backlog …` instead. The two skills' `TODO`s:
 
 - `hypothesis-exploration` (`../../../skills/hypothesis-exploration/SKILL.md`, §Verbs,
   and the `TODO (supporting script)` at ~L67) drives rows in a paper's
@@ -31,9 +35,9 @@ scientific judgment** and never selects what to promote.
 
 ## Design sketch
 
-**One script, two column profiles.** A shared module (proposed location
-`../../../resources/scripts/backlog.py`, mirroring the per-skill `scripts/` pattern
-used by `literature`) parameterized by `--level {hypothesis|paper}`. The row state
+**One module, two column profiles.** A single module,
+`scholar_tools/exploration/backlog.py` (exposed as `scholar backlog`, shared by both
+exploration skills), parameterized by `--level {hypothesis|paper}`. The row state
 machine, provenance rules, and drop discipline are identical across levels; only
 the scored columns and the `promote` target differ.
 
@@ -48,7 +52,8 @@ paper:      | id | one-line | lens      | provenance |  —  | feas | interest |
 - *EIG* and *frame* (gap-spotting vs. problematization) exist only at the
   hypothesis level; the paper level ranks on feasibility × interest alone.
 
-**Transition verbs** (each validates the source state and refuses illegal moves):
+**Transition verbs** (invoked as `scholar backlog <verb>`; each validates the source
+state and refuses illegal moves):
 
 | Verb | Args | Effect | Guard |
 |---|---|---|---|
@@ -91,16 +96,18 @@ the backlog and the registry read-only and is unchanged by this proposal.
 
 ## Dependencies & posture
 
-- **Light-dep:** `pyyaml` + stdlib only (matches `literature`'s `scripts/graph.py`
-  and the substrate). `pyyaml` covers the status frontmatter it writes on
+- **Light-dep:** `pyyaml` + stdlib only (matches `literature`'s
+  `scholar_tools/literature/graph.py` and the substrate). `pyyaml` covers the status
+  frontmatter it writes on
   `promote` and the `papers.md` row; the backlog table itself is plain markdown.
 - **Firewall — proposes only.** Every verb but `promote` stays inside exploration;
   `promote` runs only on an explicit human pick and is the sole path out. The
   helper mechanically scaffolds and links — it never ranks by fiat, never
   auto-promotes the top row, and never writes a verdict (meta-spec §2.1, §2.3,
   `../00-meta-spec.md`).
-- **Interim path stays valid.** Until the script lands, both skills keep editing
-  the table by hand in the documented column order; the helper is additive.
+- **Interim path stays valid.** Until the module lands, both skills keep editing
+  the table by hand in the documented column order; the `scholar backlog` command is
+  additive.
 
 ## Open questions
 
@@ -109,12 +116,9 @@ the backlog and the registry read-only and is unchanged by this proposal.
    to markdown for reading? The table is author-friendly and already parsed by
    `rank`/`progress`; a sidecar is safer for verbatim snippets. Leaning: keep the
    table, escape on write.
-2. **Script location.** Shared `resources/scripts/backlog.py` vs. one copy per
-   skill dir. Shared avoids drift but breaks the "each skill owns its `scripts/`"
-   locality — worth an ADR if we standardize a shared-script location.
-3. **Slug ownership.** Does `promote` mint the `<YYYY-MM-DD-slug>` / `paper-id`, or
+2. **Slug ownership.** Does `promote` mint the `<YYYY-MM-DD-slug>` / `paper-id`, or
    does the human supply it? (`paper-id` must be stable and never reused.)
-4. **Concurrency.** Two sessions appending to one backlog — is a simple
+3. **Concurrency.** Two sessions appending to one backlog — is a simple
    append-only + git-merge posture enough, or is a lock needed?
 
 ## Acceptance criteria

@@ -20,12 +20,14 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
    - `uv` (preferred — a single binary that can also provision Python),
    - else `pipx`,
    - else `python3` (with `venv` + `pip`).
-3. **Install, isolated** (pinned `scholar-tools==<version>`):
-   - `uv tool install scholar-tools==<version>` — installs Python + deps in an
-     isolated tool env; or run ad hoc with `uvx scholar …`.
-   - else `pipx install scholar-tools==<version>`.
-   - else `python3 -m venv "$XDG_STATE_HOME/scholar/venv-<version>"` (fallback:
-     `~/.local/state/scholar/…`) then that venv's `pip install scholar-tools==<version>`.
+3. **Install, isolated** (from the plugin repo's `scholar-tools/` subdirectory,
+   pinned to `<ref>` — a git tag/commit; no PyPI yet). Let
+   `SRC="git+https://github.com/davorrunje/scholar.git@<ref>#subdirectory=scholar-tools"`:
+   - `uv tool install "$SRC"` — installs Python + deps in an isolated tool env; or
+     run ad hoc with `uvx --from "$SRC" scholar …` (no persistent install).
+   - else `pipx install "$SRC"`.
+   - else `python3 -m venv "$XDG_STATE_HOME/scholar/venv-<ref>"` (fallback:
+     `~/.local/state/scholar/…`) then that venv's `pip install "$SRC"`.
 4. **Record** the resolved invocation under `.scholar/config.yml`
    (`tooling: { cli: "<path-or-command>", version: "<version>" }`) so later calls
    skip detection.
@@ -41,7 +43,7 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
 
 - **Isolation:** the install lives in a `uv`/`pipx` tool env or a per-user state
   venv — never the consumer repo's project env. This is what lets `scholar-tools`
-  depend freely on `typer` / an HTTP client / `pyyaml` / `pooch` without touching
+  depend freely on `typer` / `requests` / `pyyaml` / `pooch` without touching
   anyone's torch/jax install.
 - **Idempotency:** step 1 must be cheap; only steps 2–3 touch the network.
 - **Version pinning:** the pinned version comes from the installed plugin; upgrades
