@@ -153,7 +153,7 @@ def neighbors(identifier: str) -> None:
     _not_implemented(1)
 
 
-# --- dataset (honest-scholar#2 / #3) ----------------------------------------------
+# --- dataset (honest-scholar#2 manifest / #3 retrieval) ---------------------------
 dataset = typer.Typer(
     help="Dataset manifest, retrieval and mirroring.", no_args_is_help=True
 )
@@ -161,48 +161,74 @@ app.add_typer(dataset, name="dataset")
 
 
 @dataset.command()
-def register(name: str) -> None:
-    """Register a dataset in the thin manifest.
+def validate(
+    manifest: Annotated[
+        str, typer.Argument(help="Path to the manifest to validate.")
+    ] = "datasets.yml",
+) -> None:
+    """Validate a ``datasets.yml`` manifest (the register/audit gate).
 
-    :param name: Dataset name to register.
+    :param manifest: Path to the manifest to validate.
     """
     _not_implemented(2)
 
 
 @dataset.command()
-def fetch(name: str) -> None:
-    """Fetch a registered dataset via pooch.
+def ingest(croissant: str) -> None:
+    """Ingest a published Croissant JSON-LD file to bootstrap a manifest entry.
 
-    :param name: Dataset name to fetch.
-    """
-    _not_implemented(3)
-
-
-@dataset.command()
-def verify(name: str) -> None:
-    """Verify a fetched dataset against its manifest checksums.
-
-    :param name: Dataset name to verify.
-    """
-    _not_implemented(3)
-
-
-@dataset.command()
-def mirror(name: str) -> None:
-    """Mirror a dataset to private storage via rclone.
-
-    :param name: Dataset name to mirror.
-    """
-    _not_implemented(3)
-
-
-@dataset.command()
-def audit(name: str) -> None:
-    """Audit a dataset's provenance and mirror state.
-
-    :param name: Dataset name to audit.
+    :param croissant: Path to the Croissant JSON-LD file.
     """
     _not_implemented(2)
+
+
+@dataset.command()
+def emit(identifier: str) -> None:
+    """Emit a Croissant JSON-LD file for a manifest entry.
+
+    :param identifier: The dataset id to emit (or ``--all`` in a later revision).
+    """
+    _not_implemented(2)
+
+
+@dataset.command()
+def fetch(identifier: str) -> None:
+    """Fetch a registered dataset through the resolution chain (pooch/rclone).
+
+    :param identifier: The dataset id to fetch.
+    """
+    _not_implemented(3)
+
+
+@dataset.command()
+def verify(identifier: str) -> None:
+    """Verify on-disk bytes against the manifest SHA-256 (offline).
+
+    :param identifier: The dataset id to verify.
+    """
+    _not_implemented(3)
+
+
+@dataset.command()
+def mirror(identifier: str) -> None:
+    """Populate/refresh the private rclone mirror for a dataset.
+
+    :param identifier: The dataset id to mirror.
+    """
+    _not_implemented(3)
+
+
+@dataset.command()
+def audit(
+    identifier: Annotated[
+        str, typer.Argument(help="Optional dataset id; whole manifest if omitted.")
+    ] = "",
+) -> None:
+    """Audit fixity, mirror presence and manifest completeness.
+
+    :param identifier: Optional dataset id; audits the whole manifest if omitted.
+    """
+    _not_implemented(3)
 
 
 # --- defend (honest-scholar#4) ----------------------------------------------------
@@ -222,6 +248,15 @@ def record(claim: str) -> None:
 # --- backlog (honest-scholar#5) ---------------------------------------------------
 backlog = typer.Typer(help="Exploration backlog management.", no_args_is_help=True)
 app.add_typer(backlog, name="backlog")
+
+
+@backlog.command()
+def park(item: str) -> None:
+    """Park a raw one-line idea as a backlog row before it is lost.
+
+    :param item: The one-line idea (its origin/provenance is required).
+    """
+    _not_implemented(5)
 
 
 @backlog.command()

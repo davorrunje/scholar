@@ -40,8 +40,13 @@ def test_stub_command_exits_2() -> None:
 
 def test_each_group_has_a_stub() -> None:
     cases = [
+        (["literature", "resolve", "10.1000/xyz"], "honest-scholar#1"),
+        (["dataset", "validate", "datasets.yml"], "honest-scholar#2"),
+        (["dataset", "emit", "mnist"], "honest-scholar#2"),
         (["dataset", "fetch", "mnist"], "honest-scholar#3"),
+        (["dataset", "audit"], "honest-scholar#3"),
         (["defend", "record", "claim"], "honest-scholar#4"),
+        (["backlog", "park", "idea"], "honest-scholar#5"),
         (["backlog", "add", "idea"], "honest-scholar#5"),
     ]
     for args, issue in cases:
@@ -49,3 +54,17 @@ def test_each_group_has_a_stub() -> None:
         assert result.exit_code == 2
         assert "not yet implemented" in result.stdout
         assert issue in result.stdout
+
+
+def test_dataset_command_tree_matches_audited_specs() -> None:
+    result = runner.invoke(app, ["dataset", "--help"])
+    assert result.exit_code == 0
+    for command in ("validate", "ingest", "emit", "fetch", "verify", "mirror", "audit"):
+        assert command in result.stdout
+
+
+def test_backlog_command_tree_matches_audited_specs() -> None:
+    result = runner.invoke(app, ["backlog", "--help"])
+    assert result.exit_code == 0
+    for command in ("park", "add", "list", "rank", "promote", "drop"):
+        assert command in result.stdout
