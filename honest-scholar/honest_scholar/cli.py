@@ -7,17 +7,22 @@ issues (see ADR-0024 and ``docs/design/proposals/tooling-package.md``).
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import os
 import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
 import typer
 
 from honest_scholar import __version__
+from honest_scholar.dataset import manifest as manifest_mod
+from honest_scholar.defend import record as record_mod
+from honest_scholar.exploration import backlog as backlog_mod
 from honest_scholar.literature import graph as graph_mod
 
 if TYPE_CHECKING:
@@ -245,27 +250,84 @@ def validate(
 ) -> None:
     """Validate a ``datasets.yml`` manifest (the register/audit gate).
 
+    Prints a JSON report ``{ok, errors, warnings}`` and exits non-zero on any
+    hard error.
+
     :param manifest: Path to the manifest to validate.
+    :raises typer.Exit: Code 1 on a malformed manifest or any validation error.
     """
-    _not_implemented(2)
+    try:
+        parsed = manifest_mod.load(manifest)
+    except manifest_mod.ManifestError as exc:
+        typer.echo(json.dumps({"ok": False, "errors": [str(exc)], "warnings": []}))
+        raise typer.Exit(code=1) from exc
+    report = manifest_mod.validate(parsed)
+    typer.echo(
+        json.dumps(
+            {"ok": report.ok, "errors": report.errors, "warnings": report.warnings},
+            indent=2,
+        )
+    )
+    raise typer.Exit(code=0 if report.ok else 1)
 
 
 @dataset.command()
 def ingest(croissant: str) -> None:
-    """Ingest a published Croissant JSON-LD file to bootstrap a manifest entry.
+    """Ingest a published Croissant JSON-LD file to bootstrap a draft entry.
+
+    Prints the draft registry entry as JSON, with the human-owned fields it could
+    not fill listed under ``_needs_human`` (the caller confirms them on register).
 
     :param croissant: Path to the Croissant JSON-LD file.
+    :raises typer.Exit: Code 1 if the file is unreadable or has no ``name``.
     """
-    _not_implemented(2)
+    try:
+        doc = json.loads(Path(croissant).read_text(encoding="utf-8"))
+        entry = manifest_mod.entry_from_croissant(doc)
+    except (OSError, json.JSONDecodeError, manifest_mod.ManifestError) as exc:
+        typer.echo(f"ingest failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    draft = dataclasses.asdict(entry)
+    draft["_needs_human"] = [
+        name
+        for name in ("license", "tier", "access", "datasheet", "sensitivity")
+        if draft.get(name) is None
+    ]
+    typer.echo(json.dumps(draft, indent=2))
+    raise typer.Exit(code=0)
 
 
 @dataset.command()
-def emit(identifier: str) -> None:
-    """Emit a Croissant JSON-LD file for a manifest entry.
+def emit(
+    identifier: str,
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest to read.")
+    ] = "datasets.yml",
+) -> None:
+    """Emit a Croissant JSON-LD document for a manifest entry.
 
-    :param identifier: The dataset id to emit (or ``--all`` in a later revision).
+    :param identifier: The dataset id to emit (``--all`` for the whole registry).
+    :param manifest: Path to the manifest to read.
+    :raises typer.Exit: Code 1 if the manifest is malformed or the id is unknown.
     """
-    _not_implemented(2)
+    try:
+        parsed = manifest_mod.load(manifest)
+    except manifest_mod.ManifestError as exc:
+        typer.echo(f"emit failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    if identifier == "--all":
+        typer.echo(
+            json.dumps(
+                [manifest_mod.croissant_for(e) for e in parsed.datasets], indent=2
+            )
+        )
+        raise typer.Exit(code=0)
+    for entry in parsed.datasets:
+        if entry.id == identifier:
+            typer.echo(json.dumps(manifest_mod.croissant_for(entry), indent=2))
+            raise typer.Exit(code=0)
+    typer.echo(f"emit failed: no entry with id {identifier!r}", err=True)
+    raise typer.Exit(code=1)
 
 
 @dataset.command()
@@ -313,66 +375,275 @@ defend = typer.Typer(help="Defensibility record helpers.", no_args_is_help=True)
 app.add_typer(defend, name="defend")
 
 
-@defend.command()
-def record(claim: str) -> None:
-    """Record a defensibility entry for a claim or decision.
+def _parse_acks(acks: str) -> list[dict[str, str]]:
+    """Parse ``"gap::by||gap2::by2"`` into per-gap acknowledgement dicts."""
+    result: list[dict[str, str]] = []
+    for item in filter(None, (a.strip() for a in acks.split("||"))):
+        gap, _, by = item.partition("::")
+        result.append({"gap": gap.strip(), "by": by.strip()})
+    return result
 
-    :param claim: The claim or decision to record.
+
+@defend.command()
+def record(
+    artifact: Annotated[
+        str, typer.Option("--artifact", help="Target markdown artifact.")
+    ],
+    target: Annotated[
+        str, typer.Option("--target", help="claim | cited-work | methodology.")
+    ],
+    gaps: Annotated[
+        str, typer.Option("--gaps", help="Observed gap facts, '||'-separated.")
+    ] = "",
+    signed_off_by: Annotated[str, typer.Option("--signed-off-by")] = "",
+    override: Annotated[bool, typer.Option("--override")] = False,
+    acks: Annotated[
+        str, typer.Option("--acks", help="Per-gap sign-offs, 'gap::name||…'.")
+    ] = "",
+    transcript: Annotated[
+        str, typer.Option("--transcript", help="Transcript file, or '-' for stdin.")
+    ] = "",
+    log_dir: Annotated[str, typer.Option("--log-dir")] = str(
+        record_mod.DEFAULT_LOG_DIR
+    ),
+) -> None:
+    """Record a ``defend`` examination: patch understanding + append the log.
+
+    Writes ``status.understanding`` into the artifact frontmatter and appends the
+    outcome to the accountability log. Records observed facts only — never a
+    verdict, score, or answer key.
+
+    :param artifact: The examined markdown artifact.
+    :param target: ``claim`` / ``cited-work`` / ``methodology``.
+    :param gaps: Observed gap facts, ``||``-separated (empty means no gaps).
+    :param signed_off_by: Named human; required when gaps are waved through.
+    :param override: A blanket logged override of the surfaced gaps.
+    :param acks: Per-gap acknowledgements, ``gap::name``, ``||``-separated.
+    :param transcript: Transcript file path, or ``-`` for stdin.
+    :param log_dir: Directory for the accountability log.
+    :raises typer.Exit: Code 1 on a guard violation or malformed artifact.
     """
-    _not_implemented(4)
+    gap_list = [g.strip() for g in gaps.split("||") if g.strip()]
+    transcript_text: str | None = None
+    if transcript == "-":
+        transcript_text = sys.stdin.read()
+    elif transcript:
+        transcript_text = Path(transcript).read_text(encoding="utf-8")
+    try:
+        result = record_mod.record(
+            artifact,
+            target,
+            gap_list,
+            signed_off_by=signed_off_by or None,
+            override=override,
+            acknowledgements=_parse_acks(acks),
+            transcript=transcript_text,
+            log_dir=log_dir,
+        )
+    except (record_mod.RecordError, OSError) as exc:
+        typer.echo(f"defend record failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(
+        json.dumps(
+            {
+                "outcome": result.outcome,
+                "artifact": str(result.artifact),
+                "log_entry": str(result.log_entry),
+                "transcript": str(result.transcript) if result.transcript else None,
+            },
+            indent=2,
+        )
+    )
+    raise typer.Exit(code=0)
 
 
 # --- backlog (honest-scholar#5) ---------------------------------------------------
 backlog = typer.Typer(help="Exploration backlog management.", no_args_is_help=True)
 app.add_typer(backlog, name="backlog")
 
+_BacklogPath = Annotated[str, typer.Option("--backlog", help="Path to the backlog.")]
+_LevelOpt = Annotated[str, typer.Option("--level", help="hypothesis | paper.")]
+
+
+def _open_backlog(path: str, level: str) -> backlog_mod.Backlog:
+    """Validate `level` and load the backlog at `path`.
+
+    :raises typer.Exit: Code 2 on an invalid level.
+    """
+    if level not in ("hypothesis", "paper"):
+        typer.echo(f"--level must be 'hypothesis' or 'paper', got {level!r}", err=True)
+        raise typer.Exit(code=2)
+    return backlog_mod.Backlog.load(path, level)  # type: ignore[arg-type]
+
+
+def _emit_row(row: dict[str, str]) -> None:
+    """Print one backlog row as JSON and exit 0."""
+    typer.echo(json.dumps(row, indent=2))
+    raise typer.Exit(code=0)
+
 
 @backlog.command()
-def park(item: str) -> None:
-    """Park a raw one-line idea as a backlog row before it is lost.
+def park(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Park a raw one-line idea as a ``parked`` backlog row.
 
-    :param item: The one-line idea (its origin/provenance is required).
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.park(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command()
-def add(item: str) -> None:
-    """Add an item to the exploration backlog.
+def add(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Add a ``candidate`` row (realizes the ``generate`` verb).
 
-    :param item: The backlog item description.
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.add(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command(name="list")
-def list_() -> None:
-    """List the current exploration backlog."""
-    _not_implemented(5)
+def list_(
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    status: Annotated[str, typer.Option("--status", help="Filter by status.")] = "",
+) -> None:
+    """List backlog rows as JSON (read-only), optionally filtered by status.
 
-
-@backlog.command()
-def rank() -> None:
-    """Rank the exploration backlog by priority."""
-    _not_implemented(5)
-
-
-@backlog.command()
-def promote(item: str) -> None:
-    """Promote a backlog item to an active investigation.
-
-    :param item: The backlog item identifier.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param status: Optional status filter.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    rows = board.listing(status=status or None)
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @backlog.command()
-def drop(item: str) -> None:
-    """Drop an item from the exploration backlog.
+def rank(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    eig: Annotated[str, typer.Option("--eig")] = "",
+    feas: Annotated[str, typer.Option("--feas")] = "",
+    interest: Annotated[str, typer.Option("--interest")] = "",
+    frame: Annotated[str, typer.Option("--frame")] = "",
+) -> None:
+    """Score a row and set it ``ranked`` (advises; never selects).
 
-    :param item: The backlog item identifier.
+    :param row_id: The row to rank.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param eig: Expected-information-gain score (hypothesis level).
+    :param feas: Feasibility score.
+    :param interest: Interest score.
+    :param frame: gap-spotting / problematization (hypothesis level).
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    scores = {
+        k: v
+        for k, v in (
+            ("EIG", eig),
+            ("feas", feas),
+            ("interest", interest),
+            ("frame", frame),
+        )
+        if v
+    }
+    try:
+        row = board.rank(row_id, **scores)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def promote(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Mark a ``ranked`` row ``promoted`` (an explicit human pick).
+
+    Flips the row's status and saves the backlog. Scaffolding the next-stage
+    artifact is a follow-up step (``scaffold_hypothesis`` / ``scaffold_paper``).
+
+    :param row_id: The row to promote.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.promote(row_id)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def drop(
+    row_id: str,
+    reason: Annotated[str, typer.Option("--reason", help="Why it is dropped.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Retire a row as ``dropped`` with a recorded reason (never deletes it).
+
+    :param row_id: The row to drop.
+    :param reason: Why it is dropped; required (file-drawer discipline).
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.drop(row_id, reason)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 if __name__ == "__main__":  # pragma: no cover
