@@ -112,7 +112,7 @@ average (`../../resources/references/thesis-and-progress-tracking.md`, Part A).
 
 Defensibility is a **material human decision, recorded with a named human sign-off**
 (`../../docs/design/00-meta-spec.md` §2.1; lifecycle §8). Before it is recorded,
-the **`grill` skill runs a full MOCK VIVA** (`../grill/SKILL.md`;
+the **`defend` skill runs a full MOCK VIVA** (`../defend/SKILL.md`;
 `../../docs/design/01-lifecycle.md` §6) across all three targets
 (`claim | cited-work | methodology`).
 
@@ -134,7 +134,7 @@ acknowledge *each* surfaced gap in writing before proceeding.
   resolved papers; it does not resolve them.
 - **`literature position`** — for the kappa's extensive independent related-works
   synthesis (thesis scope, broader than a single paper's positioning).
-- **`grill`** — the mock viva at the defensibility gate; also self-invokable on any
+- **`defend`** — the mock viva at the defensibility gate; also self-invokable on any
   aim or contribution statement.
 - **`progress`** — reads the thesis frontmatter (coverage / defensibility +
   `last-updated`) and rolls it into `dashboard.md` as a pure projection. Thesis

@@ -17,7 +17,7 @@ Generated-with: scholar (https://github.com/davorrunje/scholar)
 Scholar-Skill: <skill-name>
 ```
 
-- Use the exact skill name (e.g. `hypothesis-testing`, `literature`, `grill`).
+- Use the exact skill name (e.g. `hypothesis-testing`, `literature`, `defend`).
 - If a commit spans more than one skill, add multiple `Scholar-Skill:` lines.
 - Optionally include the version: `Generated-with: scholar v0.0.0 (…)`.
 

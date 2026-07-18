@@ -1,4 +1,4 @@
-# scholar sub-spec 1 — Lifecycle, pipeline skills, rigor, progress & grill
+# scholar sub-spec 1 — Lifecycle, pipeline skills, rigor, progress & defend
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
@@ -6,7 +6,7 @@
 
 > Sub-spec of [2026-07-17-scholar-plugin-design.md](2026-07-17-scholar-plugin-design.md).
 > The integrative capstone: the three-level lifecycle, the five pipeline skills,
-> the rigor kit, and the two cross-cutting skills (`progress`, `grill`). Consumes
+> the rigor kit, and the two cross-cutting skills (`progress`, `defend`). Consumes
 > the experiment-backend contract of
 > [sub-spec 4](2026-07-17-scholar-4-substrate-and-experiment-contract-design.md) §3
 > and the `literature`/`dataset` capabilities of
@@ -14,9 +14,9 @@
 > [sub-spec 3](2026-07-17-scholar-3-dataset-design.md). Governed by the ⚑ agency
 > (§2.1) and Understanding (§2.2) principles.
 > Refines the four `2026-07-15-*` research-workflow specs (which migrate here) and
-> adds the thesis level, progress, and grill. Grounding:
+> adds the thesis level, progress, and defend. Grounding:
 > [thesis-and-progress-tracking](../scholar/references/thesis-and-progress-tracking.md),
-> [understanding-and-grilling](../scholar/references/understanding-and-grilling.md),
+> [understanding-and-defense](../scholar/references/understanding-and-defense.md),
 > [mentor-personas](../scholar/references/mentor-personas.md).
 
 ## 1. The three-level mirror & flywheels
@@ -101,9 +101,9 @@ case (one paper spanning the thesis).
 ## 3. Rigor kit
 
 Applied primarily in `strategy.md` (before engineering) and enforced through
-`findings.md` / `decision.md`; every element is also a `grill methodology` target
+`findings.md` / `decision.md`; every element is also a `defend methodology` target
 (§6). Elements and the understanding each requires (from the
-understanding-and-grilling digest):
+understanding-and-defense digest):
 
 - **Confirmatory vs. exploratory / preregistration** — fix analysis before
   outcomes; curbs HARKing + shrinks the forking-paths garden; does not forbid
@@ -143,20 +143,20 @@ projection** (never hand-edited).
   axes — **refuted = done/green, not failed**.
 - **Anti-Goodhart:** surface state and gaps, never a productivity score.
 
-## 6. `grill` (cross-cutting)
+## 6. `defend` (cross-cutting)
 
 Per meta-spec §3.7: a Socratic tutor-examiner (targets `claim | cited-work |
 methodology`), probe → teach (source-grounded) → re-probe; self-invoked and fired
 as an automatic **guardrail** at material-decision checkpoints. Integration points:
 
-- with `hypothesis-testing` → grill **strategy** (assumptions, entailments,
+- with `hypothesis-testing` → examine the **strategy** (assumptions, entailments,
   falsifiers, rival explanations) and the **methodology** it invokes;
-- with `paper-synthesis` → grill **positioning** (novelty vs. prior work; do the
+- with `paper-synthesis` → examine the **positioning** (novelty vs. prior work; do the
   cited works support the claims — the `cited-work` target on the `literature`
   registry);
 - at the **thesis defensibility gate** → a full **mock viva**.
 
-**Guardrail semantics:** stop, surface the gap, offer to grill/teach, **record**;
+**Guardrail semantics:** stop, surface the gap, offer to examine/teach, **record**;
 the human may override, override logged — not a hard block. The **thesis
 defensibility gate escalates** (ADR-0021): instead of a single blanket override,
 the author must **acknowledge each surfaced gap in writing** (per-gap logged
@@ -174,13 +174,13 @@ Per meta-spec §5: `papers.md` registry; per-paper roots with
 `backlog.md`, `paper/{pitch,positioning,outline,ledger,decision,sections/}`;
 `portfolio-backlog.md`; optional `thesis/{kappa,aims.md,milestones.yml}`;
 `literature/{references.bib,triage.yml}`; generated `dashboard.md`. Status
-frontmatter on every hypothesis/paper/thesis artifact feeds `progress`; grill
+frontmatter on every hypothesis/paper/thesis artifact feeds `progress`; examination
 transcripts + logged overrides form the accountability trail.
 
 ## 8. Agency & Understanding interlock (the material-decision checkpoints)
 
 Three decisions are **material** and each requires a **named human sign-off**
-(§2.1), with the guardrail `grill` firing beforehand (§2.2):
+(§2.1), with the `defend` guardrail firing beforehand (§2.2):
 
 | Decision | Artifact | Level |
 |---|---|---|
@@ -190,12 +190,12 @@ Three decisions are **material** and each requires a **named human sign-off**
 
 The backend stamps evidence but never adjudicates it; `is-current` reports
 staleness but the human decides whether to re-run; `progress` reports coverage but
-never a score; `grill` surfaces gaps but never grades substance. The human drives
+never a score; `defend` surfaces gaps but never grades substance. The human drives
 every one.
 
 ## 9. Plugin vs. consumer
 
-- **Plugin:** the five pipeline skills + `progress` + `grill`; staged-doc + kappa
+- **Plugin:** the five pipeline skills + `progress` + `defend`; staged-doc + kappa
   templates; the rigor kit; the firewall/flywheel logic; the persona set. Depends
   only on the capability contracts (experiment backend, engineering backend,
   `literature`, `dataset`) and delegates engineering to the bound engineering

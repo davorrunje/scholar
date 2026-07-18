@@ -9,7 +9,7 @@ status:
   evidence: []                 # run-refs (via the ledger) backing the contribution
   covers: []                   # thesis aims this paper supports, if any
   load-bearing: null
-  understanding: {status: ok, unresolved: []}        # from the guardrail grill before sign-off
+  understanding: {status: ok, unresolved: []}        # from the `defend` guardrail before sign-off
   blockers: []
   last-updated: <YYYY-MM-DD>
 ---
@@ -18,7 +18,7 @@ status:
 
 <!-- THE PUBLISH / NO-GO VERDICT — a material decision, the paper-level mirror of a
      hypothesis findings verdict. Not real until `signed-off-by` + `signed-off-date`
-     are set. The guardrail `grill` fires BEFORE sign-off across positioning
+     are set. The `defend` guardrail fires BEFORE sign-off across positioning
      (novelty), cited-work (sources support claims), and the ledger claims: it
      surfaces gaps; the human may override, override logged — a stop-and-confirm,
      not a hard block. The AI never adjudicates publish-worthiness. -->
@@ -58,8 +58,8 @@ claims, and does `positioning.md` show a defensible delta against prior work?
 <!-- Adversarial pass before sign-off: strongest reviewer objection and the answer;
      confirm full disclosure (all conditions/runs, incl. nulls). -->
 
-## Grill checkpoint + sign-off
+## Examination checkpoint + sign-off
 
-<!-- Guardrail grill outcome (gaps surfaced / resolved / overridden-with-log), then
+<!-- Guardrail examination outcome (gaps surfaced / resolved / overridden-with-log), then
      the named human records the decision by setting signed-off-by + signed-off-date
      above. -->

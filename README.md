@@ -34,9 +34,9 @@ literature — see [`resources/references/`](resources/references/)):
    produce a paper or thesis — you drive it.
 2. **You must understand it (understanding).** Every material claim, decision, and
    method must be understood to the standard a good mentor or reviewer expects.
-   `scholar` verifies *and builds* that understanding through Socratic grilling and
-   teaching (the `grill` skill), and will not let work advance past a gap silently
-   — including grilling the *why* behind the methodology, to prevent cargo-cult
+   `scholar` verifies *and builds* that understanding through Socratic questioning and
+   teaching (the `defend` skill), and will not let work advance past a gap silently
+   — including examining the *why* behind the methodology, to prevent cargo-cult
    rigor.
 
 ## The skills
@@ -59,7 +59,7 @@ rclone mirror + SHA-256 fixity + datasheets), and a pluggable **experiment-backe
 contract**.
 
 **Cross-cutting:** `progress` (frontmatter status + a generated, semantic
-dashboard; refuted = done) and `grill` (the Socratic tutor-examiner, with
+dashboard; refuted = done) and `defend` (the Socratic tutor-examiner, with
 author-selectable mentor personas — never inferred from personality).
 
 **Onboarding:** `research-init` scaffolds a fresh repo (`init`) or backfills an

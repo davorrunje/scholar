@@ -130,7 +130,7 @@ paper roots and their experiment-backend binding.
 - **Hand-off:** `promote` → `paper-synthesis` (`../paper-synthesis/SKILL.md`),
   which develops the promoted candidate to a publish/no-go `decision.md`.
 - **Seeding:** `literature scout --level paper` (`../literature/SKILL.md`) feeds
-  candidate rows; `grill`'s `cited-work` target later audits their citations.
+  candidate rows; `defend`'s `cited-work` target later audits their citations.
 - **Up-mirror:** the portfolio feeds the optional `thesis` level
   (`../thesis/SKILL.md`); when a `thesis` exists, *interest* scoring weighs
   coverage of a thesis aim.

@@ -29,8 +29,8 @@ the skills behave at every step:
    cannot "run" scholar to produce a paper — you drive it. In practice: expect the
    skill to stop at every judgement point and ask you.
 
-2. **Understanding — grill verifies and teaches.** Before any material decision,
-   the [`grill`](../skills/grill/SKILL.md) skill probes whether you can actually
+2. **Understanding — the `defend` skill verifies and teaches.** Before any material decision,
+   the [`defend`](../skills/defend/SKILL.md) skill probes whether you can actually
    defend the claim, the cited work, and the method — Socratically, one question
    at a time. When it finds a gap it *teaches* (source-grounded), then re-asks. It
    never grades the substance of your novel claim; it makes sure you understand
@@ -153,7 +153,7 @@ documents, in order, under `docs/research/<paper>/hypotheses/<slug>/`:
    **rigor-kit** choices (confirmatory-vs-exploratory tag, power/MDE, severity,
    TOST bounds if the claim is a null). It calls `literature position` for an
    adversarial "would a reviewer say this is already known?" check, and declares
-   the datasets it needs. **`grill` fires here** on the strategy — expect to
+   the datasets it needs. **`defend` fires here** on the strategy — expect to
    defend your assumptions and falsifiers before moving on.
 3. **`design.md` / `plan.md`** — *the engineering, delegated to the bound
    engineering backend* (its `design` → `plan` capabilities). scholar stores the
@@ -161,7 +161,7 @@ documents, in order, under `docs/research/<paper>/hypotheses/<slug>/`:
    the plan produces the runs.
 4. **`findings.md`** — *the verdict:* `confirmed | refuted | inconclusive`, tied
    to the strategy's decision rule. Results are cited as backend **run-refs**,
-   never hand-typed numbers. Before you sign, the **guardrail grill fires**: it
+   never hand-typed numbers. Before you sign, the **`defend` guardrail fires**: it
    surfaces any gap; you may override, but the override is logged.
 
 The verdict is a material decision — it is real only once `signed-off-by` +
@@ -236,7 +236,7 @@ The paper level mirrors the hypothesis level one step up.
   assembled from a **claim→evidence ledger** (`ledger.md`) where each row is a
   Toulmin sextet (claim / grounds / warrant / backing / qualifier / rebuttal) and
   **grounds cite run-refs**. The **`decision.md`** publish/no-go verdict is a
-  material, human-signed decision, gated by a grill over positioning + cited-work +
+  material, human-signed decision, gated by an examination over positioning + cited-work +
   claims. A **no-go reads as done, not failed.**
 
 ## 6. Thesis (optional)
@@ -250,12 +250,12 @@ level entirely. [`thesis`](../skills/thesis/SKILL.md) is one skill with two mode
   the papers; introduces *no new findings*) and clear the **defensibility gate**.
 
 Defensibility is the highest-stakes decision, so its gate is escalated: before you
-sign, `grill` runs a full **mock viva** across all three targets, and you must
+sign, `defend` runs a full **mock viva** across all three targets, and you must
 acknowledge *each* surfaced gap in writing (per-gap sign-off, not one blanket
 override). Done = every aim covered by ≥1 paper **and** the kappa states a
 coherent through-line. Never a paper count.
 
-## 7. Cross-cutting: progress and grill
+## 7. Cross-cutting: progress and defend
 
 - [`progress`](../skills/progress/SKILL.md) is **read-only reporting**. `status
   <level> [id]` rolls up state; `dashboard` regenerates `docs/research/dashboard.md`
@@ -271,8 +271,8 @@ coherent through-line. Never a paper count.
   average would hide that. **A refuted hypothesis reads as done/green.** There are
   no scores, ever — that is a hard design invariant, not a missing feature.
 
-- [`grill`](../skills/grill/SKILL.md) is the Socratic tutor-examiner. It is
-  **self-invoked** on demand (grill me on this claim / cited work / method) and
+- [`defend`](../skills/defend/SKILL.md) is the Socratic tutor-examiner. It is
+  **self-invoked** on demand (examine me on this claim / cited work / method) and
   fires **automatically as a guardrail** before every material sign-off. It probes,
   teaches on a gap, and re-probes; it targets `claim | cited-work | methodology`.
   It offers author-selectable **mentor personas** — *sounding board*, *critical
@@ -282,7 +282,7 @@ coherent through-line. Never a paper count.
   novel claim.
 
   ```
-  grill claim <hypothesis-id>           # rehearse before you sign
+  defend claim <hypothesis-id>          # rehearse before you sign
   ```
 
 ## 8. Everyday tips
@@ -310,7 +310,7 @@ coherent through-line. Never a paper count.
 ---
 
 **The shortest possible path:** `research-init` → `hypothesis-exploration
-promote` → `hypothesis-testing` (strategy, grilled → delegate design/plan →
+promote` → `hypothesis-testing` (strategy, examined → delegate design/plan →
 sign findings) → `paper-exploration promote` → `paper-synthesis` (positioning →
 sign decision → sections) → `progress dashboard`. You drive every arrow; scholar
 keeps the accounts and makes sure you can defend each signature.

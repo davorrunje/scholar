@@ -9,7 +9,7 @@ status:
   evidence: []                 # run-refs backing the verdict — never hand-copied numbers
   covers: []
   load-bearing: <true | false>
-  understanding: {status: ok, unresolved: []}     # from the guardrail grill before sign-off
+  understanding: {status: ok, unresolved: []}     # from the `defend` guardrail before sign-off
   blockers: []
   last-updated: <YYYY-MM-DD>
 ---
@@ -17,8 +17,8 @@ status:
 # Findings: <slug>
 
 <!-- THE VERDICT — a material decision. Not real until `signed-off-by` +
-     `signed-off-date` are set above. The guardrail `grill` fires BEFORE sign-off:
-     it stops, surfaces any gap, offers to grill/teach, records; the human may
+     `signed-off-date` are set above. The `defend` guardrail fires BEFORE sign-off:
+     it stops, surfaces any gap, offers to examine/teach, records; the human may
      override and the override is logged. A gap is never passed silently. -->
 
 ## Results
@@ -54,8 +54,8 @@ status:
 <!-- Before sign-off, check `is-current` on every cited run-ref. A stale run-ref is
      surfaced here; the human decides whether to re-run — the backend never does. -->
 
-## Grill checkpoint + sign-off
+## Examination checkpoint + sign-off
 
-<!-- Guardrail grill outcome (gaps surfaced / resolved / overridden-with-log), then
+<!-- Guardrail examination outcome (gaps surfaced / resolved / overridden-with-log), then
      the named human records the verdict by setting signed-off-by + signed-off-date
      above. -->

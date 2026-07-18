@@ -5,7 +5,7 @@
 ## Context
 
 Not every mentor/reviewer voice suits every author. The question was how to pick a
-persona for the grill/advise voice and whether to match it to the author's
+persona for the examine/advise voice and whether to match it to the author's
 personality. A research pass separated grounded practice from folklore.
 
 ## Decision drivers

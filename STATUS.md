@@ -24,7 +24,7 @@ engineering-delegation contract.
 - **All 10 `skills/*/SKILL.md`** authored from the sub-specs (each with valid
   `name`/`description` frontmatter): `research-init`, `hypothesis-exploration`,
   `hypothesis-testing`, `paper-exploration`, `paper-synthesis`, `thesis`,
-  `literature`, `dataset`, `progress`, `grill`.
+  `literature`, `dataset`, `progress`, `defend`.
   *(The commit that introduced them says "7 skill files" — a cosmetic undercount;
   all 10 landed in that commit.)*
 - Shared resources: `resources/contracts/experiment-backend.md`,
@@ -37,20 +37,20 @@ engineering-delegation contract.
   then `/plugin install scholar@scholar`. mononet enables it in `.claude/settings.json`
   (mononet PR #131).
 - **`docs/USER-GUIDE.md`** — end-to-end onboarding (install → `research-init` →
-  the hypothesis/paper/thesis loop → progress/grill), domain-neutral example.
+  the hypothesis/paper/thesis loop → progress/defend), domain-neutral example.
 - **Commit attribution / discovery** — `resources/commit-attribution.md` + a
   `## Commit attribution` footer on every skill (`Generated-with: scholar` +
   `Scholar-Skill:` trailers).
 - **`docs/design/proposals/`** — 6 first-draft specs (for discussion) for the
   supporting-script TODOs + cross-repo thesis aggregation. Each is tracked by an
   issue: **scholar#1–5** (literature graph client; dataset manifest tooling;
-  dataset retrieval/mirror; grill record helper; exploration backlog helper) and
+  dataset retrieval/mirror; defend record helper; exploration backlog helper) and
   **mononet#132** (cross-repo aggregation).
 
 ## Pending (needs the author, or a follow-up)
 
 - **Review of every SKILL.md** — first-cut drafts; adjust tone/behavior, esp. the
-  `grill` guardrail and the agency/understanding wording.
+  `defend` guardrail and the agency/understanding wording.
 - **Discuss the 6 draft proposals**, then implement the supporting scripts
   (tracked: scholar#1–5, mononet#132). Currently each skill uses an interim
   tool-orchestrated approach.
@@ -64,6 +64,6 @@ engineering-delegation contract.
 
 1. Read this file + `README.md`.
 2. Skim `docs/design/00-meta-spec.md` (the whole picture) and `decisions/README.md`.
-3. Read the `skills/*/SKILL.md` you care about most first — suggest `grill`,
+3. Read the `skills/*/SKILL.md` you care about most first — suggest `defend`,
    `hypothesis-testing`, `literature`.
 4. Anything wrong or off-tone: it is all committed in small steps, easy to amend.

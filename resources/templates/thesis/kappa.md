@@ -71,7 +71,7 @@ status:
 
 ### Mock viva + per-gap sign-off
 
-<!-- ESCALATED gate (ADR-0021): before defensibility is recorded, `grill` runs a
+<!-- ESCALATED gate (ADR-0021): before defensibility is recorded, `defend` runs a
      full MOCK VIVA across all three targets (claim | cited-work | methodology).
      This gate is non-blocking but escalated — instead of one blanket override, the
      author must ACKNOWLEDGE EACH surfaced gap IN WRITING before proceeding. The AI

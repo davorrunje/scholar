@@ -140,10 +140,10 @@ testing slate.
   backlog provenance forward. Set the backlog row to `promoted` with a link to
   the folder. Control then passes to `hypothesis-testing`, which builds
   `strategy.md` → design/plan → `findings.md`.
-- **Understanding.** A promoted hypothesis may be **grilled at the strategy
-  stage** of testing (`grill` on `strategy`: assumptions, entailments,
-  falsifiers, rival explanations — `../../skills/grill/SKILL.md`). Exploration
-  does not grill; it hands off a claim clean enough to be defended later.
+- **Understanding.** A promoted hypothesis may be **examined at the strategy
+  stage** of testing (`defend` on `strategy`: assumptions, entailments,
+  falsifiers, rival explanations — `../../skills/defend/SKILL.md`). Exploration
+  does not examine; it hands off a claim clean enough to be defended later.
 - **Progress.** Backlog counts and states feed `progress` as coverage and
   blockers, never a score — a large backlog or many dropped rows is not "bad"
   (`../../docs/design/00-meta-spec.md` §3.6).

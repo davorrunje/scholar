@@ -31,7 +31,7 @@ exact bytes.
 
 **Agency & Understanding:** the skill fetches, verifies, and reports; it never
 decides which dataset is *appropriate* for a claim (a scientific judgement) — that
-is the researcher's, and a `grill` `methodology`/`claim` probe may ask them to
+is the researcher's, and a `defend` `methodology`/`claim` probe may ask them to
 justify the choice.
 
 ## 2. Registry — `datasets.yml`
@@ -82,7 +82,7 @@ deps; HTTP/FTP/SFTP + `doi:`); Tier-A uses git/LFS; Tier-C is instruct-drop-veri
   per dataset (sub-spec 4 §3); `verify` gates a run as valid before its evidence
   counts.
 - **Datasheet** (Gebru et al.) per entry closes the loop with the rigor kit's
-  per-dataset datasheets (meta-spec §3.5) and is a `grill` `methodology` target
+  per-dataset datasheets (meta-spec §3.5) and is a `defend` `methodology` target
   ("what are this dataset's known biases / collection limits?").
 - **Croissant** emit/ingest is the interop seam; DataCite `citation` + DOI make a
   dataset citable (and DOI-archivable at Zenodo/Dryad *iff* redistributable).

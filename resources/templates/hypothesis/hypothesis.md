@@ -9,7 +9,7 @@ status:
   evidence: []                 # backend run-refs — set in findings.md, never hand-copied numbers
   covers: []                   # n/a at hypothesis level (paper→thesis field)
   load-bearing: null           # does refutation block the parent paper's claim? (true|false)
-  understanding: {status: pending, unresolved: []}   # written by grill; never scored
+  understanding: {status: pending, unresolved: []}   # written by the `defend` skill; never scored
   blockers: []
   last-updated: <YYYY-MM-DD>
 ---

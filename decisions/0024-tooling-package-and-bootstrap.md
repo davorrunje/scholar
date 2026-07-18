@@ -5,7 +5,7 @@
 ## Context
 
 The supporting-script TODOs (literature citation-graph client, dataset manifest +
-retrieval/mirror, grill record, exploration backlog) were first drafted as loose
+retrieval/mirror, defend record, exploration backlog) were first drafted as loose
 `scripts/*.py`. Loose scripts don't handle dependencies, versioning, testing, or
 config, and each reinvents HTTP/caching/arg-parsing. Meanwhile the plugin is
 **pure-markdown** (no runtime), and consumer environments are unknown — `uv` may

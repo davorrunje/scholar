@@ -4,7 +4,7 @@
 
 ## Context
 
-The grill guardrail is everywhere else a stop-and-confirm with a single logged
+The `defend` guardrail is everywhere else a stop-and-confirm with a single logged
 override (ADR-0015), to honor agency. The thesis defense is the highest-stakes,
 least-reversible material decision; should its gate be special?
 

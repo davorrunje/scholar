@@ -62,10 +62,10 @@ order**. Each carries a status frontmatter block that feeds
      already known?"* Cite the precedent that would undercut novelty.
    - Declares the **datasets** it will use; materialize/verify them via the
      [`dataset`](../dataset/SKILL.md) skill so their fingerprints are pinned.
-   - **`grill` fires here** on the `strategy` target — assumptions, entailments,
+   - **`defend` fires here** on the `strategy` target — assumptions, entailments,
      falsifiers, rival explanations, and the methodology it invokes. Resolve
      surfaced gaps before proceeding to engineering. See
-     [`../grill/SKILL.md`](../grill/SKILL.md).
+     [`../defend/SKILL.md`](../defend/SKILL.md).
 
 3. **`design.md` / `plan.md`** — *the engineering, delegated.* Hand off to the
    bound engineering backend via the engineering-delegation contract: its
@@ -81,15 +81,15 @@ order**. Each carries a status frontmatter block that feeds
    - State the **verdict**: `confirmed` | `refuted` | `inconclusive`, with the
      reasoning tied to the strategy's decision rule and severity argument.
    - The verdict is recorded with a **named human sign-off + date**. The
-     **guardrail `grill` fires before sign-off** (findings-verdict checkpoint):
-     stop, surface any gap, offer to grill/teach, record; the human may override,
+     **`defend` guardrail fires before sign-off** (findings-verdict checkpoint):
+     stop, surface any gap, offer to examine/teach, record; the human may override,
      override logged. Not a hard block — but a gap can never be passed silently.
 
 ## How it works
 
 The pipeline is sequential but resumable: on entry, find the first staged doc that
 is missing or unfinished and continue from there. Never skip forward — a
-`findings.md` written before a grilled `strategy.md` violates the science-first
+`findings.md` written before an examined `strategy.md` violates the science-first
 discipline and the explore/confirm firewall (letting the results choose the test is
 exactly what invalidates a confirmatory claim).
 
@@ -111,10 +111,10 @@ decide to re-run — the researcher does.
 ## Rigor kit
 
 Applied in `strategy.md` (chosen before outcomes) and enforced through
-`findings.md`. Every element is also a [`grill`](../grill/SKILL.md) `methodology`
+`findings.md`. Every element is also a [`defend`](../defend/SKILL.md) `methodology`
 target — you must be able to explain *why*, not merely perform the ritual (checklists
 live in [`../../resources/rigor/`](../../resources/rigor/); the *why* is grounded in
-[`../../resources/references/understanding-and-grilling.md`](../../resources/references/understanding-and-grilling.md)).
+[`../../resources/references/understanding-and-defense.md`](../../resources/references/understanding-and-defense.md)).
 
 - **Confirmatory vs. exploratory / preregistration** — fix the analysis before
   outcomes; curbs HARKing and shrinks the forking-paths garden. Does not forbid
@@ -146,7 +146,7 @@ live in [`../../resources/rigor/`](../../resources/rigor/); the *why* is grounde
   `design.md`/`plan.md` stage, via the engineering-delegation contract. All
   engineering lives here (ADR-0002, refined by ADR-0023).
 - The bound **experiment backend** — `run` / `evidence` / `tables` / `is-current`.
-- [`grill`](../grill/SKILL.md) — strategy target (during strategy) and guardrail
+- [`defend`](../defend/SKILL.md) — strategy target (during strategy) and guardrail
   (before the findings sign-off).
 - [`progress`](../progress/SKILL.md) — reads this hypothesis's status frontmatter;
   a resolved hypothesis (any verdict) rolls up as **done/green**.
@@ -154,12 +154,12 @@ live in [`../../resources/rigor/`](../../resources/rigor/); the *why* is grounde
 ## Guardrails
 
 - **Science before engineering.** No `design.md`/`plan.md` until `strategy.md` is
-  written and grilled. No numbers in `findings.md` until runs exist.
+  written and examined. No numbers in `findings.md` until runs exist.
 - **Never hand-copy results.** Cite **run-refs** and let `tables` write the result
   blocks. A number without a run-ref is not evidence.
 - **The verdict is the human's.** It is a material decision recorded with a named
-  human sign-off; the backend stamps evidence but never adjudicates. The guardrail
-  grill fires before sign-off and any override is logged.
+  human sign-off; the backend stamps evidence but never adjudicates. The `defend`
+  guardrail fires before sign-off and any override is logged.
 - **Refuted is done, not failed.** Verdict and readiness are distinct axes; a
   refuted claim is a successful result. Do not treat it as a red mark or bury it —
   file-drawer discipline forbids that.

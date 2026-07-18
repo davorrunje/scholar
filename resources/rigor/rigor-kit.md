@@ -2,12 +2,12 @@
 
 A cross-cutting set of checks baked into the staged documents (primarily
 `strategy.md`, before engineering; enforced through `findings.md` / `decision.md`).
-Every element is also a **`grill` `methodology` target** — the author must be able
+Every element is also a **`defend` `methodology` target** — the author must be able
 to explain *why* each works, not just perform it (Understanding principle;
-`docs/design/01-lifecycle.md` §3; `resources/references/understanding-and-grilling.md`).
+`docs/design/01-lifecycle.md` §3; `resources/references/understanding-and-defense.md`).
 
 For each element: what it is, and the **understanding check** (what the author
-should be able to explain — the grill seed).
+should be able to explain — the examination seed).
 
 ## Confirmatory vs. exploratory / preregistration
 Fix the analysis before seeing outcomes, and label confirmatory vs. exploratory.
@@ -42,17 +42,17 @@ selective reporting is what makes p-values and the literature unreliable.
 ## Per-dataset datasheets
 Each dataset carries a Gebru-style datasheet (via the `dataset` skill).
 **Understand:** know the dataset's collection process, biases, and limits — a
-`grill` methodology target.
+`defend` methodology target.
 
 ## Red-team pass
-Adversarially review your own work before a verdict/decision (the `grill` skill
+Adversarially review your own work before a verdict/decision (the `defend` skill
 formalizes this). **Understand:** "you must not fool yourself — and you are the
 easiest person to fool" (Feynman).
 
 ---
 
 **Anti-cargo-cult stance.** Following these as rituals without understanding them
-defeats their purpose. `grill --target methodology` checks the *why*; it grills
+defeats their purpose. `defend --target methodology` checks the *why*; it probes
 **hard** on settled errors (e.g. "a non-significant p proves no effect") and, on
 genuinely **contested** choices (frequentist vs. Bayesian), only asks for a
 *defensible* justification and surfaces the standard critique — it does not impose

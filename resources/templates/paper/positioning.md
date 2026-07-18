@@ -9,7 +9,7 @@ status:
   evidence: []
   covers: []
   load-bearing: null
-  understanding: {status: pending, unresolved: []}   # grill fires on `positioning` + `cited-work`
+  understanding: {status: pending, unresolved: []}   # `defend` fires on `positioning` + `cited-work`
   blockers: []
   last-updated: <YYYY-MM-DD>
 ---
@@ -18,7 +18,7 @@ status:
 
 <!-- Related-works synthesis: where this paper sits and what its delta is.
      Paper-level analog of strategy.md. Produced via `literature position --level
-     paper` — the full treatment, not the hypothesis-level rapid review. Grilled on
+     paper` — the full treatment, not the hypothesis-level rapid review. Examined on
      the `positioning` (novelty) and `cited-work` (do sources support the claims)
      targets. -->
 
@@ -55,8 +55,8 @@ status:
 
 - *<baseline>* — *<branch / why included>*
 
-## Grill checkpoint
+## Examination checkpoint
 
-<!-- `grill` outcome on positioning (novelty vs. prior work) and cited-work (each
+<!-- `defend` outcome on positioning (novelty vs. prior work) and cited-work (each
      cited source actually supports the sentence it backs). Record unresolved gaps
      in the `understanding` frontmatter above. -->

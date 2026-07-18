@@ -25,7 +25,7 @@ scholar-tools/
 │   ├── literature/graph.py        # ← proposal: literature-citation-graph-client
 │   ├── dataset/manifest.py        # ← proposal: dataset-manifest-tooling
 │   ├── dataset/retrieval.py       # ← proposal: dataset-retrieval-mirror-tooling (+ rclone/pooch)
-│   ├── grill/record.py            # ← proposal: grill-record-helper
+│   ├── defend/record.py           # ← proposal: defend-record-helper
 │   ├── exploration/backlog.py     # ← proposal: exploration-backlog-helper
 │   ├── cli.py                     # Typer app — the authoritative interface
 │   └── mcp/ (later)               # thin MCP wrapper over the same modules
@@ -39,7 +39,7 @@ A Typer command tree that mirrors the skill verbs; each command emits JSON:
 ```
 scholar lit        resolve | cites | refs | enrich | neighbors
 scholar dataset    register | fetch | verify | mirror | audit
-scholar grill      record
+scholar defend     record
 scholar backlog    add | rank | promote | drop        # shared by both exploration skills
 scholar --version
 ```
@@ -89,4 +89,4 @@ instructions if the env can't self-heal.
 - ADR-0024 (this decision); `resources/ensure-tooling.md`.
 - Module proposals: `literature-citation-graph-client.md`,
   `dataset-manifest-tooling.md`, `dataset-retrieval-mirror-tooling.md`,
-  `grill-record-helper.md`, `exploration-backlog-helper.md`.
+  `defend-record-helper.md`, `exploration-backlog-helper.md`.

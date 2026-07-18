@@ -30,7 +30,7 @@ while preserving every governing invariant:
 
 - **Agency + understanding** (`../00-meta-spec.md` §2.1–2.2) — no cross-repo read
   weakens the named-human sign-off on any material decision, and the defensibility
-  mock-viva still grills the aggregated work.
+  mock-viva still examines the aggregated work.
 - **Git-native provenance** (ADR-0018) — no external service becomes the source of
   truth; the authoritative record stays a committed file in *some* repo.
 - **No cross-repo writes** — the thesis repo only ever *reads* external repos;
@@ -81,7 +81,7 @@ kappa states the through-line." The dashboard marks the paper's origin
 The `thesis` skill (`../../../skills/thesis/SKILL.md`) reads down into external
 paper roots the same way it reads local ones: the kappa's per-paper summary +
 **contribution statement** is drafted from the pinned `decision`/positioning, and
-the defensibility mock-viva grills the aggregated set. The hard constraints hold
+the defensibility mock-viva examines the aggregated set. The hard constraints hold
 unchanged — no new findings in the kappa, and the contribution statement (load-
 bearing for co-authored work) is still the author's to write, drafted only as a
 scaffold. Crucially, **no external verdict is re-adjudicated here**: the thesis

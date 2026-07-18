@@ -16,7 +16,7 @@ you add, not in prose the template ships with.
 | Template | Produced by (skill · stage) | Deployed to |
 |---|---|---|
 | `hypothesis/hypothesis.md` | `hypothesis-testing` · claim | `docs/research/<paper>/hypotheses/<YYYY-MM-DD-slug>/hypothesis.md` |
-| `hypothesis/strategy.md` | `hypothesis-testing` · strategy (rigor kit + grill) | `.../<slug>/strategy.md` |
+| `hypothesis/strategy.md` | `hypothesis-testing` · strategy (rigor kit + defend) | `.../<slug>/strategy.md` |
 | `hypothesis/design-plan-README.md` | *pointer only* — design/plan are **delegated to the bound engineering backend** | `.../<slug>/{design,plan}.md` |
 | `hypothesis/findings.md` | `hypothesis-testing` · findings (**material decision**) | `.../<slug>/findings.md` |
 | `paper/pitch.md` | `paper-synthesis` · pitch | `docs/research/<paper>/paper/pitch.md` |
@@ -54,7 +54,7 @@ status:
   evidence: [run-ref://…]      # backend run-refs backing the verdict — never hand-copied numbers
   covers: [aim-2]              # paper→thesis: which aims this artifact supports
   load-bearing: true           # hypothesis→paper: does refutation block the parent's claim?
-  understanding: {status: ok, unresolved: []}   # written by grill; surfaced, never scored
+  understanding: {status: ok, unresolved: []}   # written by the `defend` skill; surfaced, never scored
   blockers: []                 # free-text blockers the author flags
   last-updated: 2026-07-17
 ```
@@ -69,7 +69,7 @@ Conventions that hold across every template:
 - **Material decisions require a named human sign-off.** A `verdict` on a
   hypothesis, `verdict: publish|no-go` on a paper, and thesis `defensible` are only
   real once `signed-off-by` + `signed-off-date` are set. Until then `progress`
-  reports the decision as *not yet decided*. The **guardrail `grill` fires before
+  reports the decision as *not yet decided*. The **`defend` guardrail fires before
   every sign-off** (a mock viva at the thesis gate); it surfaces gaps, the human
   may override, the override is logged — it is a stop-and-confirm, not a hard block.
 - **Evidence is backend run-refs, never hand-copied numbers.** `evidence:` lists
@@ -78,7 +78,7 @@ Conventions that hold across every template:
   `../../resources/contracts/experiment-backend.md`.
 - **`progress` is read-only.** It reads this block and never writes it (except the
   generated dashboard). Status is *written* by the resolve skills, the human
-  sign-off, and `grill` (the `understanding` field).
+  sign-off, and `defend` (the `understanding` field).
 
 Grounding: `../../docs/design/01-lifecycle.md` (§3 rigor, §4 templates, §8 material
 decisions); `../../skills/progress/SKILL.md`; `../../resources/rigor/rigor-kit.md`.

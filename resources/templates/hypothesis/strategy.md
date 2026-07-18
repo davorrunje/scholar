@@ -9,7 +9,7 @@ status:
   evidence: []                 # run-refs appear once runs exist; none here yet
   covers: []
   load-bearing: null
-  understanding: {status: pending, unresolved: []}   # grill fires on `strategy` — record gaps here
+  understanding: {status: pending, unresolved: []}   # `defend` fires on `strategy` — record gaps here
   blockers: []
   last-updated: <YYYY-MM-DD>
 ---
@@ -18,7 +18,7 @@ status:
 
 <!-- THE SCIENCE, BEFORE ANY ENGINEERING. Settle everything here before design.md
      / plan.md. Letting the results choose the test is exactly what invalidates a
-     confirmatory claim. `grill --target strategy` fires at the end of this doc;
+     confirmatory claim. `defend --target strategy` fires at the end of this doc;
      resolve surfaced gaps before delegating engineering to the bound engineering
      backend. -->
 
@@ -34,7 +34,7 @@ status:
 
 ## Rigor kit
 
-<!-- Fill every applicable item. Each is also a `grill --target methodology` seed:
+<!-- Fill every applicable item. Each is also a `defend --target methodology` seed:
      you must be able to explain WHY it works, not just perform it. Full checklist:
      ../../rigor/rigor-kit.md. -->
 
@@ -100,8 +100,8 @@ status:
      rapid-review: "would a reviewer say this is already known?" Cite the precedent
      that would most undercut novelty. -->
 
-## Grill checkpoint
+## Examination checkpoint
 
-<!-- `grill --target strategy` outcome: assumptions, entailments, falsifiers, rival
+<!-- `defend --target strategy` outcome: assumptions, entailments, falsifiers, rival
      explanations, and the methodology invoked. Record unresolved gaps in the
      `understanding` frontmatter above; resolve them before design/plan. -->

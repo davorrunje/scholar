@@ -139,7 +139,7 @@ gate whether a PDF may be committed vs. mirror-only.
 - **`hypothesis-testing`** reads `position --level hypothesis` verdicts into
   `strategy.md`. **`paper-synthesis`** reads `position --level paper` into
   `positioning.md` and the baseline list.
-- **`grill`** (target `cited-work`) draws on this registry to check "does ref [12]
+- **`defend`** (target `cited-work`) draws on this registry to check "does ref [12]
   actually support this sentence?" — the same surface-don't-adjudicate posture.
 - **Substrate**: shares the persistent-ID / mirror / fixity mechanism with
   `dataset`; both are front-ends over one substrate, not one shared file.

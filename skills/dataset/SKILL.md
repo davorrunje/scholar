@@ -29,7 +29,7 @@ Grounding: `../../docs/design/03-dataset.md`,
 
 **Agency:** this skill fetches, verifies, and reports. It never decides which
 dataset is *appropriate* for a claim — that is a scientific judgement the
-researcher owns (and a `grill` methodology probe may ask them to defend). Tier is
+researcher owns (and a `defend` methodology probe may ask them to defend). Tier is
 *proposed* here but *confirmed by the human* on register.
 
 **Dependencies:** `pyyaml` + `pooch` (Python) and `rclone` (a Go binary invoked
@@ -124,7 +124,7 @@ Tier = f(**redistribution license × access automation**). Redistribution domina
 | **C — manual/gated** | login / EULA / registration, or no stable source | metadata + datasheet + acquisition instructions + sha256; skill **verifies presence/integrity only, never fetches**; mirror only if the DUA permits a private copy. |
 
 Every entry carries a **Gebru datasheet** (composition, collection, distribution,
-maintenance). It is also a `grill` methodology target ("what are this dataset's
+maintenance). It is also a `defend` methodology target ("what are this dataset's
 known biases / collection limits?").
 
 ## Retrieval & mirror
@@ -175,7 +175,7 @@ TODO (helper scripts, not yet written):
   DataCite `citation` + DOI make a dataset citable and DOI-archivable at
   Zenodo/Dryad/figshare — *iff* redistributable.
 - **Datasheets** close the loop with the rigor kit's per-dataset datasheets and are
-  a `grill` methodology target.
+  a `defend` methodology target.
 
 ## Guardrails
 

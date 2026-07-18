@@ -1,14 +1,14 @@
-# Proposal: `grill record` — a helper to persist understanding status + the accountability trail
+# Proposal: `defend record` — a helper to persist understanding status + the accountability trail
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: grill`
+`Status: draft (for discussion) · Date: 2026-07-18 · Skill: defend`
 
 ## Context
 
-The `grill` skill's record step (SKILL.md step 6) currently has no tooling. The
-`TODO (supporting script)` note (`../../../skills/grill/SKILL.md`, ~line 65) says
+The `defend` skill's record step (SKILL.md step 6) currently has no tooling. The
+`TODO (supporting script)` note (`../../../skills/defend/SKILL.md`, ~line 65) says
 the write is done by hand: edit the target artifact's frontmatter to add an
 `understanding` block, and — if a transcript is kept — drop it beside the artifact
-as `grill-<date>.md`. Two problems with the manual path:
+as `defend-<date>.md`. Two problems with the manual path:
 
 - **Drift-prone frontmatter.** `progress` rolls up the `understanding` field
   (`../../../skills/progress/SKILL.md`, "Status frontmatter"); a hand-edited block
@@ -18,13 +18,13 @@ as `grill-<date>.md`. Two problems with the manual path:
   `../../../decisions/0021-thesis-gate-per-gap-confirmation.md`) requires a
   *per-gap acknowledged sign-off*. Today those exist only in the conversation.
 
-The lifecycle (§7, `../01-lifecycle.md`) already names the artifact "grill
+The lifecycle (§7, `../01-lifecycle.md`) already names the artifact "examination
 transcripts + logged overrides form the accountability trail" — but nothing writes
 it consistently.
 
 ## Goal
 
-A single small helper, `grill record`, that a grill session invokes at step 6 to
+A single small helper, `defend record`, that a `defend` session invokes at step 6 to
 (a) append/update the `understanding` status block in a target artifact's markdown
 **frontmatter** so `progress` can roll it up, and (b) append the transcript plus
 any logged overrides / per-gap acknowledgements to an accountability log. It
@@ -35,7 +35,7 @@ records **observed facts**, never a substantive verdict.
 **Inputs** (CLI args / a small call struct):
 
 - `--artifact <path>` — the target markdown artifact whose frontmatter is written.
-- `--target <claim|cited-work|methodology>` — the grill target type (SKILL.md
+- `--target <claim|cited-work|methodology>` — the examination target type (SKILL.md
   "Targets").
 - `--gaps` — the surfaced gaps, each an *observed fact* string ("no answer to the
   falsification probe"), not a judgement.
@@ -50,7 +50,7 @@ records **observed facts**, never a substantive verdict.
 
 ```yaml
 status:
-  understanding: {status: ok, unresolved: []}   # written by grill; surfaced, never scored
+  understanding: {status: ok, unresolved: []}   # written by the `defend` skill; surfaced, never scored
 ```
 
 - `status ∈ {ok, gaps}`; `unresolved` is the list of still-open gap facts (empty
@@ -60,8 +60,8 @@ status:
   the one sub-key, and writes back, preserving key order and the rest of the doc.
 
 **Log location / format.** Append-only, versioned in git under the consumer
-`docs/research/` tree (lifecycle §7). Proposed: `docs/research/grill-log/` with one
-entry per grill, and the full transcript beside the artifact as `grill-<date>.md`
+`docs/research/` tree (lifecycle §7). Proposed: `docs/research/defend-log/` with one
+entry per examination, and the full transcript beside the artifact as `defend-<date>.md`
 (matching the interim convention). Each log entry is a small YAML/markdown record:
 
 ```yaml
@@ -74,7 +74,7 @@ entry per grill, and the full transcript beside the artifact as `grill-<date>.md
     - gap: "no answer to the falsification probe"
       by: "D. Runje"
   signed-off-by: "D. Runje"
-  transcript: grill-2026-07-18.md
+  transcript: defend-2026-07-18.md
 ```
 
 **Invariants (load-bearing, from SKILL.md "Guardrails"):**
@@ -102,8 +102,8 @@ entry per grill, and the full transcript beside the artifact as `grill-<date>.md
 
 ## Open questions
 
-- **Log granularity:** one growing file (`grill-log.md`) vs. per-entry files under
-  `grill-log/`? Per-entry avoids merge conflicts across parallel sessions.
+- **Log granularity:** one growing file (`defend-log.md`) vs. per-entry files under
+  `defend-log/`? Per-entry avoids merge conflicts across parallel sessions.
 - **Gap identity for ADR-0021 acks:** free-text match, or does the helper assign a
   stable `gap-id` so an acknowledgement provably binds to a surfaced gap?
 - **`status` vocabulary:** is `{ok, gaps}` enough, or is a third value
@@ -131,10 +131,10 @@ entry per grill, and the full transcript beside the artifact as `grill-<date>.md
 
 ## Links
 
-- Grill skill (record step + TODO): `../../../skills/grill/SKILL.md`
+- `defend` skill (record step + TODO): `../../../skills/defend/SKILL.md`
 - Progress skill (frontmatter schema, `understanding`): `../../../skills/progress/SKILL.md`
-- Understanding & grilling digest: `../../../resources/references/understanding-and-grilling.md`
+- Understanding & defense digest: `../../../resources/references/understanding-and-defense.md`
 - ADR-0021 thesis gate per-gap confirmation: `../../../decisions/0021-thesis-gate-per-gap-confirmation.md`
-- ADR-0015 grill cross-cutting (logged override): `../../../decisions/0015-grill-cross-cutting.md`
+- ADR-0015 defend cross-cutting (logged override): `../../../decisions/0015-defend-cross-cutting.md`
 - Lifecycle §7 (accountability trail): `../01-lifecycle.md`
 - Meta-spec §2.1/§2.2 (agency + understanding): `../00-meta-spec.md`

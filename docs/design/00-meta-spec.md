@@ -30,13 +30,13 @@ claims, is it defensible. The skills draft, keep the accounts, and advise; the
 researcher authors and decides. You cannot "run" the workflow to produce a paper
 or thesis — you drive it. Its dual is the **Understanding principle** (§2.2): the
 plugin will not let you advance a decision you cannot understand or defend — it
-grills and teaches until you can.
+examines and teaches until you can.
 
 Elaborated in §2.1–§2.2; fully grounded, with verified sources and enforceable
 guardrails, in
 [`scholar/references/agency-principle.md`](../scholar/references/agency-principle.md)
 and
-[`scholar/references/understanding-and-grilling.md`](../scholar/references/understanding-and-grilling.md).
+[`scholar/references/understanding-and-defense.md`](../scholar/references/understanding-and-defense.md).
 
 ## 1. Goals & non-goals
 
@@ -158,18 +158,18 @@ decision advance past something the author cannot explain or defend — silently
   Understanding must be *conceptual*, not merely procedural (Hiebert & Lefevre
   1986); following rigor rituals blindly is **cargo-cult science** (Feynman 1974;
   Gigerenzer 2004).
-- **Mechanism — the `grill` skill (§3.7):** a Socratic tutor-examiner, self-invoked
+- **Mechanism — the `defend` skill (§3.7):** a Socratic tutor-examiner, self-invoked
   or fired automatically as a guardrail at material-decision checkpoints. On a
   gap it *teaches* (source-grounded explanations + references) and re-probes. The
   goal is growth, not producing work the author cannot understand.
 - **Interlock with agency.** The guardrail *stops, surfaces the gap, offers to
-  grill/teach, and records* — the human may override, but the override is logged
+  examine/teach, and records* — the human may override, but the override is logged
   (so a gap can never be passed silently). It never grades the substance of a
   novel claim or asserts an answer key; it teaches the established (methodology,
   cited works) and, for novel claims, teaches how to reason and defend.
 
 Fully grounded, with sources and constraints, in
-[`scholar/references/understanding-and-grilling.md`](../scholar/references/understanding-and-grilling.md).
+[`scholar/references/understanding-and-defense.md`](../scholar/references/understanding-and-defense.md).
 
 ### 2.3 The firewall
 
@@ -320,9 +320,9 @@ firewall (it adjudicates nothing; it reads existing state).
   qualitative judgment. This is documented so it cannot be quietly "improved"
   into a score later.
 
-### 3.7 Grilling & understanding (cross-cutting)
+### 3.7 Examination & understanding (cross-cutting)
 
-The `grill` skill operationalizes §2.2 — a Socratic **tutor-examiner** whose goal
+The `defend` skill operationalizes §2.2 — a Socratic **tutor-examiner** whose goal
 is the author's growth; companion to `progress` (both cross-cutting, both
 respecting the firewall by producing evidence the human acts on).
 
@@ -335,17 +335,17 @@ respecting the firewall by producing evidence the human acts on).
 - **Invocation:** (1) **self-invoked** on demand; (2) automatic **guardrail** at
   material-decision checkpoints (findings verdict, publish decision, thesis
   defensibility) and when a method's rationale is undemonstrated.
-- **Guardrail semantics:** stop, surface, offer to grill/teach, **record**; the
+- **Guardrail semantics:** stop, surface, offer to examine/teach, **record**; the
   human may override with the override logged (agency, §2.1) — not a hard block.
   *(Open item: whether the thesis defensibility gate is made blocking.)*
 - **Records:** an `understanding` status in the artifact frontmatter (fed to the
-  `progress` roll-up) + optional grill transcript; unanswered probes and logged
+  `progress` roll-up) + optional examination transcript; unanswered probes and logged
   overrides are the accountability trail.
 - **Constraints (§2.2):** ask, don't grade substance; teach the established
   (methodology, cited work) freely and source-grounded; never assert a novel
   claim's answer; settled-vs-contested calibration; depth by stakes; anti-Goodhart
   (reward articulable understanding, not ritual completion).
-- **Mentor/reviewer personas.** The grill/advise voice offers a small set of
+- **Mentor/reviewer personas.** The examine/advise voice offers a small set of
   **author-selectable** personas (derived from Lee × Gatfield, *not* personality
   theory): *sounding board*, *critical examiner* (the default), *directive
   editor*, and an opt-in *devil's advocate*. Chosen by three author-controllable
@@ -377,7 +377,7 @@ scholar/                                  # plugin repo root
 │   ├── literature/SKILL.md               # scout | position
 │   ├── dataset/SKILL.md                  # init/register/fetch/verify/mirror/audit
 │   ├── progress/SKILL.md                 # status | dashboard (cross-cutting, read-only)
-│   └── grill/SKILL.md                    # claim|cited-work|methodology; self + guardrail (cross-cutting)
+│   └── defend/SKILL.md                  # claim|cited-work|methodology; self + guardrail (cross-cutting)
 ├── resources/                            # cross-skill shared material
 │   ├── contracts/
 │   │   ├── experiment-backend.md         # the 4-capability contract
@@ -396,7 +396,7 @@ brainstorming: the four existing research-workflow reference docs (on PR #128)
 plus the eight generated this session — **citation scouting**, **related-works
 synthesis**, **dataset-management standards**, **dataset tooling / mirror
 architecture**, **thesis-by-publication & progress tracking**, the
-**agency principle**, **the understanding principle & grilling**, and **mentor /
+**agency principle**, **the understanding principle & defense**, and **mentor /
 reviewer personas** (all already persisted under `scholar/references/`). These are
 the evidentiary base for the sub-specs and must be persisted, not left in
 conversation.
@@ -481,15 +481,15 @@ Licensed **Apache-2.0** (ADR-0022), matching `mononet`.
 This meta-spec defers detail to four sub-specs (each date-prefixed under
 `docs/superpowers/specs/`, migrating to the plugin repo per §9):
 
-1. **Lifecycle & pipeline skills + rigor kit + progress + grill** — the
+1. **Lifecycle & pipeline skills + rigor kit + progress + defend** — the
    three-level mirror (incl. the `thesis` level and the kappa/defensibility gate),
    the five pipeline skills, staged-doc templates, firewall, flywheels, the
    cross-cutting `progress` skill (status frontmatter + generated dashboard +
-   anti-Goodhart), the cross-cutting `grill` skill (Understanding principle §2.2:
+   anti-Goodhart), the cross-cutting `defend` skill (Understanding principle §2.2:
    self + guardrail invocation, teaching loop, non-grading/source-grounded stance),
-   and the rigor kit (whose methods are also `grill` targets). *(Largely the
+   and the rigor kit (whose methods are also `defend` targets). *(Largely the
    current `2026-07-15-hypothesis-*` / `paper-*` specs, refactored to the
-   contracts, plus thesis + progress + grill.)*
+   contracts, plus thesis + progress + defend.)*
 2. **Literature capability** — `scout`/`position`, the citation-graph toolchain
    (OpenAlex + Semantic Scholar; snowballing; SciCite intent; concept matrix;
    PRISMA log), the bib + triage registry, and backlog linkage. *(Grounded by

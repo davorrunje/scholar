@@ -107,7 +107,7 @@ Rules for the ledger:
 - **Staleness is honest.** Before the decision and before assembly, check
   `is-current` on the cited run-refs; a stale run-ref surfaces the gap but the
   human decides whether to re-run (the backend never decides for you).
-- **Backing draws on the literature registry** so the `grill cited-work` target
+- **Backing draws on the literature registry** so the `defend cited-work` target
   can verify that a cited source actually supports the sentence it backs.
 
 A worked row (domain-neutral shape):
@@ -133,7 +133,7 @@ from `rr-a91f` / `rr-7c02`; the author never types them.
   engineering backend's `design` / `plan` capabilities for `outline.md`/`plan.md`;
   the experiment backend's `tables` / `evidence` / `is-current` capabilities for
   result blocks and staleness.
-- **Grilled by:** `grill` (`../grill/SKILL.md`), whose `paper-synthesis` preset
+- **Examined by:** `defend` (`../defend/SKILL.md`), whose `paper-synthesis` preset
   targets **positioning** (novelty vs. prior work) and **cited-work** (do the
   cited sources support the claims), plus the **claim** target over the ledger.
   The guardrail fires automatically before the `decision.md` sign-off.
@@ -156,9 +156,9 @@ Hard rules — the load-bearing constraints, not preferences.
 - **The publish decision is material and human-signed.** `decision.md` names its
   human decision-maker and date; it is gated on accumulated hypothesis evidence +
   positioning, the paper-level mirror of a `findings` verdict
-  (`../../docs/design/01-lifecycle.md` §8). The **guardrail `grill` fires before
+  (`../../docs/design/01-lifecycle.md` §8). The **`defend` guardrail fires before
   the sign-off** (positioning + cited-work + claim): it stops, surfaces gaps,
-  offers to grill/teach, and records. The human may override; the override is
+  offers to examine/teach, and records. The human may override; the override is
   logged — a stop-and-confirm, **not a hard block**. The AI never adjudicates
   publish-worthiness.
 - **Numbers come from the backend, always.** Only `tables` writes result blocks
@@ -166,7 +166,7 @@ Hard rules — the load-bearing constraints, not preferences.
   run-ref, it does not go in the paper.
 - **Understanding gates the claims.** The author must be able to defend the
   positioning's novelty argument and each ledger claim to a reviewer's standard;
-  unmet, `grill` surfaces it (`../../docs/design/00-meta-spec.md` §2.2).
+  unmet, `defend` surfaces it (`../../docs/design/00-meta-spec.md` §2.2).
 - **Firewall.** Explore proposes, resolve disposes, synthesize reports. This
   skill develops and assembles a committed paper; it does not generate paper
   ideas and does not adjudicate its own decision.

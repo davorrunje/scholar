@@ -24,7 +24,7 @@ the level split is a *parameter*, not a skill boundary.
 
 **Agency & Understanding interlock:** `scout` *proposes* leads and `position`
 *surfaces* precedent; neither adjudicates. The human decides what to pursue and
-what counts as novel. The `grill` skill's `cited-work` target draws on this
+what counts as novel. The `defend` skill's `cited-work` target draws on this
 capability ("does ref [12] actually support this sentence?").
 
 ## 2. `scout` mode

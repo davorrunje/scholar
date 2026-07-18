@@ -33,7 +33,7 @@ lifecycle §5 (`../../docs/design/01-lifecycle.md`).
 Do **not** use progress to decide a verdict, rank artifacts by "productivity," or
 compute a completion percentage — those are firewall/anti-Goodhart violations
 (see Guardrails). Status frontmatter is *written* by the resolve skills and by
-`grill` (the `understanding` field); progress only *reads* it.
+`defend` (the `understanding` field); progress only *reads* it.
 
 ## Verbs
 
@@ -72,7 +72,7 @@ status:
   evidence: [run-ref://…]      # backend run-refs backing the verdict — never hand-copied numbers
   covers: [aim-2]              # paper→thesis: which aims this artifact supports
   load-bearing: true           # hypothesis→paper: does refutation block the parent's claim?
-  understanding: {status: ok, unresolved: []}   # written by grill; surfaced, never scored
+  understanding: {status: ok, unresolved: []}   # written by the `defend` skill; surfaced, never scored
   blockers: []                 # free-text blockers the author flags
   last-updated: 2026-07-17
 ```
@@ -147,7 +147,7 @@ Load-bearing constraints, not preferences.
 
 - **Read-only on state.** Progress never writes status frontmatter and never
   changes a verdict, decision, or `understanding` field — those are owned by the
-  resolve skills, the human sign-off, and `grill`. The only file it writes is the
+  resolve skills, the human sign-off, and `defend`. The only file it writes is the
   generated `dashboard.md`.
 - **Respects the firewall (§2.3) and agency (§2.1).** It reports; it does not
   propose, dispose, or adjudicate. It never infers whether a decision *should* be

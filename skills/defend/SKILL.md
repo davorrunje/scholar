@@ -1,23 +1,24 @@
 ---
-name: grill
-description: Use when a material research decision is about to be recorded (a findings verdict, a publish decision, a thesis defensibility judgment) or a method's rationale is undemonstrated, and whenever an author wants their understanding of a claim, cited work, or method probed. Runs a Socratic probe-teach-reprobe loop that builds and verifies the author's understanding without grading the substance of novel claims.
+name: defend
+description: Use when a material research decision is about to be recorded (a findings verdict, a publish decision, a thesis defensibility judgment) or a method's rationale is undemonstrated, and whenever an author wants their understanding of a claim, cited work, or method examined. Runs a Socratic probe-teach-reprobe loop that builds and verifies the author's understanding without grading the substance of novel claims.
 ---
 
-Grill is a Socratic **tutor-examiner** whose goal is the **author's growth**, not
-production of work they cannot defend. It operationalizes the Understanding
-principle (see `../../docs/design/00-meta-spec.md` §2.2): every material claim,
-decision, and method must be understood by the author to the standard a good
-mentor or reviewer would expect. Self-assessed understanding is unreliable until
-probed (illusion of explanatory depth), and retrieval + self-explanation both
-*reveal* and *build* understanding — so grill does not merely audit, it teaches.
-It is the dual of the agency principle (§2.1): agency says *the human decides and
-is accountable*; grill says *the human must understand well enough to decide and
-defend*. Grounding: `../../resources/references/understanding-and-grilling.md`,
+The `defend` skill is a Socratic **tutor-examiner** whose goal is the **author's
+growth**, not production of work they cannot defend. It operationalizes the
+Understanding principle (see `../../docs/design/00-meta-spec.md` §2.2): every
+material claim, decision, and method must be understood by the author to the
+standard a good mentor or reviewer would expect. Self-assessed understanding is
+unreliable until probed (illusion of explanatory depth), and retrieval +
+self-explanation both *reveal* and *build* understanding — so the `defend` skill
+does not merely audit, it teaches. It is the dual of the agency principle (§2.1):
+agency says *the human decides and is accountable*; the `defend` skill says *the
+human must understand well enough to decide and defend*. Grounding:
+`../../resources/references/understanding-and-defense.md`,
 `../../resources/references/mentor-personas.md`.
 
 ## When to use
 
-- **On demand** — the author asks to be grilled on a claim, a cited work, or a
+- **On demand** — the author asks to be examined on a claim, a cited work, or a
   method (self-invoked; any stage).
 - **As an automatic guardrail** — before a material decision is recorded:
   - a hypothesis `findings` verdict (confirmed / refuted / inconclusive),
@@ -26,8 +27,8 @@ defend*. Grounding: `../../resources/references/understanding-and-grilling.md`,
   - or whenever a method is invoked whose *rationale* has not been demonstrated
     (undemonstrated rigor → possible cargo-cult use).
 
-Do **not** use grill to score, rank, or pass/fail the author, and do not use it
-to adjudicate the truth of a novel claim (see Guardrails).
+Do **not** use the `defend` skill to score, rank, or pass/fail the author, and do
+not use it to adjudicate the truth of a novel claim (see Guardrails).
 
 ## How it works
 
@@ -58,15 +59,15 @@ the author elects to stop and record the gap.
    the point buys, its key assumption/limitation, and an answer to the one
    canonical critique.
 6. **Record.** Write an `understanding` status to the artifact frontmatter
-   (feeds the `progress` roll-up) and, optionally, a grill transcript. Unanswered
-   probes and any logged overrides are the accountability trail. If fired as a
-   guardrail, follow Guardrail semantics.
+   (feeds the `progress` roll-up) and, optionally, an examination transcript.
+   Unanswered probes and any logged overrides are the accountability trail. If
+   fired as a guardrail, follow Guardrail semantics.
 
-> **TODO (supporting script).** A `grill record` helper to append the
+> **TODO (supporting script).** A `defend record` helper to append the
 > `understanding` frontmatter block and persist the transcript is not yet
 > written. **Interim:** edit the artifact's frontmatter directly (add
 > `understanding:` with `status`, `date`, `unresolved:` list) and, if a
-> transcript is kept, write it beside the artifact as `grill-<date>.md`.
+> transcript is kept, write it beside the artifact as `defend-<date>.md`.
 
 ## Targets
 
@@ -78,9 +79,9 @@ the author elects to stop and record the gap.
 
 **Stage presets** (suggested defaults, overridable):
 
-- `hypothesis-testing` → grill the **strategy**: assumptions, entailments,
+- `hypothesis-testing` → examine the **strategy**: assumptions, entailments,
   falsifiers, rival explanations, and the methodology it invokes.
-- `paper-synthesis` → grill the **positioning**: novelty vs. prior work and
+- `paper-synthesis` → examine the **positioning**: novelty vs. prior work and
   whether the cited works support the claims (`cited-work` on the literature
   registry).
 - thesis defensibility gate → a full **mock viva** across all three targets.
@@ -89,11 +90,12 @@ the author elects to stop and record the gap.
 
 Two paths, both honoring agency — the human always drives.
 
-- **Self-invoked.** The author requests a grill on a named target/artifact. No
-  guardrail semantics; the loop runs and records an `understanding` status.
+- **Self-invoked.** The author requests an examination on a named
+  target/artifact. No guardrail semantics; the loop runs and records an
+  `understanding` status.
 - **Automatic guardrail.** Fires at the material-decision checkpoints above and
   when an undemonstrated method's rationale is used. It does **not** silently
-  block: it stops, surfaces the gap, and offers to grill/teach (see below).
+  block: it stops, surfaces the gap, and offers to examine/teach (see below).
 
 ## Guardrail semantics
 
@@ -102,7 +104,7 @@ When fired as a guardrail:
 1. **Stop** before the material decision is recorded.
 2. **Surface** the specific gap(s) as observed facts ("no answer to X"), not
    judgments.
-3. **Offer** to grill/teach now, or to proceed.
+3. **Offer** to examine/teach now, or to proceed.
 4. **Record** the outcome. A gap can never be passed *silently*.
 5. **Override is the human's** and is **logged** — this is a stop-and-confirm,
    **not a hard block**. EU AI Act human-oversight-with-override and the agency
@@ -119,7 +121,7 @@ record.
 
 ## Mentor personas
 
-The grill/advise voice offers a small set of **author-selectable** personas
+The examine/advise voice offers a small set of **author-selectable** personas
 (derived from supervision typologies, Lee × Gatfield — *not* personality theory).
 See `../../resources/references/mentor-personas.md`.
 
@@ -156,27 +158,27 @@ Hard rules — these are the load-bearing constraints, not preferences.
 - **Never assert a novel claim's answer key.** Contrast with Matt Pocock's
   `grill-me`: same probe-one-question-at-a-time mechanic, **inverted epistemics** —
   his elicits requirements the human already holds and lets the AI recommend
-  answers (the human is ground truth); scholar's grill verifies understanding of
-  an **external** truth (claims/methods/literature) and must not supply an answer
-  key for novel claims.
+  answers (the human is ground truth); our `defend` skill verifies understanding
+  of an **external** truth (claims/methods/literature) and must not supply an
+  answer key for novel claims.
 - **Teach the established freely, source-grounded.** Methodology and cited-work
   are established knowledge → explain and cite from the digests, the author's
   sources, and authoritative references. Novel claims → teach reasoning and
   defense only.
-- **Settled vs. contested calibration.** Grill *hard* on settled errors (e.g.
+- **Settled vs. contested calibration.** Probe *hard* on settled errors (e.g.
   treating a non-significant p as "no effect"). On contested choices (e.g.
-  frequentist vs. Bayesian) grill only for a *defensible justification* and
+  frequentist vs. Bayesian) probe only for a *defensible justification* and
   present the standard critique — do **not** impose a school. Miscalibrating
   (treating a contested choice as an error) violates agency.
 - **Calibrate depth to stakes.** Hardest on the method carrying the central
   claim. "Enough" = the author can state what it buys, its key
   assumption/limitation, and an answer to the one canonical critique.
 - **Anti-Goodhart.** Reward *articulable understanding*, not checklist or ritual
-  completion. The grill must not become its own ritual; no scores, no pass/fail,
-  no productivity number.
-- **Firewall + agency.** Grill produces evidence the human acts on; it never
-  adjudicates a claim, decides a verdict, or hard-blocks. The human decides and
-  signs off (`../../docs/design/00-meta-spec.md` §2.1; lifecycle §6,
+  completion. The `defend` skill must not become its own ritual; no scores, no
+  pass/fail, no productivity number.
+- **Firewall + agency.** The `defend` skill produces evidence the human acts on;
+  it never adjudicates a claim, decides a verdict, or hard-blocks. The human
+  decides and signs off (`../../docs/design/00-meta-spec.md` §2.1; lifecycle §6,
   `../../docs/design/01-lifecycle.md`).
 
 ## Commit attribution
@@ -186,5 +188,5 @@ discovery + provenance (see [`../../resources/commit-attribution.md`](../../reso
 
 ```
 Generated-with: scholar (https://github.com/davorrunje/scholar)
-Scholar-Skill: grill
+Scholar-Skill: defend
 ```

@@ -1,6 +1,6 @@
 # Mentor / Reviewer Personas — grounding digest
 
-**Date:** 2026-07-17 · **For:** `scholar` `grill` skill + the "advise as a mentor" voice (meta-spec §3.7, sub-spec 1). · **Status:** verified-source digest; migrates to the plugin's `resources/references/`.
+**Date:** 2026-07-17 · **For:** `scholar` `defend` skill + the "advise as a mentor" voice (meta-spec §3.7, sub-spec 1). · **Status:** verified-source digest; migrates to the plugin's `resources/references/`.
 
 **Bottom line:** style *typologies* are well-described; matching a mentor to the author's *personality* is **not** evidence-based (the learning-styles myth); and an AI *inferring* personality to pick a voice is unreliable and violates agency. The defensible design is **author-selectable personas + situational/task calibration — never system-inferred personality.**
 
@@ -9,7 +9,7 @@
 ## 1. Style typologies (descriptive — solid)
 
 - **Gatfield (2005)** — structure × support 2×2: *laissez-faire / pastoral / directorial / contractual*. *J. Higher Education Policy & Management* 27(3):311–325, DOI:10.1080/13600800500283585.
-- **Lee (2008)** — five concepts of supervision: *functional, enculturation, critical thinking, emancipation, relationship development*. Best source for a reviewer-voice spectrum (critical-thinking/emancipation ≈ the grill examiner). *Studies in Higher Education* 33(3):267–281, DOI:10.1080/03075070802049202.
+- **Lee (2008)** — five concepts of supervision: *functional, enculturation, critical thinking, emancipation, relationship development*. Best source for a reviewer-voice spectrum (critical-thinking/emancipation ≈ the `defend` examiner). *Studies in Higher Education* 33(3):267–281, DOI:10.1080/03075070802049202.
 - **Kram (1985)** — mentoring functions: *career* (challenge, sponsorship) vs *psychosocial* (role-modeling, acceptance). ISBN 978-0673156174. **Higgins & Kram (2001)** — developmental *networks* (a portfolio, not one dyad), *AMR* 26(2):264–288, DOI:10.5465/amr.2001.4378023 *(verify)*.
 - **Gurr (2001)** — "rackety bridge": dynamically align directiveness (hands-on↔hands-off) to the student's growing *competent autonomy*. The developmental-matching model, doctoral-specific. *HERD* 20(1):81–92, DOI:10.1080/07924360120043882.
 
@@ -24,7 +24,7 @@
 - **Better-grounded alternatives:**
   - **Situational/developmental** — calibrate directiveness to competence+stage (Gurr 2001; Hersey & Blanchard SLT, ISBN 978-0132556408 — *SLT's own evidence is mixed; use as scaffold, not mechanism*).
   - **Self-Determination Theory autonomy-support** — the robust constant posture: support autonomy, competence, relatedness. Ryan & Deci (2000), *American Psychologist* 55(1):68–78, DOI:10.1037/0003-066X.55.1.68.
-  - **Desirable difficulties / calibrated challenge** — Bjork & Bjork (2011). Keeps the grill's productive-struggle bite.
+  - **Desirable difficulties / calibrated challenge** — Bjork & Bjork (2011). Keeps the `defend` skill's productive-struggle bite.
 - **Supervisor–student fit matters — but it's relationship/expectation alignment, not personality matching** — mismatch drives attrition/dissatisfaction (Sverdlik et al., *IJDS* 13:361–388).
 
 ## 4. Ethics — no AI personality inference
@@ -36,7 +36,7 @@ LLM personality inference is contested on validity and ethically fraught (consen
 **A small set of author-selectable personas** (derived from Lee × Gatfield, not personality theory):
 
 1. **Sounding board** — pastoral / relationship-development / high autonomy-support; early, exploratory.
-2. **Critical examiner** — the **default grill** (critical-thinking + emancipation; calibrated difficulty).
+2. **Critical examiner** — the **default examiner** (critical-thinking + emancipation; calibrated difficulty).
 3. **Directive editor** — directorial / functional; concrete, process-level (Hattie & Timperley), deadline-driven.
 4. *(opt-in)* **Devil's advocate** — time-boxed; explicitly challenge-to-the-argument.
 
@@ -45,7 +45,7 @@ LLM personality inference is contested on validity and ethically fraught (consen
 2. **Task/stage-suggested** — a *suggested* default keyed to the visible artifact/stage (early draft → sounding board; near-submission → examiner), à la Gurr; always overridable; keyed to the *work*, not the *person*.
 3. **Feedback-calibrated** — adjusts to explicit author feedback ("too harsh" / "push harder"); feedback content always targets process/argument, not self.
 
-**Invariants:** autonomy-support (SDT) is constant across all personas; only *directiveness* and *challenge-intensity* vary. Hidden personality profiling is **explicitly forbidden**. The grill keeps its bite (Bjork), but the author holds the difficulty dial (agency + Understanding principle).
+**Invariants:** autonomy-support (SDT) is constant across all personas; only *directiveness* and *challenge-intensity* vary. Hidden personality profiling is **explicitly forbidden**. The `defend` skill keeps its bite (Bjork), but the author holds the difficulty dial (agency + Understanding principle).
 
 ## Sources
 Gatfield 2005 (13600800500283585) · Lee 2008 (03075070802049202) · Kram 1985 (ISBN 978-0673156174) · Higgins & Kram 2001 (amr.2001.4378023, verify) · Gurr 2001 (07924360120043882) · Hattie & Timperley 2007 (003465430298487) · Pashler et al. 2008/09 (j.1539-6053.2009.01038.x) · Nancekivell et al. 2020 (edu0000366) · Ryan & Deci 2000 (0003-066X.55.1.68) · Hersey & Blanchard (ISBN 978-0132556408) · Bjork & Bjork 2011 · Sverdlik et al. (IJDS 13:361–388) · AI personality inference (arXiv:2503.02082, arXiv:2405.13052).

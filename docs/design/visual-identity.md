@@ -14,7 +14,7 @@ product. Lowercase, understated, typographic; the opposite of hype.
 - **Wordmark:** the word set in a humanist **serif** (scholarship, print, the
   paper), lowercase. Optional bracket motif around it — `[ scholar ]` — nodding to
   citations. See `assets/wordmark.svg`.
-- **Skill names** render in **monospace** (`grill`, `literature`, `hypothesis-
+- **Skill names** render in **monospace** (`defend`, `literature`, `hypothesis-
   testing`) — they are commands.
 
 ## Logo mark
@@ -64,7 +64,7 @@ readable; mono marks the *machine* parts (skills, YAML, run-refs).
 
 Mentor-and-colleague: rigorous but supportive; asks more than it asserts; never
 grandiose. Directly reflects the mentor personas (ADR-0016) and the two
-principles — it advises and grills, but *you* decide and *you* author.
+principles — it advises and examines, but *you* decide and *you* author.
 
 - **Primary tagline:** *Research you can defend.*
 - **Secondary lines:** *You drive.* · *Understand your work.*

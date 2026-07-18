@@ -1,10 +1,10 @@
-# ADR-0015: `grill` cross-cutting; guardrail stop-and-confirm; teaching; non-grading
+# ADR-0015: `defend` cross-cutting; guardrail stop-and-confirm; teaching; non-grading
 
 - Status: accepted · Date: 2026-07-17 · Deciders: Davor Runje
 
 ## Context
 
-Given the Understanding principle (ADR-0004), how should grilling be structured,
+Given the Understanding principle (ADR-0004), how should examination be structured,
 invoked, and constrained — especially since the AI can't know the ground truth of
 a novel claim. Contrasted with Matt Pocock's `grill-me` (same mechanic, inverted
 epistemics: his lets the AI recommend answers; the human is ground truth).
@@ -19,7 +19,7 @@ epistemics: his lets the AI recommend answers; the human is ground truth).
 
 ## Considered options
 
-1. **One cross-cutting `grill` skill; targets claim|cited-work|methodology; teach-
+1. **One cross-cutting `defend` skill; targets claim|cited-work|methodology; teach-
    and-reprobe loop; self-invoked + guardrail; guardrail = stop/surface/offer/
    record with logged override (not a hard block); non-grading on substance.**
 2. A mode baked into each pipeline skill (no standalone).
@@ -46,4 +46,4 @@ stakes; anti-Goodhart. Personas per ADR-0016.
 
 ## Links
 
-meta-spec §3.7; sub-spec 1 §6; digest `understanding-and-grilling.md`.
+meta-spec §3.7; sub-spec 1 §6; digest `understanding-and-defense.md`.

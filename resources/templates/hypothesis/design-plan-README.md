@@ -12,7 +12,7 @@ the engineering backend.
 
 ## What to do
 
-After `strategy.md` is written **and grilled**:
+After `strategy.md` is written **and examined**:
 
 1. Invoke the engineering backend's **`design`** capability to explore and settle
    the experiment design.
@@ -27,7 +27,7 @@ After `strategy.md` is written **and grilled**:
 ## Guardrails
 
 - **Science before engineering.** No design/plan until `strategy.md` exists and its
-  grill gaps are resolved.
+  examination gaps are resolved.
 - `scholar` does not design experiments, write plans, or implement — it composes
   with the bound engineering backend for all of that.
 
