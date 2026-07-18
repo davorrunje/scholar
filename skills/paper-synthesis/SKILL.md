@@ -61,8 +61,9 @@ be revisited as hypotheses resolve; the decision is gated on the whole.
    + a simplest floor). The closest-prior-work paragraph and the isolating
    ablation guard against overclaimed novelty.
 3. **Outline / plan — delegated.** Structuring the manuscript is **engineering**,
-   so hand it to the bound engineering backend (its `design` → `plan`
-   capabilities) exactly as `hypothesis-testing` delegates `design.md`/`plan.md`.
+   so hand it to the engineering backend bound in `.honest-scholar/config.yml`
+   (`engineering_backend:`) — its `design` → `plan` capabilities — exactly as
+   `hypothesis-testing` delegates `design.md`/`plan.md`.
    Store the resulting
    `outline.md` / `plan.md` under `docs/research/<paper>/paper/`. This skill owns
    the *scientific* framing; it does not reimplement engineering planning.
@@ -74,15 +75,17 @@ be revisited as hypotheses resolve; the decision is gated on the whole.
 5. **Sections.** Assemble `sections/` from the claim→evidence ledger (below).
    Draft prose as proposals; every reported number is written by the backend
    `tables` capability, never typed by hand.
-6. **Disclose (finalize).** After the publish decision is signed off, **proactively
-   propose** an *AI-use disclosure* + a citation for the manuscript's *Use of AI* /
-   Acknowledgments — drafted **from the provenance record** (who signed off which
-   decisions, which `run-ref`s back which results, what the skills drafted), so it
-   is truthful, not boilerplate. This is opt-in and author-owned: the author edits,
-   adopts, or declines; never auto-insert. Surfacing it here — automatically, at
-   the moment it matters — is deliberate (see [`../../DISCLOSURE.md`](../../DISCLOSURE.md),
-   ADR-0025). Keep it humble: it discloses what was done and links the record; it
-   does **not** certify honesty.
+6. **Disclose (finalize, publish only).** Once the decision is **publish** *and* the
+   sections are assembled, **proactively propose** an *AI-use disclosure* + a
+   citation for the manuscript's *Use of AI* / Acknowledgments — drafted **from the
+   provenance record** (who signed off which decisions, which `run-ref`s back which
+   results, what the skills drafted), so it is truthful, not boilerplate. This is
+   opt-in and author-owned: the author edits, adopts, or declines; never
+   auto-insert. Surfacing it here — automatically, at the moment it matters — is
+   deliberate (see [`../../DISCLOSURE.md`](../../DISCLOSURE.md), ADR-0025). Keep it
+   humble: it discloses what was done and links the record; it does **not** certify
+   honesty. On a **no-go** decision there is nothing to disclose — the paper is not
+   submitted — so this step is skipped.
 
 ## The claim→evidence ledger
 
@@ -138,10 +141,11 @@ from `rr-a91f` / `rr-7c02`; the author never types them.
 - **Feeds from:** `paper-exploration` (the promoted pitch) and the paper's
   resolved hypotheses (`hypothesis-testing` `findings.md` verdicts + their
   run-refs).
-- **Calls:** `literature position --level paper` for `positioning.md`; the bound
-  engineering backend's `design` / `plan` capabilities for `outline.md`/`plan.md`;
-  the experiment backend's `tables` / `evidence` / `is-current` capabilities for
-  result blocks and staleness.
+- **Calls:** `literature position --level paper` for `positioning.md`; the
+  engineering backend bound in `.honest-scholar/config.yml` (`engineering_backend:`)
+  for `outline.md`/`plan.md`; and the experiment backend bound in
+  `docs/research/papers.md` (`backend:`) — `tables` / `evidence` / `is-current` —
+  for result blocks and staleness.
 - **Examined by:** `defend` (`../defend/SKILL.md`), whose `paper-synthesis` preset
   targets **positioning** (novelty vs. prior work) and **cited-work** (do the
   cited sources support the claims), plus the **claim** target over the ledger.
@@ -179,6 +183,8 @@ Hard rules — the load-bearing constraints, not preferences.
 - **Firewall.** Explore proposes, resolve disposes, synthesize reports. This
   skill develops and assembles a committed paper; it does not generate paper
   ideas and does not adjudicate its own decision.
+- **Follow-ups become issues, not TODOs** — a deferred check or a known gap in the
+  record is captured as a self-contained GitHub issue, not left in a doc's margin.
 
 ## Commit attribution
 

@@ -105,9 +105,9 @@ reason and defend, and cites — never the claim's answer.
 
 - `hypothesis-testing` → examine the **strategy**: assumptions, entailments,
   falsifiers, rival explanations, and the methodology it invokes.
-- `paper-synthesis` → examine the **positioning**: novelty vs. prior work and
-  whether the cited works support the claims (`cited-work` on the literature
-  registry).
+- `paper-synthesis` → examine the **positioning** (novelty vs. prior work),
+  **cited-work** (do the cited sources support the claims, on the literature
+  registry), and each **claim** in the paper's Toulmin ledger.
 - thesis defensibility gate → a full **mock viva** across all three targets.
 
 ## Invocation
