@@ -35,5 +35,6 @@ Migrates to the plugin's `decisions/` alongside `resources/references/`.
 | [0021](0021-thesis-gate-per-gap-confirmation.md) | Thesis gate — per-gap acknowledged confirmation | accepted |
 | [0022](0022-license-apache-2.0.md) | License the plugin under Apache-2.0 | accepted |
 | [0023](0023-engineering-delegation-contract.md) | Delegate engineering via a contract, not a named tool | accepted |
+| [0024](0024-tooling-package-and-bootstrap.md) | Supporting tooling = one package (Typer CLI, optional MCP) + markdown `ensure-tooling` bootstrap | accepted |
 
 Format: MADR (Markdown Any Decision Records). Deciders: Davor Runje (with Claude).
