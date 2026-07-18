@@ -9,17 +9,25 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import os
 import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
+import sys
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 
 from honest_scholar import __version__
 from honest_scholar.dataset import manifest as manifest_mod
 from honest_scholar.dataset import retrieval as retrieval_mod
+from honest_scholar.defend import record as record_mod
+from honest_scholar.exploration import backlog as backlog_mod
+from honest_scholar.literature import graph as graph_mod
+
+if TYPE_CHECKING:
+    from honest_scholar.core.http import HttpClient
 
 app = typer.Typer(
     name="honest-scholar",
@@ -27,16 +35,6 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
-
-
-def _not_implemented(issue: int) -> None:
-    """Emit the standard not-yet-implemented notice and exit.
-
-    :param issue: The tracking issue number in the ``honest-scholar`` repo.
-    :raises typer.Exit: Always, with code 2.
-    """
-    typer.echo(f"not yet implemented — see honest-scholar#{issue}")
-    raise typer.Exit(code=2)
 
 
 def _version_callback(value: bool) -> None:
@@ -113,49 +111,119 @@ literature = typer.Typer(
 app.add_typer(literature, name="literature")
 
 
+def _lit_client() -> HttpClient:
+    """Build the literature HTTP client from config + environment.
+
+    Reads ``literature.mailto`` from ``.honest-scholar/config.yml`` (polite pool)
+    and ``S2_API_KEY`` from the environment; caches responses under
+    ``.honest-scholar/cache/http``. Tests monkeypatch this to inject a fake client.
+    """
+    from honest_scholar.core.config import load_config
+    from honest_scholar.core.http import HttpClient
+
+    config = load_config()
+    lit = config.get("literature")
+    mailto = lit.get("mailto") if isinstance(lit, dict) else None
+    return HttpClient(
+        cache_dir=Path(".honest-scholar/cache/http"),
+        mailto=mailto or os.environ.get("OPENALEX_MAILTO"),
+        s2_key=os.environ.get("S2_API_KEY"),
+    )
+
+
+def _openalex_id(client: HttpClient, identifier: str) -> str:
+    """Resolve `identifier` to an OpenAlex id, or exit 1 if it cannot resolve."""
+    record = graph_mod.resolve(identifier, client=client)
+    if not record.get("resolved") or not record.get("openalex"):
+        typer.echo(
+            f"could not resolve {identifier!r}: {record.get('reason')}", err=True
+        )
+        raise typer.Exit(code=1)
+    return str(record["openalex"])
+
+
 @literature.command()
 def resolve(identifier: str) -> None:
-    """Resolve an identifier (DOI, arXiv id, title) to a canonical work.
+    """Resolve an identifier (DOI, arXiv id, OpenAlex/S2 id) to a canonical work.
 
     :param identifier: The identifier to resolve.
     """
-    _not_implemented(1)
+    typer.echo(
+        json.dumps(graph_mod.resolve(identifier, client=_lit_client()), indent=2)
+    )
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def cites(identifier: str) -> None:
-    """List works that cite the given work.
+def cites(
+    identifier: str,
+    max_results: Annotated[int, typer.Option("--max", help="Cap on rows.")] = 0,
+) -> None:
+    """List works that cite the given work (JSON array).
 
     :param identifier: The work identifier.
+    :param max_results: Optional cap on the number of rows (0 = all).
     """
-    _not_implemented(1)
+    client = _lit_client()
+    rows = graph_mod.cites(
+        _openalex_id(client, identifier),
+        client=client,
+        max_results=max_results or None,
+    )
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @literature.command()
 def refs(identifier: str) -> None:
-    """List the references of the given work.
+    """List the backward references (OpenAlex ids) of the given work.
 
     :param identifier: The work identifier.
     """
-    _not_implemented(1)
+    client = _lit_client()
+    typer.echo(
+        json.dumps(graph_mod.refs(_openalex_id(client, identifier), client=client))
+    )
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def enrich(identifier: str) -> None:
-    """Enrich a work's metadata from external sources.
+def enrich(
+    identifiers: list[str],
+    with_context: Annotated[bool, typer.Option("--context")] = False,
+) -> None:
+    """Enrich one or more works with their metadata bundle (JSON array).
 
-    :param identifier: The work identifier.
+    :param identifiers: The work identifiers to enrich.
+    :param with_context: Request S2 citation-context fields (degrades w/o a key).
     """
-    _not_implemented(1)
+    client = _lit_client()
+    ids = [_openalex_id(client, ident) for ident in identifiers]
+    rows = graph_mod.enrich(ids, client=client, with_context=with_context)
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def neighbors(identifier: str) -> None:
-    """List citation-graph neighbors of the given work.
+def neighbors(
+    identifier: str,
+    kind: Annotated[
+        str, typer.Option("--kind", help="cocite | couple | both.")
+    ] = "both",
+    top: Annotated[int, typer.Option("--top")] = 20,
+) -> None:
+    """List co-citation / bibliographic-coupling neighbours of the given work.
 
     :param identifier: The work identifier.
+    :param kind: ``cocite`` / ``couple`` / ``both``.
+    :param top: Number of neighbours per set.
     """
-    _not_implemented(1)
+    client = _lit_client()
+    result = graph_mod.neighbors(
+        _openalex_id(client, identifier), client=client, kind=kind, top=top
+    )
+    typer.echo(json.dumps(result, indent=2))
+    raise typer.Exit(code=0)
 
 
 # --- dataset (honest-scholar#2 manifest / #3 retrieval) ---------------------------
@@ -409,66 +477,275 @@ defend = typer.Typer(help="Defensibility record helpers.", no_args_is_help=True)
 app.add_typer(defend, name="defend")
 
 
-@defend.command()
-def record(claim: str) -> None:
-    """Record a defensibility entry for a claim or decision.
+def _parse_acks(acks: str) -> list[dict[str, str]]:
+    """Parse ``"gap::by||gap2::by2"`` into per-gap acknowledgement dicts."""
+    result: list[dict[str, str]] = []
+    for item in filter(None, (a.strip() for a in acks.split("||"))):
+        gap, _, by = item.partition("::")
+        result.append({"gap": gap.strip(), "by": by.strip()})
+    return result
 
-    :param claim: The claim or decision to record.
+
+@defend.command()
+def record(
+    artifact: Annotated[
+        str, typer.Option("--artifact", help="Target markdown artifact.")
+    ],
+    target: Annotated[
+        str, typer.Option("--target", help="claim | cited-work | methodology.")
+    ],
+    gaps: Annotated[
+        str, typer.Option("--gaps", help="Observed gap facts, '||'-separated.")
+    ] = "",
+    signed_off_by: Annotated[str, typer.Option("--signed-off-by")] = "",
+    override: Annotated[bool, typer.Option("--override")] = False,
+    acks: Annotated[
+        str, typer.Option("--acks", help="Per-gap sign-offs, 'gap::name||…'.")
+    ] = "",
+    transcript: Annotated[
+        str, typer.Option("--transcript", help="Transcript file, or '-' for stdin.")
+    ] = "",
+    log_dir: Annotated[str, typer.Option("--log-dir")] = str(
+        record_mod.DEFAULT_LOG_DIR
+    ),
+) -> None:
+    """Record a ``defend`` examination: patch understanding + append the log.
+
+    Writes ``status.understanding`` into the artifact frontmatter and appends the
+    outcome to the accountability log. Records observed facts only — never a
+    verdict, score, or answer key.
+
+    :param artifact: The examined markdown artifact.
+    :param target: ``claim`` / ``cited-work`` / ``methodology``.
+    :param gaps: Observed gap facts, ``||``-separated (empty means no gaps).
+    :param signed_off_by: Named human; required when gaps are waved through.
+    :param override: A blanket logged override of the surfaced gaps.
+    :param acks: Per-gap acknowledgements, ``gap::name``, ``||``-separated.
+    :param transcript: Transcript file path, or ``-`` for stdin.
+    :param log_dir: Directory for the accountability log.
+    :raises typer.Exit: Code 1 on a guard violation or malformed artifact.
     """
-    _not_implemented(4)
+    gap_list = [g.strip() for g in gaps.split("||") if g.strip()]
+    transcript_text: str | None = None
+    if transcript == "-":
+        transcript_text = sys.stdin.read()
+    elif transcript:
+        transcript_text = Path(transcript).read_text(encoding="utf-8")
+    try:
+        result = record_mod.record(
+            artifact,
+            target,
+            gap_list,
+            signed_off_by=signed_off_by or None,
+            override=override,
+            acknowledgements=_parse_acks(acks),
+            transcript=transcript_text,
+            log_dir=log_dir,
+        )
+    except (record_mod.RecordError, OSError) as exc:
+        typer.echo(f"defend record failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(
+        json.dumps(
+            {
+                "outcome": result.outcome,
+                "artifact": str(result.artifact),
+                "log_entry": str(result.log_entry),
+                "transcript": str(result.transcript) if result.transcript else None,
+            },
+            indent=2,
+        )
+    )
+    raise typer.Exit(code=0)
 
 
 # --- backlog (honest-scholar#5) ---------------------------------------------------
 backlog = typer.Typer(help="Exploration backlog management.", no_args_is_help=True)
 app.add_typer(backlog, name="backlog")
 
+_BacklogPath = Annotated[str, typer.Option("--backlog", help="Path to the backlog.")]
+_LevelOpt = Annotated[str, typer.Option("--level", help="hypothesis | paper.")]
+
+
+def _open_backlog(path: str, level: str) -> backlog_mod.Backlog:
+    """Validate `level` and load the backlog at `path`.
+
+    :raises typer.Exit: Code 2 on an invalid level.
+    """
+    if level not in ("hypothesis", "paper"):
+        typer.echo(f"--level must be 'hypothesis' or 'paper', got {level!r}", err=True)
+        raise typer.Exit(code=2)
+    return backlog_mod.Backlog.load(path, level)  # type: ignore[arg-type]
+
+
+def _emit_row(row: dict[str, str]) -> None:
+    """Print one backlog row as JSON and exit 0."""
+    typer.echo(json.dumps(row, indent=2))
+    raise typer.Exit(code=0)
+
 
 @backlog.command()
-def park(item: str) -> None:
-    """Park a raw one-line idea as a backlog row before it is lost.
+def park(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Park a raw one-line idea as a ``parked`` backlog row.
 
-    :param item: The one-line idea (its origin/provenance is required).
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.park(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command()
-def add(item: str) -> None:
-    """Add an item to the exploration backlog.
+def add(
+    one_line: str,
+    provenance: Annotated[str, typer.Option("--provenance", help="Origin, verbatim.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    row_id: Annotated[str, typer.Option("--id", help="Explicit row id.")] = "",
+) -> None:
+    """Add a ``candidate`` row (realizes the ``generate`` verb).
 
-    :param item: The backlog item description.
+    :param one_line: The one-line idea.
+    :param provenance: Its origin (verbatim); required.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level (``hypothesis`` or ``paper``).
+    :param row_id: Optional explicit id.
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.add(one_line, provenance, row_id=row_id or None)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 @backlog.command(name="list")
-def list_() -> None:
-    """List the current exploration backlog."""
-    _not_implemented(5)
+def list_(
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    status: Annotated[str, typer.Option("--status", help="Filter by status.")] = "",
+) -> None:
+    """List backlog rows as JSON (read-only), optionally filtered by status.
 
-
-@backlog.command()
-def rank() -> None:
-    """Rank the exploration backlog by priority."""
-    _not_implemented(5)
-
-
-@backlog.command()
-def promote(item: str) -> None:
-    """Promote a backlog item to an active investigation.
-
-    :param item: The backlog item identifier.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param status: Optional status filter.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    rows = board.listing(status=status or None)
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @backlog.command()
-def drop(item: str) -> None:
-    """Drop an item from the exploration backlog.
+def rank(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+    eig: Annotated[str, typer.Option("--eig")] = "",
+    feas: Annotated[str, typer.Option("--feas")] = "",
+    interest: Annotated[str, typer.Option("--interest")] = "",
+    frame: Annotated[str, typer.Option("--frame")] = "",
+) -> None:
+    """Score a row and set it ``ranked`` (advises; never selects).
 
-    :param item: The backlog item identifier.
+    :param row_id: The row to rank.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :param eig: Expected-information-gain score (hypothesis level).
+    :param feas: Feasibility score.
+    :param interest: Interest score.
+    :param frame: gap-spotting / problematization (hypothesis level).
+    :raises typer.Exit: Code 1 on a guard violation.
     """
-    _not_implemented(5)
+    board = _open_backlog(backlog_path, level)
+    scores = {
+        k: v
+        for k, v in (
+            ("EIG", eig),
+            ("feas", feas),
+            ("interest", interest),
+            ("frame", frame),
+        )
+        if v
+    }
+    try:
+        row = board.rank(row_id, **scores)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def promote(
+    row_id: str,
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Mark a ``ranked`` row ``promoted`` (an explicit human pick).
+
+    Flips the row's status and saves the backlog. Scaffolding the next-stage
+    artifact is a follow-up step (``scaffold_hypothesis`` / ``scaffold_paper``).
+
+    :param row_id: The row to promote.
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.promote(row_id)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
+
+
+@backlog.command()
+def drop(
+    row_id: str,
+    reason: Annotated[str, typer.Option("--reason", help="Why it is dropped.")],
+    backlog_path: _BacklogPath = "backlog.md",
+    level: _LevelOpt = "hypothesis",
+) -> None:
+    """Retire a row as ``dropped`` with a recorded reason (never deletes it).
+
+    :param row_id: The row to drop.
+    :param reason: Why it is dropped; required (file-drawer discipline).
+    :param backlog_path: Path to the backlog table.
+    :param level: Backlog level.
+    :raises typer.Exit: Code 1 on a guard violation.
+    """
+    board = _open_backlog(backlog_path, level)
+    try:
+        row = board.drop(row_id, reason)
+    except backlog_mod.BacklogError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    board.save(backlog_path)
+    _emit_row(row)
 
 
 if __name__ == "__main__":  # pragma: no cover

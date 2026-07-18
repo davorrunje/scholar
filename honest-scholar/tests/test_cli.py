@@ -31,27 +31,6 @@ def test_doctor_runs() -> None:
     assert "uv" in result.stdout.lower()
 
 
-def test_stub_command_exits_2() -> None:
-    result = runner.invoke(app, ["literature", "resolve", "10.1000/xyz"])
-    assert result.exit_code == 2
-    assert "not yet implemented" in result.stdout
-    assert "honest-scholar#1" in result.stdout
-
-
-def test_each_group_has_a_stub() -> None:
-    cases = [
-        (["literature", "resolve", "10.1000/xyz"], "honest-scholar#1"),
-        (["defend", "record", "claim"], "honest-scholar#4"),
-        (["backlog", "park", "idea"], "honest-scholar#5"),
-        (["backlog", "add", "idea"], "honest-scholar#5"),
-    ]
-    for args, issue in cases:
-        result = runner.invoke(app, args)
-        assert result.exit_code == 2
-        assert "not yet implemented" in result.stdout
-        assert issue in result.stdout
-
-
 def test_dataset_command_tree_matches_audited_specs() -> None:
     result = runner.invoke(app, ["dataset", "--help"])
     assert result.exit_code == 0
