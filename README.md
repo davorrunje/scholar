@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="assets/wordmark.svg" alt="scholar" width="360">
+  <img src="assets/wordmark.svg" alt="honest-scholar" width="360">
 </p>
 
 <p align="center"><em>Research you can defend.</em></p>
 
 ---
 
-**`scholar`** is a uniform, git-native Claude Code plugin for the *scientific*
+**`honest-scholar`** is a uniform, git-native Claude Code plugin for the *scientific*
 research workflow — idea → literature → hypothesis → test → publish-decision →
 paper → thesis — so a researcher and their collaborators work the same way and
 re-derive neither the workflow nor its rigor per project. The *engineering* is
 delegated to a bound **engineering backend** via the engineering-delegation
-contract, so `scholar` stays domain- and tool-neutral.
+contract, so `honest-scholar` stays domain- and tool-neutral.
 
 > **New here?** Start with the **[User Guide](docs/USER-GUIDE.md)**.
 >
@@ -22,7 +22,7 @@ contract, so `scholar` stays domain- and tool-neutral.
 
 ## Two guiding principles
 
-Everything in `scholar` sits under two principles (both grounded in the
+Everything in `honest-scholar` sits under two principles (both grounded in the
 literature — see [`resources/references/`](resources/references/)):
 
 1. **Assistants, not researchers (agency).** The skills keep the accounts, advise
@@ -34,7 +34,7 @@ literature — see [`resources/references/`](resources/references/)):
    produce a paper or thesis — you drive it.
 2. **You must understand it (understanding).** Every material claim, decision, and
    method must be understood to the standard a good mentor or reviewer expects.
-   `scholar` verifies *and builds* that understanding through Socratic questioning and
+   `honest-scholar` verifies *and builds* that understanding through Socratic questioning and
    teaching (the `defend` skill), and will not let work advance past a gap silently
    — including examining the *why* behind the methodology, to prevent cargo-cult
    rigor.
@@ -67,11 +67,11 @@ existing one (`adopt`).
 
 ## Install
 
-`scholar` is a Claude Code plugin; the repo is its own marketplace.
+`honest-scholar` is a Claude Code plugin; the repo is its own marketplace.
 
 ```
-/plugin marketplace add davorrunje/scholar
-/plugin install scholar@scholar
+/plugin marketplace add davorrunje/honest-scholar
+/plugin install honest-scholar@honest-scholar
 ```
 
 **Enable it for a whole project** (so collaborators get it on trust) — add to the
@@ -80,9 +80,9 @@ consuming repo's `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "scholar": { "source": { "source": "github", "repo": "davorrunje/scholar" } }
+    "honest-scholar": { "source": { "source": "github", "repo": "davorrunje/honest-scholar" } }
   },
-  "enabledPlugins": { "scholar@scholar": true }
+  "enabledPlugins": { "honest-scholar@honest-scholar": true }
 }
 ```
 
@@ -109,12 +109,12 @@ convention ([`resources/commit-attribution.md`](resources/commit-attribution.md)
 and the visual identity ([`docs/design/visual-identity.md`](docs/design/visual-identity.md)).
 
 This record is intended to seed a blog post / paper explaining the skills and
-their rationale — ideally written *using* `scholar` itself.
+their rationale — ideally written *using* `honest-scholar` itself.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). `scholar`'s own development uses
-`superpowers`; **using** `scholar` does not require it — engineering is delegated
+See [CONTRIBUTING.md](CONTRIBUTING.md). `honest-scholar`'s own development uses
+`superpowers`; **using** `honest-scholar` does not require it — engineering is delegated
 via the [engineering contract](resources/contracts/engineering.md).
 
 ## License

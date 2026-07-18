@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Lint the scholar-tools package with ruff (check + format verification).
-cd "$(dirname "$0")/../scholar-tools"
+# Lint the honest-scholar package with ruff (check + format verification).
+cd "$(dirname "$0")/../honest-scholar"
 
 echo "Running ruff linter..."
 uv run ruff check .

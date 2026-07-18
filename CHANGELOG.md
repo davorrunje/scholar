@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Engineering scaffold for the `scholar-tools` Python package (`scholar-tools/`
-  subdirectory): hatchling build, `scholar` Typer CLI with an implemented
+- Engineering scaffold for the `honest-scholar` Python package (`honest-scholar/`
+  subdirectory): hatchling build, `honest-scholar` Typer CLI with an implemented
   `doctor` command and typed stub sub-commands (`literature`, `dataset`,
   `defend`, `backlog`), a typed `core.config` loader, module stubs, and tests.
 - Repo-root hygiene: `.pre-commit-config.yaml` (pre-commit-hooks, pyupgrade,

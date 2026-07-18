@@ -1,11 +1,11 @@
-# scholar — Scientific Research-Workflow Plugin (Meta-Spec)
+# honest-scholar — Scientific Research-Workflow Plugin (Meta-Spec)
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
 **Status:** Brainstorming output; parent meta-spec, pending four sub-specs and implementation plans.
 
 > **Scope of this document.** This is the *parent* spec for a new, standalone
-> Claude Code plugin — **`scholar`** — that packages the scientific
+> Claude Code plugin — **`honest-scholar`** — that packages the scientific
 > research-workflow skills currently being designed inside `mononet`
 > (`docs/superpowers/specs/2026-07-15-*`). It establishes the global picture:
 > identity, scope, plugin architecture, the plugin↔consumer boundary, the
@@ -16,7 +16,7 @@
 
 **This principle overrides everything else in this document.**
 
-The `scholar` skills are **assistants, not researchers.** They keep the accounts
+The `honest-scholar` skills are **assistants, not researchers.** They keep the accounts
 of a research program, advise as a mentor, and discuss as a colleague — but they
 do **not** perform independent research and do **not** make material scientific
 decisions. Accountability for research is *non-delegable and attaches only to
@@ -34,9 +34,9 @@ examines and teaches until you can.
 
 Elaborated in §2.1–§2.2; fully grounded, with verified sources and enforceable
 guardrails, in
-[`scholar/references/agency-principle.md`](../scholar/references/agency-principle.md)
+[`honest-scholar/references/agency-principle.md`](../honest-scholar/references/agency-principle.md)
 and
-[`scholar/references/understanding-and-defense.md`](../scholar/references/understanding-and-defense.md).
+[`honest-scholar/references/understanding-and-defense.md`](../honest-scholar/references/understanding-and-defense.md).
 
 ## 1. Goals & non-goals
 
@@ -70,7 +70,7 @@ and
   test authoring are delegated to the bound **engineering backend** via the
   engineering-delegation contract (`resources/contracts/engineering.md`;
   capabilities `design` / `plan` / `implement`, bound per project in
-  `.scholar/config.yml` as `engineering_backend:`). `scholar` calls out to it; it
+  `.honest-scholar/config.yml` as `engineering_backend:`). `honest-scholar` calls out to it; it
   does not reimplement it. This boundary is deliberate and load-bearing.
 - **No domain assumptions.** Nothing monotonic-network- or even
   ML-specific ships in the plugin. Domain content is supplied by the consuming
@@ -78,7 +78,7 @@ and
 - **No hosted services as source of truth.** No MLflow/W&B/Zotero-DB
   dependency for provenance. Optional authoring front-ends (e.g. Zotero) may
   *export* into the git-tracked artifacts, but the repo is authoritative.
-- **No experiment *runner*.** `scholar` defines the experiment-backend
+- **No experiment *runner*.** `honest-scholar` defines the experiment-backend
   *contract*; each consuming repo supplies the implementation (for `mononet`,
   the benchmark orchestration of PR #127).
 - **No cross-repo aggregation.** Work-research and a PhD thesis live in
@@ -91,7 +91,7 @@ and
 
 ## 2. Identity & scope
 
-`scholar` covers the **scientific** workflow; the *engineering* is delegated to
+`honest-scholar` covers the **scientific** workflow; the *engineering* is delegated to
 the bound engineering backend via the engineering-delegation contract.
 Its unit of work is a *scientific claim* and its lifecycle; its outputs are
 hypotheses, evidence, decisions, and papers. Everything that is "how do I build
@@ -99,7 +99,7 @@ the thing that produces the evidence" is the engineering backend's job.
 
 ### 2.1 Core principle — assistant, not researcher
 
-`scholar` skills are **assistants, not autonomous researchers.** They keep the
+`honest-scholar` skills are **assistants, not autonomous researchers.** They keep the
 accounts of a research program, advise as a mentor, and discuss as a colleague —
 but they do **not** perform independent research, and they do **not** make
 material decisions. The researcher is in the driving seat. This is the highest
@@ -137,7 +137,7 @@ judgement points" rule is demanded by the automation-bias literature
 LLM citation fabrication. The positive framing is the augmentation tradition
 (Engelbart 1962; Bush 1945): amplify judgement, do not replace it. Full digest
 with verified sources and the enforceable guardrails:
-[`scholar/references/agency-principle.md`](../scholar/references/agency-principle.md).
+[`honest-scholar/references/agency-principle.md`](../honest-scholar/references/agency-principle.md).
 
 ### 2.2 Understanding principle
 
@@ -169,7 +169,7 @@ decision advance past something the author cannot explain or defend — silently
   cited works) and, for novel claims, teaches how to reason and defend.
 
 Fully grounded, with sources and constraints, in
-[`scholar/references/understanding-and-defense.md`](../scholar/references/understanding-and-defense.md).
+[`honest-scholar/references/understanding-and-defense.md`](../honest-scholar/references/understanding-and-defense.md).
 
 ### 2.3 The firewall
 
@@ -356,15 +356,15 @@ respecting the firewall by producing evidence the human acts on).
   learning-styles myth) and would violate agency; the rule is *match the voice to
   the task and the author's stated choice, never to an inferred personality.*
   Grounded in
-  [`scholar/references/mentor-personas.md`](../scholar/references/mentor-personas.md).
+  [`honest-scholar/references/mentor-personas.md`](../honest-scholar/references/mentor-personas.md).
 
 ## 4. Plugin repo layout
 
-Standalone repo, distributed as a Claude Code plugin. Working name `scholar`;
-skills are namespaced `scholar:<skill>`.
+Standalone repo, distributed as a Claude Code plugin. Working name `honest-scholar`;
+skills are namespaced `honest-scholar:<skill>`.
 
 ```
-scholar/                                  # plugin repo root
+honest-scholar/                                  # plugin repo root
 ├── .claude-plugin/
 │   └── plugin.json                       # manifest: name, version, description
 ├── skills/
@@ -397,7 +397,7 @@ plus the eight generated this session — **citation scouting**, **related-works
 synthesis**, **dataset-management standards**, **dataset tooling / mirror
 architecture**, **thesis-by-publication & progress tracking**, the
 **agency principle**, **the understanding principle & defense**, and **mentor /
-reviewer personas** (all already persisted under `scholar/references/`). These are
+reviewer personas** (all already persisted under `honest-scholar/references/`). These are
 the evidentiary base for the sub-specs and must be persisted, not left in
 conversation.
 
@@ -426,7 +426,7 @@ the experiment-backend implementation. After `init`/`adopt`, a consumer repo
 │       └── triage.yml                    # decision sidecar (keyed by citekey/DOI)
 ├── datasets.yml                          # dataset registry (entries + checksums + tiers)
 ├── .datasets-cache/                      # gitignored materialized data
-├── .scholar/
+├── .honest-scholar/
 │   ├── config.yml                        # rclone remote name, lit anchors, experiment-backend + engineering_backend bindings
 │   ├── rclone.conf                       # gitignored (creds)
 │   └── rclone.conf.example               # committed template (remote name/type only)
@@ -435,7 +435,7 @@ the experiment-backend implementation. After `init`/`adopt`, a consumer repo
 
 | Lives in the **plugin** | Lives in the **consumer** |
 |---|---|
-| the 7 skills; capability engines (literature, dataset); templates; rigor kit; methodology digests; the substrate + experiment-backend **contracts** | `docs/research/` content; `datasets.yml` entries + blobs; `.scholar/` config + mirror creds; the experiment-backend **implementation**; literature anchors |
+| the 7 skills; capability engines (literature, dataset); templates; rigor kit; methodology digests; the substrate + experiment-backend **contracts** | `docs/research/` content; `datasets.yml` entries + blobs; `.honest-scholar/` config + mirror creds; the experiment-backend **implementation**; literature anchors |
 
 ## 6. The `research-init` skill (init / adopt)
 
@@ -443,7 +443,7 @@ One skill, two modes — both drive a repo to the layout of §5; `adopt` is `ini
 plus an inventory-and-map phase.
 
 - **`init` (greenfield)** — scaffold the `docs/research/` layout, the registries
-  (`papers.md`, `datasets.yml`, `references.bib` + `triage.yml`), `.scholar/`
+  (`papers.md`, `datasets.yml`, `references.bib` + `triage.yml`), `.honest-scholar/`
   config (rclone remote name, literature anchors, experiment-backend +
   engineering-backend bindings),
   and the staged-doc templates. Delegates per-item registration to the
@@ -461,7 +461,7 @@ plus an inventory-and-map phase.
     `monotone-depth-collapse-lean-brief.md`) → retroactive hypothesis docs with
     findings — the "detailed record per hypothesis" applied historically.
   - the benchmark orchestration (PR #127) → bound as `mononet`'s
-    experiment-backend implementation in `.scholar/config.yml`.
+    experiment-backend implementation in `.honest-scholar/config.yml`.
 
 `adopt` is the direct payoff for the "benchmarks folder out of control, no
 systematic record" problem that motivated this whole effort.
@@ -469,10 +469,10 @@ systematic record" problem that motivated this whole effort.
 ## 7. Distribution
 
 Distributed as a **public** Claude Code plugin (git-repo marketplace install),
-named **`scholar`** (ADR-0019) — for the author's own repos, company colleagues,
+named **`honest-scholar`** (ADR-0019) — for the author's own repos, company colleagues,
 PhD peers, and the broader research community. The plugin must therefore be
 genuinely domain-neutral and self-documenting from day one — most "users" are not
-the author. A root `README.md` (staged at `docs/superpowers/scholar/README.md`)
+the author. A root `README.md` (staged at `docs/superpowers/honest-scholar/README.md`)
 explains purpose + reasoning and links to the decision log and reference digests.
 Licensed **Apache-2.0** (ADR-0022), matching `mononet`.
 
@@ -508,7 +508,7 @@ This meta-spec defers detail to four sub-specs (each date-prefixed under
 The scientific-workflow work currently lives inside `mononet`. It relocates:
 
 - **PR #128** (four research-workflow specs + `docs/research/README.md` + four
-  reference digests) → **retargets the `scholar` plugin repo** instead of
+  reference digests) → **retargets the `honest-scholar` plugin repo** instead of
   `mononet/docs/superpowers/`. Content is refactored to depend on the
   capability contracts rather than `mononet` internals.
 - **PR #127** (benchmark experiment orchestration) → **stays in `mononet`** as
@@ -516,7 +516,7 @@ The scientific-workflow work currently lives inside `mononet`. It relocates:
   "mononet's experiment backend" rather than a general facility.
 - The methodology digests (this session's eight + #128's four) → become
   `resources/references/` in the plugin. This session's eight are already staged
-  under `docs/superpowers/scholar/references/`.
+  under `docs/superpowers/honest-scholar/references/`.
 - `mononet` becomes the reference **consumer**: it runs `research-init adopt`
   against itself once the plugin exists.
 
@@ -525,7 +525,7 @@ implementation plans, then the plugin repo is created and `mononet` adopts it.
 
 ## 10. Open items to confirm before implementation
 
-- **Plugin repo name / visibility** — *resolved:* public, named `scholar`
+- **Plugin repo name / visibility** — *resolved:* public, named `honest-scholar`
   (ADR-0019).
 - **Bibliography format** — *resolved:* CSL-JSON as source of truth, BibTeX
   exported on demand (ADR-0020).
@@ -535,7 +535,7 @@ implementation plans, then the plugin repo is created and `mononet` adopts it.
 - **Mirror hash algorithm** — MD5 (lowest common denominator across Google
   Drive + S3 via rclone) vs SHA-256 (stronger, but disjoint backend hash sets);
   resolve in sub-spec 3/4.
-- **`.scholar/` vs existing conventions** — confirm the config directory name
+- **`.honest-scholar/` vs existing conventions** — confirm the config directory name
   and that it does not collide with existing repo conventions.
 - **Thesis milestone schema** — the shape of `milestones.yml` (institution
   gates are time-boxed and vary); keep configurable, resolve in sub-spec 1.

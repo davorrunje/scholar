@@ -11,9 +11,9 @@ public source → gated instructions) with SHA-256 fixity at every hop, but the
 fetcher and rclone wrappers as unwritten TODOs. **Interim (until the module is
 implemented):** the skill orchestrates the resolution chain manually / via direct
 tool calls — fetch, `sha256sum` fixity checks, and hand-run `rclone` — which is
-error-prone; once `scholar-tools` is installed (via
+error-prone; once `honest-scholar` is installed (via
 [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
-`scholar dataset …` instead. This proposal specifies that tooling.
+`honest-scholar dataset …` instead. This proposal specifies that tooling.
 
 The substrate that this tooling implements is already fixed by
 `../../../resources/substrate/asset-registry.md`: a git-committed, license-bearing,
@@ -78,7 +78,7 @@ is gitignored.
 
 ## API / CLI the verbs call
 
-A single module, `scholar_tools/dataset/retrieval.py` (sharing the package's
+A single module, `honest_scholar/dataset/retrieval.py` (sharing the package's
 `core` cache/http/provenance helpers), exposing the seams the verbs invoke:
 
 ```
@@ -97,9 +97,9 @@ Verb → core mapping:
 - `audit`  → `verify` + `mirror_check` across every manifest entry, plus
   schema/license/datasheet completeness (owned by the loader/validator TODO)
 
-CLI shape mirrors the verbs: `scholar dataset fetch <id>`,
-`scholar dataset verify [<id>|--all]`, `scholar dataset mirror <id>`,
-`scholar dataset audit`. All read the mirror remote name + base
+CLI shape mirrors the verbs: `honest-scholar dataset fetch <id>`,
+`honest-scholar dataset verify [<id>|--all]`, `honest-scholar dataset mirror <id>`,
+`honest-scholar dataset audit`. All read the mirror remote name + base
 path from `datasets.yml`; none embed credentials.
 
 ## Dependencies & posture

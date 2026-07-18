@@ -1,8 +1,8 @@
-# ensure-tooling — bootstrap the `scholar` CLI
+# ensure-tooling — bootstrap the `honest-scholar` CLI
 
-Skills that call the `scholar` CLI **must first ensure it is installed**, by
+Skills that call the `honest-scholar` CLI **must first ensure it is installed**, by
 following this procedure. It is markdown the agent executes via the shell — the
-plugin ships no build step. Goal: get an isolated, pinned `scholar-tools`
+plugin ships no build step. Goal: get an isolated, pinned `honest-scholar`
 install with **zero footprint on the consumer's project environment**, adapting
 to whatever toolchain is present, and **stopping honestly** when it can't.
 
@@ -13,22 +13,31 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
 
 ## Procedure
 
-1. **Fast path.** If a recorded invocation exists (`.scholar/config.yml →
-   tooling.cli`) or `scholar` is on `PATH`, run `scholar --version`. If it matches
+1. **Fast path.** If a recorded invocation exists (`.honest-scholar/config.yml →
+   tooling.cli`) or `honest-scholar` is on `PATH`, run `honest-scholar --version`. If it matches
    the pinned version → **done**.
 2. **Detect a toolchain**, in priority order:
    - `uv` (preferred — a single binary that can also provision Python),
    - else `pipx`,
    - else `python3` (with `venv` + `pip`).
-3. **Install, isolated** (from the plugin repo's `scholar-tools/` subdirectory,
-   pinned to `<ref>` — a git tag/commit; no PyPI yet). Let
-   `SRC="git+https://github.com/davorrunje/scholar.git@<ref>#subdirectory=scholar-tools"`:
-   - `uv tool install "$SRC"` — installs Python + deps in an isolated tool env; or
-     run ad hoc with `uvx --from "$SRC" scholar …` (no persistent install).
-   - else `pipx install "$SRC"`.
-   - else `python3 -m venv "$XDG_STATE_HOME/scholar/venv-<ref>"` (fallback:
-     `~/.local/state/scholar/…`) then that venv's `pip install "$SRC"`.
-4. **Record** the resolved invocation under `.scholar/config.yml`
+3. **Install, isolated** — **PyPI-first**. The primary source is the published
+   package `honest-scholar` on PyPI, pinned to `honest-scholar==<version>`:
+   - `uv tool install honest-scholar` — installs Python + deps in an isolated tool
+     env; or run ad hoc with `uvx honest-scholar …` (no persistent install).
+   - else `pipx install honest-scholar`.
+   - else `python3 -m venv "$XDG_STATE_HOME/honest-scholar/venv-<ref>"` (fallback:
+     `~/.local/state/honest-scholar/…`) then that venv's `pip install honest-scholar`.
+   - **Pre-release validation:** install release candidates from **TestPyPI**
+     (`uv tool install --index https://test.pypi.org/simple/ honest-scholar`, or
+     `pip install --index-url https://test.pypi.org/simple/ honest-scholar`) before
+     a real release.
+   - **Fallback — git subdirectory** (an unreleased `<ref>`, or PyPI unreachable):
+     install from the plugin repo's `honest-scholar/` subdirectory, pinned to
+     `<ref>` — a git tag/commit. Let
+     `SRC="git+https://github.com/davorrunje/honest-scholar.git@<ref>#subdirectory=honest-scholar"`
+     and use `uv tool install "$SRC"` / `uvx --from "$SRC" honest-scholar …` /
+     `pipx install "$SRC"` / venv + `pip install "$SRC"`.
+4. **Record** the resolved invocation under `.honest-scholar/config.yml`
    (`tooling: { cli: "<path-or-command>", version: "<version>" }`) so later calls
    skip detection.
 5. **Environment changes need consent.** If neither `uv`/`pipx` nor Python is
@@ -42,17 +51,17 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
 ## Notes
 
 - **Isolation:** the install lives in a `uv`/`pipx` tool env or a per-user state
-  venv — never the consumer repo's project env. This is what lets `scholar-tools`
+  venv — never the consumer repo's project env. This is what lets `honest-scholar`
   depend freely on `typer` / `requests` / `pyyaml` / `pooch` without touching
   anyone's torch/jax install.
 - **Idempotency:** step 1 must be cheap; only steps 2–3 touch the network.
 - **Version pinning:** the pinned version comes from the installed plugin; upgrades
   are deliberate (bump the pin), not silent.
 - **rclone** (the private-mirror engine) is a separate single static binary — **not
-  a Python dependency**; `scholar-tools` shells out to it. It is **optional**: only
+  a Python dependency**; `honest-scholar` shells out to it. It is **optional**: only
   private-mirror operations need it (Tier-A git/LFS and Tier-B `pooch` fetch do
   not). Ensure it by the same **detect → ensure/instruct** pattern: check `rclone`
   on `PATH`; if missing, prefer an OS package (`apt`/`brew`), else offer to fetch
-  the **checksum-verified** static binary into `$XDG_STATE_HOME/scholar/bin/` **with
+  the **checksum-verified** static binary into `$XDG_STATE_HOME/honest-scholar/bin/` **with
   consent**, else **honest stop** with the official install command (never a silent
-  `curl | sh`). `scholar doctor` reports Python / `uv` / `rclone` presence + versions.
+  `curl | sh`). `honest-scholar doctor` reports Python / `uv` / `rclone` presence + versions.

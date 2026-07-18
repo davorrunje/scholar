@@ -177,6 +177,6 @@ When you commit artifacts produced by this skill, add these git trailers —
 discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
 
 ```
-Generated-with: scholar (https://github.com/davorrunje/scholar)
-Scholar-Skill: paper-synthesis
+Generated-with: honest-scholar (https://github.com/davorrunje/honest-scholar)
+HonestScholar-Skill: paper-synthesis
 ```

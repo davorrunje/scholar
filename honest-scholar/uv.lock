@@ -717,7 +717,7 @@ wheels = [
 ]
 
 [[package]]
-name = "scholar-tools"
+name = "honest-scholar"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [

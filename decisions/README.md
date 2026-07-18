@@ -1,6 +1,6 @@
-# scholar — Decision Log (ADRs)
+# honest-scholar — Decision Log (ADRs)
 
-MADR-style Architecture Decision Records for the `scholar` plugin. Each records
+MADR-style Architecture Decision Records for the `honest-scholar` plugin. Each records
 the context, the options considered, the rejected alternatives **and why**, and
 links to the spec section + grounding digest. Captured 2026-07-17 during the
 design session; the reasoning here is not reconstructable from the specs alone.
@@ -8,7 +8,7 @@ Migrates to the plugin's `decisions/` alongside `resources/references/`.
 
 > Purpose beyond the record: this log is the raw material for a planned blog
 > post / paper explaining the skills and the reasoning behind them — the intent
-> is eventually to write that *using* `scholar` (`paper-synthesis` + `defend`).
+> is eventually to write that *using* `honest-scholar` (`paper-synthesis` + `defend`).
 
 | ADR | Decision | Status |
 |---|---|---|
@@ -30,7 +30,7 @@ Migrates to the plugin's `decisions/` alongside `resources/references/`.
 | [0016](0016-mentor-personas.md) | Mentor personas author-selectable; no personality inference | accepted |
 | [0017](0017-research-init-one-skill.md) | `research-init` one skill, init/adopt modes | accepted |
 | [0018](0018-git-native-source-of-truth.md) | Git-native plain text as source of truth; cross-repo out of scope | accepted |
-| [0019](0019-public-plugin-visibility.md) | Public plugin, named `scholar` | accepted |
+| [0019](0019-public-plugin-visibility.md) | Public plugin, named `honest-scholar` | accepted |
 | [0020](0020-bib-format-csl-json.md) | CSL-JSON source of truth; BibTeX exported on demand | accepted |
 | [0021](0021-thesis-gate-per-gap-confirmation.md) | Thesis gate — per-gap acknowledged confirmation | accepted |
 | [0022](0022-license-apache-2.0.md) | License the plugin under Apache-2.0 | accepted |

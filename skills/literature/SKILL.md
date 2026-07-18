@@ -47,7 +47,7 @@ deciding novelty/what to publish (a human sign-off, per the agency principle).
 
 Grounding: [../../resources/references/citation-scouting.md](../../resources/references/citation-scouting.md).
 
-1. **Fix the anchor set** — own papers + rival anchors from `.scholar/config.yml`
+1. **Fix the anchor set** — own papers + rival anchors from `.honest-scholar/config.yml`
    (or args). Resolve each to a stable id (DOI / arXiv / OpenAlex / S2).
 2. **Pull forward citations** per anchor — OpenAlex `filter=cites:<WORKID>` and
    S2 `/paper/{id}/citations`. Store the raw JSON as the provenance root.
@@ -191,6 +191,6 @@ When you commit artifacts produced by this skill, add these git trailers —
 discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
 
 ```
-Generated-with: scholar (https://github.com/davorrunje/scholar)
-Scholar-Skill: literature
+Generated-with: honest-scholar (https://github.com/davorrunje/honest-scholar)
+HonestScholar-Skill: literature
 ```

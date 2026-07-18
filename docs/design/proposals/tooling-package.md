@@ -1,4 +1,4 @@
-# Proposal: `scholar-tools` package (Typer CLI, optional MCP)
+# Proposal: `honest-scholar` package (Typer CLI, optional MCP)
 
 `Status: draft (for discussion) · Date: 2026-07-18 · Umbrella for the supporting-script proposals`
 
@@ -13,16 +13,16 @@ procedure.
 
 ## Package
 
-`scholar-tools` (distribution name; exposes the **`scholar`** CLI). It lives as a
-**`scholar-tools/` subdirectory of this plugin repo** — a monorepo, co-versioned
+`honest-scholar` (distribution name; exposes the **`honest-scholar`** CLI). It lives as a
+**`honest-scholar/` subdirectory of this plugin repo** — a monorepo, co-versioned
 with the plugin, not a separate repo. Isolated env (ADR-0024) — free to depend on
 `typer` + `requests` (HTTP) + `pyyaml` + `pooch` without touching a consumer's ML
 environment.
 
 ```
-scholar-tools/                     # subdirectory of the plugin repo
-├── pyproject.toml                 # deps + [project.scripts] scholar = scholar_tools.cli:app + [project.entry-points] mcp
-├── scholar_tools/
+honest-scholar/                     # subdirectory of the plugin repo
+├── pyproject.toml                 # deps + [project.scripts] honest-scholar = honest_scholar.cli:app + [project.entry-points] mcp
+├── honest_scholar/
 │   ├── core/                      # shared: requests-based http client, on-disk cache, config read, provenance
 │   ├── literature/graph.py        # ← proposal: literature-citation-graph-client
 │   ├── dataset/manifest.py        # ← proposal: dataset-manifest-tooling
@@ -39,11 +39,11 @@ scholar-tools/                     # subdirectory of the plugin repo
 A Typer command tree that mirrors the skill verbs; each command emits JSON:
 
 ```
-scholar literature resolve | cites | refs | enrich | neighbors
-scholar dataset    register | fetch | verify | mirror | audit
-scholar defend     record
-scholar backlog    add | rank | promote | drop        # shared by both exploration skills
-scholar --version
+honest-scholar literature resolve | cites | refs | enrich | neighbors
+honest-scholar dataset    register | fetch | verify | mirror | audit
+honest-scholar defend     record
+honest-scholar backlog    add | rank | promote | drop        # shared by both exploration skills
+honest-scholar --version
 ```
 
 The skills invoke these via Bash (after `ensure-tooling`). Typer is consistent
@@ -59,16 +59,24 @@ CLI-first); nothing depends on it. Adding it is a wrapper, not a rewrite.
 
 Install/upgrade is handled entirely by [`ensure-tooling`](../../resources/ensure-tooling.md):
 detect `uv`→`pipx`→`python3`, install isolated + pinned (prefer `uv tool install`,
-which also provisions Python), record the CLI in `.scholar/config.yml`, stop with
+which also provisions Python), record the CLI in `.honest-scholar/config.yml`, stop with
 instructions if the env can't self-heal.
 
-Distribution is **git-install now** (no PyPI yet) — install from the `scholar-tools/`
-subdirectory of the plugin repo:
+Distribution is **PyPI-first** — the primary install is the published
+`honest-scholar` package:
 
 ```
-uv tool install "git+https://github.com/davorrunje/scholar.git#subdirectory=scholar-tools"
+uv tool install honest-scholar
 # ad-hoc, no persistent install:
-uvx --from "git+https://github.com/davorrunje/scholar.git#subdirectory=scholar-tools" scholar …
+uvx honest-scholar …
+```
+
+The **git-subdirectory install is the fallback** (an unreleased ref, or PyPI
+unreachable); release candidates are validated from **TestPyPI** first:
+
+```
+uv tool install "git+https://github.com/davorrunje/honest-scholar.git#subdirectory=honest-scholar"
+uvx --from "git+https://github.com/davorrunje/honest-scholar.git#subdirectory=honest-scholar" honest-scholar …
 ```
 
 ## Decided
@@ -76,27 +84,30 @@ uvx --from "git+https://github.com/davorrunje/scholar.git#subdirectory=scholar-t
 - **House HTTP client = `requests`** (applies to `core`, used by literature + any
   http fetch). `pooch` already pulls it, so it is a zero-net-dep choice; no async
   surface is needed. Used everywhere an HTTP call is made.
-- **Distribution = git-install now** (no PyPI yet): install from the plugin repo's
-  `scholar-tools/` subdirectory via `uv tool install "git+…#subdirectory=scholar-tools"`
-  (or `uvx --from …` ad-hoc). Avoids a release step early; a PyPI publish can follow.
+- **Distribution = PyPI-first**: primary install is the published `honest-scholar`
+  package (`uv tool install honest-scholar`, or `uvx honest-scholar …` ad-hoc);
+  release candidates are validated from **TestPyPI** first. The git-subdirectory
+  install (`uv tool install "git+…#subdirectory=honest-scholar"`) is the fallback
+  for unreleased refs or when PyPI is unreachable.
 
 ## Open questions
 
-- **Names:** distribution `scholar-tools`, CLI `scholar` — confirm no clash; is
-  `scholar` on PyPI free (for a later publish), or namespace as `scholar-research-tools`?
+- **Names:** distribution `honest-scholar`, CLI `honest-scholar` (+ short alias
+  `hsch`) — confirm the `honest-scholar` name is claimed on PyPI/TestPyPI ahead of
+  the first publish.
 - **MCP timing:** ship the wrapper in v0.1, or wait for a concrete need?
-- **Version pin source:** how the plugin communicates its pinned `scholar-tools`
+- **Version pin source:** how the plugin communicates its pinned `honest-scholar`
   version to `ensure-tooling`. Since the package is co-versioned in the same repo,
   a git ref/tag (or a `VERSION` file read by the skills) — pick the mechanism.
 
 ## Acceptance criteria
 
-- [ ] `scholar-tools` skeleton: `pyproject.toml`, `core/`, Typer `cli.py`, `tests/`.
-- [ ] `scholar --version` works via an isolated `uv tool` / `pipx` / venv install.
+- [ ] `honest-scholar` skeleton: `pyproject.toml`, `core/`, Typer `cli.py`, `tests/`.
+- [ ] `honest-scholar --version` works via an isolated `uv tool` / `pipx` / venv install.
 - [ ] `ensure-tooling` provisions it on a machine with only `uv` (no prior Python).
 - [ ] Each module implemented per its own proposal; CLI subcommands wired.
 - [ ] Skills updated: interim manual / direct-tool-call orchestration replaced with
-      `ensure-tooling` + `scholar …` calls.
+      `ensure-tooling` + `honest-scholar …` calls.
 - [ ] (Later) MCP wrapper exposing the same functions.
 
 ## Links

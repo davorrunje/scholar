@@ -1,4 +1,4 @@
-"""Tests for :mod:`scholar_tools.core.config`."""
+"""Tests for :mod:`honest_scholar.core.config`."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
-from scholar_tools.core import load_config
+from honest_scholar.core import load_config
 
 
 def test_missing_file_returns_empty(tmp_path: Path) -> None:
@@ -18,9 +18,11 @@ def test_missing_file_returns_empty(tmp_path: Path) -> None:
 
 def test_reads_mapping(tmp_path: Path) -> None:
     path = tmp_path / "config.yml"
-    path.write_text("tooling:\n  cli: scholar\n  version: 0.0.0\n", encoding="utf-8")
+    path.write_text(
+        "tooling:\n  cli: honest-scholar\n  version: 0.0.0\n", encoding="utf-8"
+    )
     config = load_config(path)
-    assert config["tooling"]["cli"] == "scholar"
+    assert config["tooling"]["cli"] == "honest-scholar"
 
 
 def test_blank_file_returns_empty(tmp_path: Path) -> None:

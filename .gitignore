@@ -1,6 +1,6 @@
-# scholar plugin — consumers create these in THEIR repos, never here
+# honest-scholar plugin — consumers create these in THEIR repos, never here
 .datasets-cache/
-.scholar/rclone.conf
+.honest-scholar/rclone.conf
 *.rclone.conf
 
 # OS / editor
@@ -22,3 +22,8 @@ __pycache__/
 .coverage.*
 htmlcov/
 coverage.xml
+
+# build artifacts
+dist/
+build/
+*.egg-info/

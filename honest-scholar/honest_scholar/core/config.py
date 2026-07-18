@@ -1,4 +1,4 @@
-"""Reading of the per-project ``.scholar/config.yml`` file."""
+"""Reading of the per-project ``.honest-scholar/config.yml`` file."""
 
 from __future__ import annotations
 
@@ -7,17 +7,17 @@ from typing import Any
 
 import yaml
 
-DEFAULT_CONFIG_PATH = Path(".scholar/config.yml")
+DEFAULT_CONFIG_PATH = Path(".honest-scholar/config.yml")
 
 
 def load_config(path: str | Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
-    """Load the scholar project configuration.
+    """Load the honest-scholar project configuration.
 
-    Reads a YAML mapping from ``.scholar/config.yml`` (or the given path). A
+    Reads a YAML mapping from ``.honest-scholar/config.yml`` (or the given path). A
     missing file yields an empty configuration rather than an error, so callers
     can treat an unconfigured project as "all defaults".
 
-    :param path: Path to the config file; defaults to ``.scholar/config.yml``.
+    :param path: Path to the config file; defaults to ``.honest-scholar/config.yml``.
     :returns: The parsed configuration mapping (empty if the file is absent or
         blank).
     :raises ValueError: If the file exists but does not contain a YAML mapping.

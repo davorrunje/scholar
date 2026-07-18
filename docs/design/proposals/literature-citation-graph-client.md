@@ -1,4 +1,4 @@
-# Proposal: Citation-graph client (`scholar_tools/literature/graph.py`)
+# Proposal: Citation-graph client (`honest_scholar/literature/graph.py`)
 
 `Status: draft (for discussion) · Date: 2026-07-18 · Skill: literature`
 
@@ -13,12 +13,12 @@ unimplemented. **Interim (until the module is implemented):** the skill orchestr
 the graph step manually / via direct tool calls — persisting raw JSON as the
 provenance root and editing `references.json` / `triage.yml` — which is
 unreproducible and pushes pagination, degradation, and rate-limit handling onto the
-operator. Once `scholar-tools` is installed (via
+operator. Once `honest-scholar` is installed (via
 [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
-`scholar literature …` instead.
+`honest-scholar literature …` instead.
 
-This proposes the first cut of `scholar_tools/literature/graph.py` (exposed as
-`scholar literature …`): the read/enrich half of the
+This proposes the first cut of `honest_scholar/literature/graph.py` (exposed as
+`honest-scholar literature …`): the read/enrich half of the
 substrate (graph traversal + enrichment + neighbor sets). The registry
 loader/appender, triage join, PRISMA-log and concept-matrix generators are noted as
 out of scope here (separate proposal) so this stays focused.
@@ -34,18 +34,18 @@ S2 key is present. Reproducible: same id + filters + search date → same set.
 
 ## Design sketch
 
-**CLI** (`scholar literature <cmd> [args] --json`), each command prints one
+**CLI** (`honest-scholar literature <cmd> [args] --json`), each command prints one
 JSON document to stdout; raw upstream responses are written to a `--provenance-dir`
 as the provenance root before any enrichment. The same functions are importable
-from `scholar_tools.literature.graph`.
+from `honest_scholar.literature.graph`.
 
 | Command | Purpose | Key args |
 |---|---|---|
-| `scholar literature resolve <id>` | id → canonical work | `--id` (DOI/arXiv/OpenAlex W…/S2) |
-| `scholar literature cites <id>` | forward citations (who cited it) | `--per-page`, `--max`, `--since` |
-| `scholar literature refs <id>` | backward references | `--max` |
-| `scholar literature enrich <id>...` | per-work metadata bundle | `--fields`, `--context` |
-| `scholar literature neighbors <id>` | co-citation + coupling sets | `--kind {cocite,couple,both}`, `--top` |
+| `honest-scholar literature resolve <id>` | id → canonical work | `--id` (DOI/arXiv/OpenAlex W…/S2) |
+| `honest-scholar literature cites <id>` | forward citations (who cited it) | `--per-page`, `--max`, `--since` |
+| `honest-scholar literature refs <id>` | backward references | `--max` |
+| `honest-scholar literature enrich <id>...` | per-work metadata bundle | `--fields`, `--context` |
+| `honest-scholar literature neighbors <id>` | co-citation + coupling sets | `--kind {cocite,couple,both}`, `--top` |
 
 **Identifier resolution.** `resolve()` normalizes DOI / `arXiv:` / OpenAlex `W…` /
 S2 (`CorpusId:` / SHA) to a canonical record `{openalex, doi, s2, arxiv, title,
@@ -85,13 +85,13 @@ marker — the caller records it in run provenance.
 ## Dependencies & posture
 
 Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
-- **HTTP:** `requests` — the house HTTP client for `scholar-tools` (decided in
+- **HTTP:** `requests` — the house HTTP client for `honest-scholar` (decided in
   `tooling-package.md`; already pulled by `pooch`, so zero net dep). No OpenAlex/S2
   SDKs, no graph libraries (`networkx` etc.); neighbor math is stdlib
   `set`/`collections.Counter`.
 - **stdlib** for JSON, argparse, on-disk cache.
 - `mailto=` on every OpenAlex call (polite pool); `x-api-key` header on S2 iff a key
-  is configured (env / `.scholar/config.yml`), else omit and degrade.
+  is configured (env / `.honest-scholar/config.yml`), else omit and degrade.
 - **Rate-limits / caching:** respect OpenAlex 10 req/s + 100k/day and S2's lower
   keyless ceiling; exponential backoff on 429; a content-addressed on-disk response
   cache (keyed by URL) so re-runs are cheap and reproducible. Cache is the
@@ -105,7 +105,7 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
   approximate? What `--top` default?
 - S2 batch endpoint (`/paper/batch`) vs. per-id calls for hydration — batch cuts
   request count but couples to a second response shape.
-- Where does the cache live — gitignored under `.scholar/cache/` shared with the
+- Where does the cache live — gitignored under `.honest-scholar/cache/` shared with the
   substrate cache, or a private dir? TTL / invalidation policy?
 - Does `resolve` need Crossref as a DOI fallback when OpenAlex misses, or is
   OpenAlex-only acceptable for v1?

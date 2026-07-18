@@ -1,15 +1,15 @@
-# scholar sub-spec 2 — Literature capability (`literature`)
+# honest-scholar sub-spec 2 — Literature capability (`literature`)
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `scholar` meta-spec, pending implementation plan.
+**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
 
-> Sub-spec of [2026-07-17-scholar-plugin-design.md](2026-07-17-scholar-plugin-design.md).
+> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
 > Builds on the asset substrate of
-> [sub-spec 4](2026-07-17-scholar-4-substrate-and-experiment-contract-design.md) §2.
+> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §2.
 > Governed by the ⚑ agency (§2.1) and Understanding (§2.2) principles.
-> Grounding: [citation-scouting](../scholar/references/citation-scouting.md),
-> [related-works-synthesis](../scholar/references/related-works-synthesis.md).
+> Grounding: [citation-scouting](../honest-scholar/references/citation-scouting.md),
+> [related-works-synthesis](../honest-scholar/references/related-works-synthesis.md).
 
 ## 1. The `literature` skill
 
@@ -114,7 +114,7 @@ may be committed vs. mirror-only.
   triage-schema; the PRISMA-log + concept-matrix generators; reference digests.
   Deps: HTTP client + `pyyaml` (+ the substrate's rclone mirror). No heavy deps.
 - **Consumer:** the `references.bib` + `triage.yml`; mirrored PDFs; API config
-  (anchors, keys) in `.scholar/config.yml`.
+  (anchors, keys) in `.honest-scholar/config.yml`.
 
 ## 7. Open items
 

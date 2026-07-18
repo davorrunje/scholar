@@ -1,4 +1,4 @@
-"""The ``scholar`` command-line interface.
+"""The ``honest-scholar`` command-line interface.
 
 A Typer command tree mirroring the plugin's skill verbs. ``doctor`` is
 implemented; the domain sub-commands are typed stubs pending their tracking
@@ -14,11 +14,11 @@ from typing import Annotated
 
 import typer
 
-from scholar_tools import __version__
+from honest_scholar import __version__
 
 app = typer.Typer(
-    name="scholar",
-    help="Supporting tooling for the scholar research-workflow plugin.",
+    name="honest-scholar",
+    help="Supporting tooling for the honest-scholar research-workflow plugin.",
     no_args_is_help=True,
     add_completion=False,
 )
@@ -27,10 +27,10 @@ app = typer.Typer(
 def _not_implemented(issue: int) -> None:
     """Emit the standard not-yet-implemented notice and exit.
 
-    :param issue: The tracking issue number in the ``scholar`` repo.
+    :param issue: The tracking issue number in the ``honest-scholar`` repo.
     :raises typer.Exit: Always, with code 2.
     """
-    typer.echo(f"not yet implemented — see scholar#{issue}")
+    typer.echo(f"not yet implemented — see honest-scholar#{issue}")
     raise typer.Exit(code=2)
 
 
@@ -53,11 +53,11 @@ def main(
             "--version",
             callback=_version_callback,
             is_eager=True,
-            help="Show the scholar-tools version and exit.",
+            help="Show the honest-scholar version and exit.",
         ),
     ] = False,
 ) -> None:
-    """Scholar — research-workflow tooling CLI."""
+    """honest-scholar — research-workflow tooling CLI."""
 
 
 def _tool_report(name: str) -> str:
@@ -93,15 +93,15 @@ def doctor() -> None:
     Prints a short diagnostic report. Missing optional tools (``uv``,
     ``rclone``) are reported, not treated as failures. Always exits 0.
     """
-    typer.echo("scholar doctor")
-    typer.echo(f"  scholar-tools: {__version__}")
+    typer.echo("honest-scholar doctor")
+    typer.echo(f"  honest-scholar: {__version__}")
     typer.echo(f"  python: {platform.python_version()} ({platform.platform()})")
     typer.echo(f"  {_tool_report('uv')}")
     typer.echo(f"  {_tool_report('rclone')}")
     raise typer.Exit(code=0)
 
 
-# --- literature (scholar#1) ------------------------------------------------
+# --- literature (honest-scholar#1) ------------------------------------------------
 literature = typer.Typer(
     help="Citation-graph and metadata tools.", no_args_is_help=True
 )
@@ -153,7 +153,7 @@ def neighbors(identifier: str) -> None:
     _not_implemented(1)
 
 
-# --- dataset (scholar#2 / #3) ----------------------------------------------
+# --- dataset (honest-scholar#2 / #3) ----------------------------------------------
 dataset = typer.Typer(
     help="Dataset manifest, retrieval and mirroring.", no_args_is_help=True
 )
@@ -205,7 +205,7 @@ def audit(name: str) -> None:
     _not_implemented(2)
 
 
-# --- defend (scholar#4) ----------------------------------------------------
+# --- defend (honest-scholar#4) ----------------------------------------------------
 defend = typer.Typer(help="Defensibility record helpers.", no_args_is_help=True)
 app.add_typer(defend, name="defend")
 
@@ -219,7 +219,7 @@ def record(claim: str) -> None:
     _not_implemented(4)
 
 
-# --- backlog (scholar#5) ---------------------------------------------------
+# --- backlog (honest-scholar#5) ---------------------------------------------------
 backlog = typer.Typer(help="Exploration backlog management.", no_args_is_help=True)
 app.add_typer(backlog, name="backlog")
 

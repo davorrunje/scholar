@@ -1,4 +1,4 @@
-"""Thin dataset-manifest tooling (scholar#2)."""
+"""Thin dataset-manifest tooling (honest-scholar#2)."""
 
 from __future__ import annotations
 
@@ -14,9 +14,9 @@ def register(name: str, source: str) -> dict[str, Any]:
     :param name: Human-readable dataset name.
     :param source: The dataset source (URL, DOI, or git/LFS locator).
     :returns: The manifest entry created for the dataset.
-    :raises NotImplementedError: Always — pending implementation (scholar#2).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#2).
     """
-    raise NotImplementedError("dataset manifest tooling — see scholar#2")
+    raise NotImplementedError("dataset manifest tooling — see honest-scholar#2")
 
 
 def audit(manifest_path: str | Path) -> dict[str, Any]:
@@ -24,6 +24,6 @@ def audit(manifest_path: str | Path) -> dict[str, Any]:
 
     :param manifest_path: Path to the manifest file to audit.
     :returns: An audit report mapping.
-    :raises NotImplementedError: Always — pending implementation (scholar#2).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#2).
     """
-    raise NotImplementedError("dataset manifest tooling — see scholar#2")
+    raise NotImplementedError("dataset manifest tooling — see honest-scholar#2")

@@ -16,9 +16,9 @@ implemented):** the skill orchestrates the step manually — loading with
 `yaml.safe_load`, eyeballing the required fields against the table, and hand-mapping
 Croissant on register/export. That is error-prone and does not scale to `audit`
 across a whole manifest, nor does it give the venue-mandated Croissant round-trip
-(NeurIPS D&B now requires a Croissant file) any machine backing. Once `scholar-tools`
+(NeurIPS D&B now requires a Croissant file) any machine backing. Once `honest-scholar`
 is installed (via [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill
-calls `scholar dataset …` instead.
+calls `honest-scholar dataset …` instead.
 
 This proposal covers **only the manifest tooling**: parsing, schema validation, and
 Croissant/DataCite interop. Retrieval, the rclone mirror, fixity re-hashing, and the
@@ -48,7 +48,7 @@ no `pydantic`, no `datasets`); validation is hand-rolled against the documented
 field table, Croissant I/O uses stdlib `json`.
 
 ```
-scholar_tools/dataset/manifest.py        # module in the scholar-tools package
+honest_scholar/dataset/manifest.py        # module in the honest-scholar package
 ```
 
 ### Data model
@@ -99,7 +99,7 @@ when incomplete, since a citable record may not yet exist; `emit` maps it to
 
 ### API / CLI the skill verbs call
 
-Importable from `scholar_tools.dataset.manifest`:
+Importable from `honest_scholar.dataset.manifest`:
 
 ```python
 load(path) -> Manifest                       # parse + structural decode; raises with line context
@@ -108,12 +108,12 @@ entry_from_croissant(json_ld) -> DatasetEntry # ingest → draft (partial, flags
 croissant_for(entry) -> dict                  # emit one entry's JSON-LD
 ```
 
-Exposed under the `scholar dataset` command group:
+Exposed under the `honest-scholar dataset` command group:
 
 ```
-scholar dataset validate [datasets.yml]              # register/audit gate; exit!=0 on error
-scholar dataset ingest <croissant.json> [--into datasets.yml]
-scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
+honest-scholar dataset validate [datasets.yml]              # register/audit gate; exit!=0 on error
+honest-scholar dataset ingest <croissant.json> [--into datasets.yml]
+honest-scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
 ```
 
 - `register` calls `ingest` (if a Croissant is supplied) then `validate` on the new
@@ -160,7 +160,7 @@ scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
   tier/retrieval/datasheet/sensitivity as human-TODO.
 - No dependency beyond `pyyaml` + stdlib; no network or filesystem access to data
   files during validate/emit/ingest.
-- `register` and `audit` invoke `scholar dataset …`; the SKILL TODO block (~line 105)
+- `register` and `audit` invoke `honest-scholar dataset …`; the SKILL TODO block (~line 105)
   is updated to point at the CLI instead of the interim manual workaround.
 
 ## Links

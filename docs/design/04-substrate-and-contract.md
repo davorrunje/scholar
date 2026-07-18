@@ -1,16 +1,16 @@
-# scholar sub-spec 4 — Shared substrate & experiment-backend contract
+# honest-scholar sub-spec 4 — Shared substrate & experiment-backend contract
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `scholar` meta-spec, pending implementation plan.
+**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
 
-> Sub-spec of [2026-07-17-scholar-plugin-design.md](2026-07-17-scholar-plugin-design.md).
+> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
 > Defines the foundation that sub-specs 2 (literature) and 3 (dataset) build on:
 > the **asset-provenance substrate** (registry pattern + private mirror + fixity +
 > persistent-ID) and the **experiment-backend contract**. Governed by the meta-spec's
 > ⚑ guiding principle (assistants, not researchers) and its light-dependency posture.
-> Grounding: [dataset-management-standards](../scholar/references/dataset-management-standards.md),
-> [dataset-tooling-mirror](../scholar/references/dataset-tooling-mirror.md).
+> Grounding: [dataset-management-standards](../honest-scholar/references/dataset-management-standards.md),
+> [dataset-tooling-mirror](../honest-scholar/references/dataset-tooling-mirror.md).
 
 ## 1. Purpose
 
@@ -192,7 +192,7 @@ staleness; it does not decide to re-run — the researcher does.
   export, or each front-end does; lean toward the shared module for `pid`/citation
   and the front-end for its native format (BibTeX for literature, Croissant for
   dataset).
-- **Cache directory name** — align with the meta-spec's `.scholar/` decision.
+- **Cache directory name** — align with the meta-spec's `.honest-scholar/` decision.
 
 ## 5. Downstream
 

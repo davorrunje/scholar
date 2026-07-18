@@ -1,8 +1,8 @@
-<!-- scholar user guide -->
+<!-- honest-scholar user guide -->
 
-# scholar — User Guide
+# honest-scholar — User Guide
 
-A hands-on guide for a researcher meeting `scholar` for the first time. It walks
+A hands-on guide for a researcher meeting `honest-scholar` for the first time. It walks
 you from install to a signed finding to a submitted paper, using one running
 example throughout. It is practical: every step is a command you type and a file
 you fill in.
@@ -10,12 +10,12 @@ you fill in.
 For the *why* behind the design, read [`README.md`](../README.md) and the specs
 under [`docs/design/`](design/); this guide is the *how*.
 
-## 1. What scholar is (and the two rules it runs on)
+## 1. What honest-scholar is (and the two rules it runs on)
 
-`scholar` is a Claude Code plugin for the **scientific** side of research — idea →
+`honest-scholar` is a Claude Code plugin for the **scientific** side of research — idea →
 literature → hypothesis → test → publish-decision → paper → (optional) thesis. It
 delegates the *engineering* (design, plans, code) to the bound **engineering
-backend** via the engineering-delegation contract; `scholar` calls out to that
+backend** via the engineering-delegation contract; `honest-scholar` calls out to that
 backend for all of that rather than reimplementing it.
 
 Everything you do sits under two rules. They are not decoration — they change how
@@ -26,7 +26,7 @@ the skills behave at every step:
    you: whether a hypothesis is confirmed or refuted, whether a result is real,
    whether a paper is worth publishing, whether a thesis is defensible. Each of
    those is recorded in the artifact with a **named human sign-off + date**. You
-   cannot "run" scholar to produce a paper — you drive it. In practice: expect the
+   cannot "run" honest-scholar to produce a paper — you drive it. In practice: expect the
    skill to stop at every judgement point and ask you.
 
 2. **Understanding — the `defend` skill verifies and teaches.** Before any material decision,
@@ -43,11 +43,11 @@ proposes a claim and adjudicates it.
 
 ## 2. Install
 
-`scholar` is distributed as a Claude Code plugin; its repo is its own marketplace.
+`honest-scholar` is distributed as a Claude Code plugin; its repo is its own marketplace.
 
 ```
-/plugin marketplace add davorrunje/scholar
-/plugin install scholar@scholar
+/plugin marketplace add davorrunje/honest-scholar
+/plugin install honest-scholar@honest-scholar
 ```
 
 To enable it for a whole project (so collaborators get it on trust), add to the
@@ -56,9 +56,9 @@ consuming repo's `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "scholar": { "source": { "source": "github", "repo": "davorrunje/scholar" } }
+    "honest-scholar": { "source": { "source": "github", "repo": "davorrunje/honest-scholar" } }
   },
-  "enabledPlugins": { "scholar@scholar": true }
+  "enabledPlugins": { "honest-scholar@honest-scholar": true }
 }
 ```
 
@@ -101,7 +101,7 @@ docs/research/
     references.json         # CSL-JSON bibliography (source of truth)
     triage.yml              # decision sidecar: role, disposition, rationale
 datasets.yml                # dataset registry (entries + checksums + tiers + license)
-.scholar/
+.honest-scholar/
   config.yml                # rclone remote, literature anchors, experiment-backend binding
   rclone.conf.example       # committed template; real rclone.conf is gitignored
 ```
@@ -156,7 +156,7 @@ documents, in order, under `docs/research/<paper>/hypotheses/<slug>/`:
    the datasets it needs. **`defend` fires here** on the strategy — expect to
    defend your assumptions and falsifiers before moving on.
 3. **`design.md` / `plan.md`** — *the engineering, delegated to the bound
-   engineering backend* (its `design` → `plan` capabilities). scholar stores the
+   engineering backend* (its `design` → `plan` capabilities). honest-scholar stores the
    results here but does not design experiments or write code itself. Executing
    the plan produces the runs.
 4. **`findings.md`** — *the verdict:* `confirmed | refuted | inconclusive`, tied
@@ -197,8 +197,8 @@ claim is false is successful science.
 
 ### 4d. How runs become evidence — the experiment-backend contract
 
-scholar defines a **contract**; your repo supplies the implementation (bound in
-`.scholar/config.yml`, named per paper in `papers.md`). The contract has four
+honest-scholar defines a **contract**; your repo supplies the implementation (bound in
+`.honest-scholar/config.yml`, named per paper in `papers.md`). The contract has four
 capabilities:
 
 | Capability | What it gives you |
@@ -287,15 +287,15 @@ coherent through-line. Never a paper count.
 
 ## 8. Everyday tips
 
-- **What scholar will NOT do.** It will not make a material decision for you
+- **What honest-scholar will NOT do.** It will not make a material decision for you
   (confirm/refute, publish/no-go, defensible), will not write your paper
   unattended, will not hand-copy result numbers, and will not produce a
   productivity score. Every judgement point stops and asks.
 - **Trust the firewall.** If a skill refuses to test a claim it also generated, or
   refuses to adjudicate its own decision, that is by design — use the paired
   skill.
-- **Commits are attributed.** Commits made via scholar skills carry a discovery
-  trailer, so provenance of an automated change is visible in `git log`. scholar
+- **Commits are attributed.** Commits made via honest-scholar skills carry a discovery
+  trailer, so provenance of an automated change is visible in `git log`. honest-scholar
   never auto-commits `research-init` scaffolding — you review and commit.
 - **Evidence is run-refs, not numbers.** If a number can't be traced to a run-ref,
   it doesn't go in a findings doc or a paper section.
@@ -312,5 +312,5 @@ coherent through-line. Never a paper count.
 **The shortest possible path:** `research-init` → `hypothesis-exploration
 promote` → `hypothesis-testing` (strategy, examined → delegate design/plan →
 sign findings) → `paper-exploration promote` → `paper-synthesis` (positioning →
-sign decision → sections) → `progress dashboard`. You drive every arrow; scholar
+sign decision → sections) → `progress dashboard`. You drive every arrow; honest-scholar
 keeps the accounts and makes sure you can defend each signature.

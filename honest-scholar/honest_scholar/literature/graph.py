@@ -1,4 +1,4 @@
-"""Citation-graph client over external metadata sources (scholar#1)."""
+"""Citation-graph client over external metadata sources (honest-scholar#1)."""
 
 from __future__ import annotations
 
@@ -10,6 +10,6 @@ def neighbors(identifier: str) -> list[dict[str, Any]]:
 
     :param identifier: A DOI, arXiv id, or resolved work identifier.
     :returns: A list of neighbor-work metadata mappings.
-    :raises NotImplementedError: Always — pending implementation (scholar#1).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#1).
     """
-    raise NotImplementedError("literature citation-graph client — see scholar#1")
+    raise NotImplementedError("literature citation-graph client — see honest-scholar#1")

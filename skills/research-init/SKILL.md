@@ -1,11 +1,11 @@
 ---
 name: research-init
-description: Use when onboarding a repository onto the scholar research workflow — either scaffolding a fresh repo (init) or backfilling an existing one that already has papers, datasets, benchmarks, and prior results (adopt). Drives any repo to the standard consumer layout so hypotheses, papers, literature, and datasets are tracked the same way everywhere.
+description: Use when onboarding a repository onto the honest-scholar research workflow — either scaffolding a fresh repo (init) or backfilling an existing one that already has papers, datasets, benchmarks, and prior results (adopt). Drives any repo to the standard consumer layout so hypotheses, papers, literature, and datasets are tracked the same way everywhere.
 ---
 
 # Research Init
 
-Onboards a repository onto the `scholar` workflow. One skill, **two modes** —
+Onboards a repository onto the `honest-scholar` workflow. One skill, **two modes** —
 both drive the repo to the same consumer layout (see the meta-spec
 [§5](../../docs/design/00-meta-spec.md) and the content layout in
 [lifecycle §7](../../docs/design/01-lifecycle.md)). `adopt` is `init` **plus** an
@@ -21,7 +21,7 @@ experiment-backend implementation.
 ## When to use
 
 - **First time** a repository adopts the workflow — there is no `docs/research/`
-  or `.scholar/` yet.
+  or `.honest-scholar/` yet.
 - A repo already has research artifacts (reference PDFs, a bibliography, dataset
   files or download scripts, prior results, an existing benchmark/experiment
   harness) that are **not yet systematically recorded** — use `adopt`.
@@ -66,7 +66,7 @@ docs/research/
     triage.yml                    # decision sidecar (role, disposition, rationale), keyed by id/DOI
 datasets.yml                     # dataset registry (entries + checksums + tiers + license)
 .datasets-cache/                 # gitignored materialized data
-.scholar/
+.honest-scholar/
   config.yml                     # rclone remote name, literature anchors, experiment-backend binding
   rclone.conf.example            # committed template (remote name/type only)
   rclone.conf                    # gitignored (credentials)
@@ -78,12 +78,12 @@ paper comes from the shared templates in
 [`resources/templates/`](../../resources/templates/); every hypothesis/paper/thesis
 artifact carries the status frontmatter block that feeds `progress`.
 
-`.scholar/config.yml` records the three consumer bindings: the **rclone remote
+`.honest-scholar/config.yml` records the three consumer bindings: the **rclone remote
 name** for the private mirror, the **literature anchors** (seed works/authors the
 `literature` capability ranks around), and the **experiment-backend binding**
 (which repo-local harness implements the run/evidence/tables/is-current
 contract). `.gitignore` is updated to exclude `.datasets-cache/` and
-`.scholar/rclone.conf`.
+`.honest-scholar/rclone.conf`.
 
 The `thesis/` tree is optional — scaffold it only when the repo is a
 thesis-by-publication; a plain portfolio repo omits the top level.
@@ -120,7 +120,7 @@ material classification* — never silently guessed. The generic mapping rules
    material decision).
 
 5. **Experiment backend.** An existing benchmark/experiment harness → bound as
-   the repo's experiment-backend **implementation** in `.scholar/config.yml`
+   the repo's experiment-backend **implementation** in `.honest-scholar/config.yml`
    (the plugin ships only the contract; the harness stays in the consumer).
 
 Present proposals as a reviewable diff/table before writing. Anything the skill
@@ -171,6 +171,6 @@ When you commit artifacts produced by this skill, add these git trailers —
 discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
 
 ```
-Generated-with: scholar (https://github.com/davorrunje/scholar)
-Scholar-Skill: research-init
+Generated-with: honest-scholar (https://github.com/davorrunje/honest-scholar)
+HonestScholar-Skill: research-init
 ```

@@ -1,18 +1,18 @@
-# scholar — Visual Identity (v1, text)
+# honest-scholar — Visual Identity (v1, text)
 
 **Date:** 2026-07-17 · **Status:** first proposal (text/SVG). A browser-companion
 pass (`/design consent`) can later render mockups; this establishes the direction.
 
-`scholar` covers the *scientific* workflow (engineering is delegated to a bound
+`honest-scholar` covers the *scientific* workflow (engineering is delegated to a bound
 engineering backend via the engineering-delegation contract). Its identity should
 read **scholarly, rigorous, and calm** — a trusted mentor/colleague, not a flashy
 product. Lowercase, understated, typographic; the opposite of hype.
 
 ## Name & wordmark
 
-- **Name:** `scholar` (always lowercase).
+- **Name:** `honest-scholar` (always lowercase).
 - **Wordmark:** the word set in a humanist **serif** (scholarship, print, the
-  paper), lowercase. Optional bracket motif around it — `[ scholar ]` — nodding to
+  paper), lowercase. Optional bracket motif around it — `[ honest-scholar ]` — nodding to
   citations. See `assets/wordmark.svg`.
 - **Skill names** render in **monospace** (`defend`, `literature`, `hypothesis-
   testing`) — they are commands.
@@ -42,7 +42,7 @@ Academic and quiet, with one warm accent for *insight*.
 | Primary text / dark | Ink | `#16181D` | body text, dark UI |
 | Brand | Indigo | `#4338CA` | logo brackets, links, primary accents |
 | Accent | Amber | `#F59E0B` | the "insight"/through-line, highlights (sparingly) |
-| Positive | Scholar Green | `#059669` | **"refuted = done"** states, passed checks |
+| Positive | Honest-Scholar Green | `#059669` | **"refuted = done"** states, passed checks |
 | Secondary text | Slate | `#4B5563` | captions, metadata |
 | Light background | Parchment | `#FAF7F0` | page background, cards |
 

@@ -1,4 +1,4 @@
-"""Defensibility record helper (scholar#4)."""
+"""Defensibility record helper (honest-scholar#4)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,6 @@ def record(claim: str, evidence: list[str]) -> dict[str, Any]:
     :param claim: The claim or decision being recorded.
     :param evidence: Supporting evidence references for the claim.
     :returns: The recorded defensibility entry.
-    :raises NotImplementedError: Always — pending implementation (scholar#4).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#4).
     """
-    raise NotImplementedError("defend record helper — see scholar#4")
+    raise NotImplementedError("defend record helper — see honest-scholar#4")

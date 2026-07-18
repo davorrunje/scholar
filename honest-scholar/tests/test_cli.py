@@ -1,11 +1,11 @@
-"""CLI smoke tests for the ``scholar`` Typer app."""
+"""CLI smoke tests for the ``honest-scholar`` Typer app."""
 
 from __future__ import annotations
 
 from typer.testing import CliRunner
 
-from scholar_tools import __version__
-from scholar_tools.cli import app
+from honest_scholar import __version__
+from honest_scholar.cli import app
 
 runner = CliRunner()
 
@@ -35,14 +35,14 @@ def test_stub_command_exits_2() -> None:
     result = runner.invoke(app, ["literature", "resolve", "10.1000/xyz"])
     assert result.exit_code == 2
     assert "not yet implemented" in result.stdout
-    assert "scholar#1" in result.stdout
+    assert "honest-scholar#1" in result.stdout
 
 
 def test_each_group_has_a_stub() -> None:
     cases = [
-        (["dataset", "fetch", "mnist"], "scholar#3"),
-        (["defend", "record", "claim"], "scholar#4"),
-        (["backlog", "add", "idea"], "scholar#5"),
+        (["dataset", "fetch", "mnist"], "honest-scholar#3"),
+        (["defend", "record", "claim"], "honest-scholar#4"),
+        (["backlog", "add", "idea"], "honest-scholar#5"),
     ]
     for args, issue in cases:
         result = runner.invoke(app, args)

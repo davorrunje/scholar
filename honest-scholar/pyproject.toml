@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scholar-tools"
+name = "honest-scholar"
 version = "0.0.0"
-description = "Supporting CLI/tooling for the scholar research-workflow plugin"
+description = "Supporting CLI/tooling for the honest-scholar research-workflow plugin"
 authors = [{ name = "Davor Runje", email = "davor@synthpop.ai" }]
 maintainers = [{ name = "Davor Runje", email = "davor@synthpop.ai" }]
 requires-python = ">=3.11,<3.15"
@@ -30,12 +30,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage   = "https://github.com/davorrunje/scholar"
-Repository = "https://github.com/davorrunje/scholar"
-Issues     = "https://github.com/davorrunje/scholar/issues"
+Homepage   = "https://github.com/davorrunje/honest-scholar"
+Repository = "https://github.com/davorrunje/honest-scholar"
+Issues     = "https://github.com/davorrunje/honest-scholar/issues"
 
 [project.scripts]
-scholar = "scholar_tools.cli:app"
+honest-scholar = "honest_scholar.cli:app"
+hsch = "honest_scholar.cli:app"
 
 [project.optional-dependencies]
 # Thin MCP wrapper over the same core modules — added later (ADR-0024, CLI-first).
@@ -64,13 +65,13 @@ lint = [
 default-groups = ["dev", "lint"]
 
 [tool.hatch.build.targets.sdist]
-include = ["scholar_tools"]
+include = ["honest_scholar"]
 
 [tool.hatch.build.targets.wheel]
-include = ["scholar_tools"]
+include = ["honest_scholar"]
 
 [tool.mypy]
-files = ["scholar_tools", "tests"]
+files = ["honest_scholar", "tests"]
 strict = true
 strict_bytes = true
 local_partial_types = true
@@ -96,7 +97,7 @@ disallow_any_generics = true
 no_implicit_reexport = true
 
 [tool.pytest.ini_options]
-addopts = '--cov=scholar_tools --cov-branch --cov-report=term-missing'
+addopts = '--cov=honest_scholar --cov-branch --cov-report=term-missing'
 testpaths = ["tests"]
 
 [tool.coverage.report]
@@ -112,7 +113,7 @@ fix = true
 line-length = 88
 target-version = "py311"
 include = [
-    "scholar_tools/**/*.py",
+    "honest_scholar/**/*.py",
     "tests/**/*.py",
     "pyproject.toml",
 ]

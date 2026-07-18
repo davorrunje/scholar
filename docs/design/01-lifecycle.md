@@ -1,23 +1,23 @@
-# scholar sub-spec 1 — Lifecycle, pipeline skills, rigor, progress & defend
+# honest-scholar sub-spec 1 — Lifecycle, pipeline skills, rigor, progress & defend
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `scholar` meta-spec, pending implementation plan.
+**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
 
-> Sub-spec of [2026-07-17-scholar-plugin-design.md](2026-07-17-scholar-plugin-design.md).
+> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
 > The integrative capstone: the three-level lifecycle, the five pipeline skills,
 > the rigor kit, and the two cross-cutting skills (`progress`, `defend`). Consumes
 > the experiment-backend contract of
-> [sub-spec 4](2026-07-17-scholar-4-substrate-and-experiment-contract-design.md) §3
+> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §3
 > and the `literature`/`dataset` capabilities of
-> [sub-spec 2](2026-07-17-scholar-2-literature-design.md) /
-> [sub-spec 3](2026-07-17-scholar-3-dataset-design.md). Governed by the ⚑ agency
+> [sub-spec 2](2026-07-17-honest-scholar-2-literature-design.md) /
+> [sub-spec 3](2026-07-17-honest-scholar-3-dataset-design.md). Governed by the ⚑ agency
 > (§2.1) and Understanding (§2.2) principles.
 > Refines the four `2026-07-15-*` research-workflow specs (which migrate here) and
 > adds the thesis level, progress, and defend. Grounding:
-> [thesis-and-progress-tracking](../scholar/references/thesis-and-progress-tracking.md),
-> [understanding-and-defense](../scholar/references/understanding-and-defense.md),
-> [mentor-personas](../scholar/references/mentor-personas.md).
+> [thesis-and-progress-tracking](../honest-scholar/references/thesis-and-progress-tracking.md),
+> [understanding-and-defense](../honest-scholar/references/understanding-and-defense.md),
+> [mentor-personas](../honest-scholar/references/mentor-personas.md).
 
 ## 1. The three-level mirror & flywheels
 
@@ -201,7 +201,7 @@ every one.
   `literature`, `dataset`) and delegates engineering to the bound engineering
   backend via the engineering-delegation contract.
 - **Consumer:** all `docs/research/` content; the `papers.md` bindings; the
-  experiment-backend implementation; `.scholar/` config.
+  experiment-backend implementation; `.honest-scholar/` config.
 
 ## 10. Open items
 

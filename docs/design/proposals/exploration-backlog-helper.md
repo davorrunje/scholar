@@ -7,9 +7,9 @@
 Both **generate** skills run the same small state machine over a markdown backlog
 table, and both currently leave the mechanics unimplemented. **Interim (until the
 module is implemented):** each skill orchestrates the row edits by hand / via direct
-tool calls; once `scholar-tools` is installed (via
+tool calls; once `honest-scholar` is installed (via
 [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
-`scholar backlog …` instead. The two skills' `TODO`s:
+`honest-scholar backlog …` instead. The two skills' `TODO`s:
 
 - `hypothesis-exploration` (`../../../skills/hypothesis-exploration/SKILL.md`, §Verbs,
   and the `TODO (supporting script)` at ~L67) drives rows in a paper's
@@ -36,7 +36,7 @@ scientific judgment** and never selects what to promote.
 ## Design sketch
 
 **One module, two column profiles.** A single module,
-`scholar_tools/exploration/backlog.py` (exposed as `scholar backlog`, shared by both
+`honest_scholar/exploration/backlog.py` (exposed as `honest-scholar backlog`, shared by both
 exploration skills), parameterized by `--level {hypothesis|paper}`. The row state
 machine, provenance rules, and drop discipline are identical across levels; only
 the scored columns and the `promote` target differ.
@@ -52,7 +52,7 @@ paper:      | id | one-line | lens      | provenance |  —  | feas | interest |
 - *EIG* and *frame* (gap-spotting vs. problematization) exist only at the
   hypothesis level; the paper level ranks on feasibility × interest alone.
 
-**Transition verbs** (invoked as `scholar backlog <verb>`; each validates the source
+**Transition verbs** (invoked as `honest-scholar backlog <verb>`; each validates the source
 state and refuses illegal moves):
 
 | Verb | Args | Effect | Guard |
@@ -97,7 +97,7 @@ the backlog and the registry read-only and is unchanged by this proposal.
 ## Dependencies & posture
 
 - **Light-dep:** `pyyaml` + stdlib only (matches `literature`'s
-  `scholar_tools/literature/graph.py` and the substrate). `pyyaml` covers the status
+  `honest_scholar/literature/graph.py` and the substrate). `pyyaml` covers the status
   frontmatter it writes on
   `promote` and the `papers.md` row; the backlog table itself is plain markdown.
 - **Firewall — proposes only.** Every verb but `promote` stays inside exploration;
@@ -106,7 +106,7 @@ the backlog and the registry read-only and is unchanged by this proposal.
   auto-promotes the top row, and never writes a verdict (meta-spec §2.1, §2.3,
   `../00-meta-spec.md`).
 - **Interim path stays valid.** Until the module lands, both skills keep editing
-  the table by hand in the documented column order; the `scholar backlog` command is
+  the table by hand in the documented column order; the `honest-scholar backlog` command is
   additive.
 
 ## Open questions

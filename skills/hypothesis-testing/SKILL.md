@@ -70,7 +70,7 @@ order**. Each carries a status frontmatter block that feeds
 3. **`design.md` / `plan.md`** — *the engineering, delegated.* Hand off to the
    bound engineering backend via the engineering-delegation contract: its
    `design` → `plan` capabilities. Store the resulting design and plan under this
-   hypothesis folder (`design.md`, `plan.md`). `scholar` does not design
+   hypothesis folder (`design.md`, `plan.md`). `honest-scholar` does not design
    experiments, write plans, or implement — it composes with the engineering
    backend for all of that. Execution of the plan produces the runs.
 
@@ -177,6 +177,6 @@ When you commit artifacts produced by this skill, add these git trailers —
 discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
 
 ```
-Generated-with: scholar (https://github.com/davorrunje/scholar)
-Scholar-Skill: hypothesis-testing
+Generated-with: honest-scholar (https://github.com/davorrunje/honest-scholar)
+HonestScholar-Skill: hypothesis-testing
 ```

@@ -1,4 +1,4 @@
-"""Dataset retrieval and private-mirror tooling (scholar#3).
+"""Dataset retrieval and private-mirror tooling (honest-scholar#3).
 
 Tier-A git/LFS and Tier-B ``pooch`` fetch need no external binary; private
 mirroring shells out to ``rclone`` (an optional single static binary, not a
@@ -19,9 +19,9 @@ def fetch(name: str, dest: str | Path) -> Path:
     :param name: Registered dataset name.
     :param dest: Destination directory for the fetched files.
     :returns: The path to the fetched dataset root.
-    :raises NotImplementedError: Always — pending implementation (scholar#3).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#3).
     """
-    raise NotImplementedError("dataset retrieval/mirror tooling — see scholar#3")
+    raise NotImplementedError("dataset retrieval/mirror tooling — see honest-scholar#3")
 
 
 def mirror(name: str, remote: str) -> None:
@@ -29,6 +29,6 @@ def mirror(name: str, remote: str) -> None:
 
     :param name: Registered dataset name.
     :param remote: The rclone remote target.
-    :raises NotImplementedError: Always — pending implementation (scholar#3).
+    :raises NotImplementedError: Always — pending implementation (honest-scholar#3).
     """
-    raise NotImplementedError("dataset retrieval/mirror tooling — see scholar#3")
+    raise NotImplementedError("dataset retrieval/mirror tooling — see honest-scholar#3")

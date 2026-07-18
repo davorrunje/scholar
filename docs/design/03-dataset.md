@@ -1,16 +1,16 @@
-# scholar sub-spec 3 — Dataset capability (`dataset`)
+# honest-scholar sub-spec 3 — Dataset capability (`dataset`)
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `scholar` meta-spec, pending implementation plan.
+**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
 
-> Sub-spec of [2026-07-17-scholar-plugin-design.md](2026-07-17-scholar-plugin-design.md).
+> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
 > Builds on the asset substrate of
-> [sub-spec 4](2026-07-17-scholar-4-substrate-and-experiment-contract-design.md) §2
+> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §2
 > and feeds the experiment-backend contract (§3). Governed by the ⚑ agency (§2.1)
 > and Understanding (§2.2) principles.
-> Grounding: [dataset-management-standards](../scholar/references/dataset-management-standards.md),
-> [dataset-tooling-mirror](../scholar/references/dataset-tooling-mirror.md).
+> Grounding: [dataset-management-standards](../honest-scholar/references/dataset-management-standards.md),
+> [dataset-tooling-mirror](../honest-scholar/references/dataset-tooling-mirror.md).
 
 ## 1. The `dataset` skill
 
@@ -104,5 +104,5 @@ deps; HTTP/FTP/SFTP + `doi:`); Tier-A uses git/LFS; Tier-C is instruct-drop-veri
   hash as transport check only.
 - **Croissant version** — target the current MLCommons spec; treat as export
   format, registry is the superset source of truth.
-- **`.datasets-cache/` vs `.scholar/`** — confirm cache directory placement with
-  the meta-spec `.scholar/` decision.
+- **`.datasets-cache/` vs `.honest-scholar/`** — confirm cache directory placement with
+  the meta-spec `.honest-scholar/` decision.
