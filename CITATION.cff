@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: >-
+  If honest-scholar supported your research, please disclose your AI use (see
+  DISCLOSURE.md) and cite this repository. A citable arXiv report is planned; when
+  it exists it will become the preferred citation.
+title: honest-scholar
+abstract: >-
+  A Claude Code plugin for honest, defensible AI-assisted research: the researcher
+  makes and signs off every material decision (agency) and must be able to explain
+  and defend the work (understanding); the tool keeps the accounts, advises, and
+  probes.
+type: software
+authors:
+  - family-names: Runje
+    given-names: Davor
+    email: davor@synthpop.ai
+repository-code: "https://github.com/davorrunje/honest-scholar"
+url: "https://github.com/davorrunje/honest-scholar"
+version: 0.0.0
+license: Apache-2.0
+keywords:
+  - research integrity
+  - AI in research
+  - reproducibility
+  - scientific method
+  - honest AI use
+# preferred-citation:  # TODO: add the arXiv preprint (then the published paper)
+#   type: article
+#   title: "honest-scholar: ..."
+#   authors: [{family-names: Runje, given-names: Davor}]
+#   year: 2026
+#   url: "https://arxiv.org/abs/XXXX.XXXXX"

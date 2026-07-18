@@ -74,6 +74,15 @@ be revisited as hypotheses resolve; the decision is gated on the whole.
 5. **Sections.** Assemble `sections/` from the claim→evidence ledger (below).
    Draft prose as proposals; every reported number is written by the backend
    `tables` capability, never typed by hand.
+6. **Disclose (finalize).** After the publish decision is signed off, **proactively
+   propose** an *AI-use disclosure* + a citation for the manuscript's *Use of AI* /
+   Acknowledgments — drafted **from the provenance record** (who signed off which
+   decisions, which `run-ref`s back which results, what the skills drafted), so it
+   is truthful, not boilerplate. This is opt-in and author-owned: the author edits,
+   adopts, or declines; never auto-insert. Surfacing it here — automatically, at
+   the moment it matters — is deliberate (see [`../../DISCLOSURE.md`](../../DISCLOSURE.md),
+   ADR-0025). Keep it humble: it discloses what was done and links the record; it
+   does **not** certify honesty.
 
 ## The claim→evidence ledger
 
