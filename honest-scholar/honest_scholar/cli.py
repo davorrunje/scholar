@@ -19,6 +19,7 @@ import typer
 
 from honest_scholar import __version__
 from honest_scholar.dataset import manifest as manifest_mod
+from honest_scholar.dataset import retrieval as retrieval_mod
 
 app = typer.Typer(
     name="honest-scholar",
@@ -252,31 +253,115 @@ def emit(
     raise typer.Exit(code=1)
 
 
+_DATASET_CACHE = Path(".honest-scholar/cache/datasets")
+
+
+def _load_manifest_or_exit(path: str) -> manifest_mod.Manifest:
+    """Load a manifest, exiting 1 on a malformed file."""
+    try:
+        return manifest_mod.load(path)
+    except manifest_mod.ManifestError as exc:
+        typer.echo(f"manifest error: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
+def _entry_or_exit(
+    parsed: manifest_mod.Manifest, identifier: str
+) -> manifest_mod.DatasetEntry:
+    """Find an entry by id, exiting 1 if unknown."""
+    for entry in parsed.datasets:
+        if entry.id == identifier:
+            return entry
+    typer.echo(f"no dataset with id {identifier!r}", err=True)
+    raise typer.Exit(code=1)
+
+
+def _mirror_from(parsed: manifest_mod.Manifest) -> retrieval_mod.Mirror | None:
+    """Build a :class:`Mirror` from the manifest's mirror block, if configured."""
+    mir = parsed.mirror
+    if mir is None or not mir.rclone_remote:
+        return None
+    return retrieval_mod.Mirror(
+        remote=mir.rclone_remote,
+        base_path=mir.base_path or "",
+        config_path=".honest-scholar/rclone.conf",
+    )
+
+
 @dataset.command()
-def fetch(identifier: str) -> None:
+def fetch(
+    identifier: str,
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest.")
+    ] = "datasets.yml",
+) -> None:
     """Fetch a registered dataset through the resolution chain (pooch/rclone).
 
     :param identifier: The dataset id to fetch.
+    :param manifest: Path to the manifest.
+    :raises typer.Exit: Code 1 if the id is unknown or the chain is exhausted.
     """
-    _not_implemented(3)
+    parsed = _load_manifest_or_exit(manifest)
+    entry = _entry_or_exit(parsed, identifier)
+    try:
+        paths = retrieval_mod.fetch(
+            entry, cache_dir=_DATASET_CACHE, mirror=_mirror_from(parsed)
+        )
+    except retrieval_mod.RetrievalError as exc:
+        typer.echo(f"fetch failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps([str(p) for p in paths], indent=2))
+    raise typer.Exit(code=0)
 
 
 @dataset.command()
-def verify(identifier: str) -> None:
+def verify(
+    identifier: str,
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest.")
+    ] = "datasets.yml",
+) -> None:
     """Verify on-disk bytes against the manifest SHA-256 (offline).
 
     :param identifier: The dataset id to verify.
+    :param manifest: Path to the manifest.
+    :raises typer.Exit: Code 1 if the id is unknown or a file fails to verify.
     """
-    _not_implemented(3)
+    parsed = _load_manifest_or_exit(manifest)
+    entry = _entry_or_exit(parsed, identifier)
+    report = retrieval_mod.verify(entry, cache_dir=_DATASET_CACHE)
+    typer.echo(json.dumps(dataclasses.asdict(report) | {"ok": report.ok}, indent=2))
+    raise typer.Exit(code=0 if report.ok else 1)
 
 
 @dataset.command()
-def mirror(identifier: str) -> None:
+def mirror(
+    identifier: str,
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest.")
+    ] = "datasets.yml",
+) -> None:
     """Populate/refresh the private rclone mirror for a dataset.
 
     :param identifier: The dataset id to mirror.
+    :param manifest: Path to the manifest.
+    :raises typer.Exit: Code 1 if no mirror is configured or a hop fails.
     """
-    _not_implemented(3)
+    parsed = _load_manifest_or_exit(manifest)
+    entry = _entry_or_exit(parsed, identifier)
+    mir = _mirror_from(parsed)
+    if mir is None:
+        typer.echo("no mirror configured in the manifest", err=True)
+        raise typer.Exit(code=1)
+    try:
+        paths = retrieval_mod.fetch(entry, cache_dir=_DATASET_CACHE, mirror=mir)
+        for path, ref in zip(paths, entry.files, strict=True):
+            mir.put(path, ref.sha256)
+    except retrieval_mod.RetrievalError as exc:
+        typer.echo(f"mirror failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps({"mirrored": entry.id, "files": len(entry.files)}, indent=2))
+    raise typer.Exit(code=0)
 
 
 @dataset.command()
@@ -284,12 +369,39 @@ def audit(
     identifier: Annotated[
         str, typer.Argument(help="Optional dataset id; whole manifest if omitted.")
     ] = "",
+    manifest: Annotated[
+        str, typer.Option(help="Path to the manifest.")
+    ] = "datasets.yml",
 ) -> None:
     """Audit fixity, mirror presence and manifest completeness.
 
     :param identifier: Optional dataset id; audits the whole manifest if omitted.
+    :param manifest: Path to the manifest.
+    :raises typer.Exit: Code 1 if validation or any fixity check fails.
     """
-    _not_implemented(3)
+    parsed = _load_manifest_or_exit(manifest)
+    if identifier:
+        entry = _entry_or_exit(parsed, identifier)
+        parsed = manifest_mod.Manifest(mirror=parsed.mirror, datasets=[entry])
+    report = retrieval_mod.audit(
+        parsed, cache_dir=_DATASET_CACHE, mirror=_mirror_from(parsed)
+    )
+    typer.echo(
+        json.dumps(
+            {
+                "ok": report.ok,
+                "validation": {
+                    "ok": report.validation.ok,
+                    "errors": report.validation.errors,
+                    "warnings": report.validation.warnings,
+                },
+                "fixity": [dataclasses.asdict(f) for f in report.fixity],
+                "mirror_present": report.mirror_present,
+            },
+            indent=2,
+        )
+    )
+    raise typer.Exit(code=0 if report.ok else 1)
 
 
 # --- defend (honest-scholar#4) ----------------------------------------------------

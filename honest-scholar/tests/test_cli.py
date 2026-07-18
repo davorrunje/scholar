@@ -41,8 +41,6 @@ def test_stub_command_exits_2() -> None:
 def test_each_group_has_a_stub() -> None:
     cases = [
         (["literature", "resolve", "10.1000/xyz"], "honest-scholar#1"),
-        (["dataset", "fetch", "mnist"], "honest-scholar#3"),
-        (["dataset", "audit"], "honest-scholar#3"),
         (["defend", "record", "claim"], "honest-scholar#4"),
         (["backlog", "park", "idea"], "honest-scholar#5"),
         (["backlog", "add", "idea"], "honest-scholar#5"),
