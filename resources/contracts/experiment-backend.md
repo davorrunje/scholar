@@ -6,10 +6,11 @@ runner hot-swappable and keeps `honest-scholar` domain-neutral. (Design: `docs/d
 
 ## Binding
 
-A project binds a backend in `docs/research/papers.md` via a `backend:` field
-(default `mononet-bench`). A backend is any implementation exposing the four
-capabilities below. Pipeline skills resolve the backend from the binding and
-contain **no** backend-specific logic.
+A project binds a backend in `docs/research/papers.md` via a **required**
+`backend:` field — the plugin bundles **no default**, shipping only this contract.
+A backend is any implementation exposing the four capabilities below. Pipeline
+skills resolve the backend from the binding and contain **no** backend-specific
+logic.
 
 ## The four capabilities
 
@@ -63,8 +64,8 @@ A backend implementation lives in the **consuming repo**, not here. It must:
 4. answer `current | stale(reasons)` for a run-ref (`is-current`).
 
 How it runs experiments (local, GPU fan-out, cluster, cached) is entirely up to
-the implementation; nothing above prescribes a scheduler. The default
-`mononet-bench` implementation (in the `mononet` repo) uses a `doit` + GPU-pool
-executor, committed-JSON results with `.provenance.json` sidecars, a `render`
-managed-block writer, and a symbol-closure provenance hash — but a lightweight
-local runner is equally valid.
+the implementation; nothing above prescribes a scheduler. One implementation might
+use a `doit` + GPU-pool executor with committed-JSON results, `.provenance.json`
+sidecars, a managed-block writer, and a closure-based provenance hash; a
+lightweight local runner is equally valid. The plugin ships no backend — each repo
+supplies its own.

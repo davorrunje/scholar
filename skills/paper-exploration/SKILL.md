@@ -51,6 +51,14 @@ paper. Only `promote` moves a candidate out of exploration, and only on an
 explicit human pick — the exploration/resolution firewall
 (`../../docs/design/00-meta-spec.md` §2.3).
 
+> **Tooling.** Row append/transition is the shared `honest-scholar backlog
+> park|add|list|rank|promote|drop` CLI group
+> (`honest_scholar/exploration/backlog.py`, shared with `hypothesis-exploration`)
+> — ensure via [`ensure-tooling`](../../resources/ensure-tooling.md) (issue #5),
+> operating on `portfolio-backlog.md` at the paper level. `add` realizes the
+> `generate` verb's row-append; `list` is a read-only inspection command.
+> **Interim, until it lands:** edit the `portfolio-backlog.md` table directly.
+
 ## Generation lenses
 
 Three lenses turn *finished or in-flight work* into candidate papers. Each
@@ -109,7 +117,8 @@ paper roots and their experiment-backend binding.
 
 - **What it holds.** One row per paper: `paper-id` → its root path under
   `docs/research/<paper>/` + a `backend:` field naming the bound experiment
-  backend (default `mononet-bench`; ADR-0013,
+  backend (**required — the plugin bundles no default**; each repo supplies its own
+  implementation of the contract; ADR-0013,
   `../../decisions/0013-experiment-backend-contract.md`;
   `../../docs/design/04-substrate-and-contract.md` §3.1). Pipeline skills resolve
   the backend from this binding and contain no backend-specific logic, so
@@ -134,8 +143,9 @@ paper roots and their experiment-backend binding.
 - **Up-mirror:** the portfolio feeds the optional `thesis` level
   (`../thesis/SKILL.md`); when a `thesis` exists, *interest* scoring weighs
   coverage of a thesis aim.
-- **Reporting:** `progress` (`../progress/SKILL.md`) reads backlog and registry
-  state; it never re-ranks or scores.
+- **Reporting:** `progress` (`../progress/SKILL.md`) reads the `papers.md` registry
+  and each artifact's status frontmatter — not the `portfolio-backlog.md` table; it
+  never re-ranks or scores.
 
 ## Guardrails
 

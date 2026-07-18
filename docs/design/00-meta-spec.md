@@ -79,8 +79,8 @@ and
   dependency for provenance. Optional authoring front-ends (e.g. Zotero) may
   *export* into the git-tracked artifacts, but the repo is authoritative.
 - **No experiment *runner*.** `honest-scholar` defines the experiment-backend
-  *contract*; each consuming repo supplies the implementation (for `mononet`,
-  the benchmark orchestration of PR #127).
+  *contract* and bundles no default; each consuming repo supplies and binds its own
+  implementation.
 - **No cross-repo aggregation.** Work-research and a PhD thesis live in
   separate repos with separate lives; linking a thesis across repos (e.g.
   rolling a company paper into the thesis) is explicitly out of scope for now.
@@ -430,7 +430,7 @@ the experiment-backend implementation. After `init`/`adopt`, a consumer repo
 │   ├── config.yml                        # rclone remote name, lit anchors, experiment-backend + engineering_backend bindings
 │   ├── rclone.conf                       # gitignored (creds)
 │   └── rclone.conf.example               # committed template (remote name/type only)
-└── <experiment-backend implementation>   # e.g. mononet's benchmark orchestration (PR #127)
+└── <experiment-backend implementation>   # supplied by the consuming project; not shipped with the plugin
 ```
 
 | Lives in the **plugin** | Lives in the **consumer** |

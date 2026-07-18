@@ -5,38 +5,41 @@
 ## Context
 
 The pipeline skills need experimental evidence, but how experiments run is
-project-specific (mononet's GPU fan-out means nothing to a colleague's project).
-The author wanted the testing layer decoupled and hot-swappable.
+project-specific (one project's GPU fan-out means nothing to another's). The
+testing layer must be decoupled and hot-swappable.
 
 ## Decision drivers
 
 - Pipeline skills must not depend on a concrete runner.
-- mononet will adopt its own benchmark orchestration (PR #127) as the backend.
+- Projects already have — or will build — their own orchestration; the skills must
+  not assume any one, and the plugin must stay domain-neutral.
 - Evidence must be citable and reproducible (provenance).
 
 ## Considered options
 
 1. **A 4-capability contract (`run` / `evidence` / `tables` / `is-current`),
-   bound per project; default `mononet-bench`.**
-2. Bake mononet's orchestration directly into the skills.
+   bound per project; no bundled default — the plugin ships the contract only.**
+2. Bake a specific orchestrator directly into the skills.
 3. Depend on an external tracker (MLflow/W&B).
 
 ## Decision
 
-Option 1. The plugin ships the contract; each repo supplies an implementation.
-Docs cite opaque **run-refs**; the provenance stamp carries dataset
-`id+version+sha256`; the backend stamps evidence but never adjudicates it.
+Option 1. The plugin ships the contract only and bundles **no default backend**;
+each repo supplies and binds its own implementation. Docs cite opaque **run-refs**;
+the provenance stamp carries dataset `id+version+sha256`; the backend stamps
+evidence but never adjudicates it.
 
 ## Consequences
 
-- Any project can bring its own runner; PINN (PR #116) migrates to the default.
+- Any project brings its own runner; there is no bundled default to migrate onto.
 - run-ref format left opaque (open item).
 
 ## Rejected alternatives
 
-- **Bake in mononet's orchestration** — non-reusable; couples skills to one tool.
+- **Bake in a specific orchestrator** — non-reusable; couples skills to one tool
+  and breaks domain-neutrality.
 - **External tracker** — not git-native; heavy; provenance not repo-owned.
 
 ## Links
 
-sub-spec 4 §3; orchestration spec (PR #127).
+sub-spec 4 §3 (`../docs/design/04-substrate-and-contract.md`).

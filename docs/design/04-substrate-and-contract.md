@@ -157,24 +157,25 @@ Semantics:
 
 ### 3.1 Binding
 
-Each project binds a backend in `docs/research/papers.md` via a `backend:` field
-(default `mononet-bench`). A backend is any implementation exposing the four
-capabilities. Pipeline skills resolve the backend from the binding; they contain
-no backend-specific logic.
+Each project binds a backend in `docs/research/papers.md` via a **required**
+`backend:` field — there is **no bundled default**; the plugin ships only the
+contract. A backend is any implementation exposing the four capabilities. Pipeline
+skills resolve the backend from the binding; they contain no backend-specific
+logic.
 
-### 3.2 Default implementation & migration
+### 3.2 Implementations
 
-- The **default backend is `mononet-bench`** — the benchmark experiment
-  orchestration designed in
-  [2026-07-15-benchmark-experiment-orchestration-design.md](2026-07-15-benchmark-experiment-orchestration-design.md)
-  (PR #127). It stays in `mononet` as *mononet's implementation* of this contract
-  (`run` = doit/gpu-pool executor; `evidence` = committed-JSON results +
-  `.provenance.json`; `tables` = the `render` managed-block write-back;
-  `is-current` = the symbol-closure provenance hash).
-- The **PINN application paper** (PR #116) adopts this default backend once the
-  infrastructure lands (it currently has a divergent harness).
-- Because the contract is abstract, a different project may bind a different
-  backend (e.g. a lightweight local runner) without touching any pipeline skill.
+- The plugin **bundles no backend** — it ships the contract only, so it stays
+  domain-neutral. Each project supplies an implementation of the four capabilities
+  and binds it in `papers.md`.
+- A typical implementation maps the capabilities onto the project's own tooling:
+  `run` = its experiment executor (local, GPU-pool, or cluster); `evidence` =
+  committed results + a provenance sidecar (dataset `id+version+sha256`, config
+  hash, code provenance); `tables` = a managed-block write-back into docs;
+  `is-current` = a provenance/closure hash. A lightweight local runner and a
+  large-scale GPU orchestrator are equally valid.
+- Because the contract is abstract, different projects may bind different backends
+  without touching any pipeline skill.
 
 ### 3.3 Agency-principle interaction
 
@@ -186,7 +187,7 @@ staleness; it does not decide to re-run — the researcher does.
 ## 4. Open items
 
 - **run-ref format** — opaque string vs structured (backend-hash + trial-id);
-  settle when the first non-default backend is contemplated. Default: opaque
+  settle when cross-backend interop is first contemplated. Default: opaque
   string the backend can resolve.
 - **Croissant/BibTeX export placement** — whether the persistent-ID module owns
   export, or each front-end does; lean toward the shared module for `pid`/citation
