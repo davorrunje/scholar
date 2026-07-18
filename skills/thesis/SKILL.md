@@ -138,10 +138,10 @@ acknowledge *each* surfaced gap in writing before proceeding.
   paper, broader than a single paper's positioning).
 - **`defend`** — the mock viva at the defensibility gate; also self-invokable on any
   aim or contribution statement.
-- **`progress`** — reads the thesis frontmatter (coverage / defensibility +
-  `last-updated`) and rolls it into `dashboard.md` as a pure projection. Thesis
-  status = uncovered-aims list + through-line-stated flag + milestone state, never
-  a score.
+- **`progress`** — reads the thesis status block in `aims.md` (readiness /
+  defensibility + the aim list + `last-updated`) and rolls it into `dashboard.md`
+  as a pure projection. Thesis status = uncovered-aims list + through-line-stated
+  flag + milestone state, never a score.
 - **The engineering backend** — thesis prose is authored, not engineered, so
   there is nothing to delegate at this level (unlike a paper's outline/plan).
 

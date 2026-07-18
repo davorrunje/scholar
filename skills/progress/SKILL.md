@@ -26,7 +26,8 @@ lifecycle §5 (`../../docs/design/01-lifecycle.md`).
   X?", "which hypotheses are still open?", "is the thesis defensible yet?").
 - You want to see **blockers** (a refuted load-bearing hypothesis, an uncovered
   aim) or **staleness** (artifacts whose `last-updated` has gone cold relative to
-  their backend evidence — cross-check with the experiment backend's `is-current`).
+  their backend evidence — cross-check with the experiment backend's `is-current`,
+  resolved from the `backend:` binding in `docs/research/papers.md`).
 - You need to regenerate `docs/research/dashboard.md` after any status frontmatter
   changed.
 
@@ -83,6 +84,19 @@ status:
   decided*, never as done.
 - `evidence` points at backend run-refs; progress does not read the numbers, only
   that they exist and (via `is-current`) whether they are stale.
+
+### Where the status block lives
+
+Each level has **one authoritative roll-up artifact** that carries the `verdict` /
+`readiness` / sign-off block progress reads; the other staged docs may carry their
+own lighter `understanding` + `last-updated` (written by `defend`), which progress
+*also* surfaces but never treats as the verdict source.
+
+| Level | Authoritative artifact | Carries |
+|---|---|---|
+| hypothesis | `…/hypotheses/<slug>/findings.md` | `verdict` (confirmed/refuted/inconclusive), `readiness`, `evidence`, sign-off. Before `findings.md` exists, readiness is `pending`, inferred from the furthest completed stage. |
+| paper | `…/<paper>/paper/decision.md` | `verdict: publish\|no-go`, `readiness` (drafting/under-review/published), sign-off. |
+| thesis | `docs/research/thesis/aims.md` | `readiness: framing\|synthesis\|defensible`, the defensibility sign-off, and the machine-readable **aim list** that `paper → thesis` roll-up matches against each paper's `covers:`. Milestones stay in `thesis/milestones.yml`. |
 
 ## Definition of done
 
