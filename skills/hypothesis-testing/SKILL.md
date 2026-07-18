@@ -30,7 +30,9 @@ It also honors the two governing principles:
   `docs/research/<paper>/hypotheses/<YYYY-MM-DD-slug>/` (pick up at the first
   unfinished staged doc).
 - You need to re-check whether a resolved hypothesis's evidence has gone stale
-  (`is-current` on its run-refs) and possibly revise the verdict.
+  (`is-current` on its run-refs). Revising a signed verdict is itself a **material
+  decision** — it re-triggers the `defend` guardrail and a new named sign-off, not
+  a silent flip.
 
 Do **not** use it to *generate* candidate hypotheses — that is
 [`hypothesis-exploration`](../hypothesis-exploration/SKILL.md) (explore proposes,
@@ -67,12 +69,20 @@ order**. Each carries a status frontmatter block that feeds
      surfaced gaps before proceeding to engineering. See
      [`../defend/SKILL.md`](../defend/SKILL.md).
 
+   > *e.g.* claim: "pruning to 50% sparsity doesn't hurt accuracy." Strategy —
+   > decisive comparison: pruned vs. dense test accuracy; it is a **null claim**, so
+   > **TOST** against a pre-registered ±1% equivalence bound, powered for it; rival:
+   > "the task is too easy to separate them," discriminated by a harder split; tag:
+   > confirmatory.
+
 3. **`design.md` / `plan.md`** — *the engineering, delegated.* Hand off to the
-   bound engineering backend via the engineering-delegation contract: its
-   `design` → `plan` capabilities. Store the resulting design and plan under this
-   hypothesis folder (`design.md`, `plan.md`). `honest-scholar` does not design
-   experiments, write plans, or implement — it composes with the engineering
-   backend for all of that. Execution of the plan produces the runs.
+   engineering backend bound in `.honest-scholar/config.yml` (`engineering_backend:`)
+   via the engineering-delegation contract: `design` → `plan` → `implement`. Store
+   the design and plan under this hypothesis folder (`design.md`, `plan.md`);
+   `implement` builds the experiment harness/code. `honest-scholar` does not design
+   experiments, write plans, or implement — it composes with the engineering backend
+   for all of that. The *experiment* backend's `run` (below) then executes the built
+   harness to produce the runs.
 
 4. **`findings.md`** — *the verdict, a material decision.*
    - Report results by citing the experiment backend's **run-refs** — **never**
