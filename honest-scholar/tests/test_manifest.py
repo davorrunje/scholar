@@ -231,3 +231,137 @@ def test_cli_ingest_emits_draft(tmp_path: Path) -> None:
     draft = json.loads(result.stdout)
     assert draft["id"] == "ingested"
     assert "tier" in draft["_needs_human"]
+
+
+# --- decode / validate / croissant branch coverage (#16 sweep) --------------
+
+
+def test_load_empty_file(tmp_path: Path) -> None:
+    assert m.load(_write(tmp_path, "")).datasets == []
+
+
+def test_load_top_not_mapping(tmp_path: Path) -> None:
+    with pytest.raises(m.ManifestError, match="mapping at the top level"):
+        m.load(_write(tmp_path, "- a\n- b\n"))
+
+
+def test_load_datasets_not_list(tmp_path: Path) -> None:
+    with pytest.raises(m.ManifestError, match="'datasets' must be a list"):
+        m.load(_write(tmp_path, "datasets:\n  key: value\n"))
+
+
+def test_load_mirror_not_mapping(tmp_path: Path) -> None:
+    with pytest.raises(m.ManifestError, match="'mirror' must be a mapping"):
+        m.load(_write(tmp_path, "mirror: nope\ndatasets: []\n"))
+
+
+def test_decode_entry_not_mapping(tmp_path: Path) -> None:
+    with pytest.raises(m.ManifestError, match="entry must be a mapping"):
+        m.load(_write(tmp_path, "datasets:\n  - just-a-string\n"))
+
+
+def test_decode_file_not_mapping(tmp_path: Path) -> None:
+    text = "datasets:\n  - id: x\n    files:\n      - astring\n"
+    with pytest.raises(m.ManifestError, match="each file must be a mapping"):
+        m.load(_write(tmp_path, text))
+
+
+def test_decode_file_missing_key(tmp_path: Path) -> None:
+    text = "datasets:\n  - id: x\n    files:\n      - path: p\n"
+    with pytest.raises(m.ManifestError, match="missing required key"):
+        m.load(_write(tmp_path, text))
+
+
+def test_decode_retrieval_not_mapping(tmp_path: Path) -> None:
+    text = "datasets:\n  - id: x\n    retrieval: nope\n"
+    with pytest.raises(m.ManifestError, match="'retrieval' must be a mapping"):
+        m.load(_write(tmp_path, text))
+
+
+def test_decode_citation_not_mapping(tmp_path: Path) -> None:
+    text = "datasets:\n  - id: x\n    citation: nope\n"
+    with pytest.raises(m.ManifestError, match="'citation' must be a mapping"):
+        m.load(_write(tmp_path, text))
+
+
+def test_validate_conditional_and_shape_errors() -> None:
+    entry = m.DatasetEntry(
+        id="e",
+        version="1",
+        tier="C",
+        license="X",
+        redistributable=False,
+        access="gated",
+        files=[m.FileRef(path="", sha256=_HEX)],
+        datasheet="d.md",
+        retrieval=m.Retrieval(kind="bogus"),
+        sensitivity="huge",
+    )
+    errs = "\n".join(m.validate(m.Manifest(datasets=[entry])).errors)
+    assert "files[0].path" in errs
+    assert "retrieval.kind" in errs
+    assert "sensitivity" in errs
+    assert "instructions" in errs  # Tier C requires instructions
+
+
+def test_croissant_optional_fields_and_no_size() -> None:
+    entry = m.DatasetEntry(
+        id="e",
+        version="2.0",
+        license="MIT",
+        description="a desc",
+        pid="doi:10.1/x",
+        files=[m.FileRef(path="f", sha256=_HEX)],  # no size
+        citation=m.Citation(creator="A", title="T", publication_year=2020),
+    )
+    doc = m.croissant_for(entry)
+    assert doc["description"] == "a desc"
+    assert doc["identifier"] == "doi:10.1/x"
+    assert "citeAs" in doc
+    assert "contentSize" not in doc["distribution"][0]
+
+
+def test_entry_from_croissant_no_distribution() -> None:
+    draft = m.entry_from_croissant({"name": "x"})
+    assert draft.files == []
+
+
+def test_validate_incomplete_citation_warns() -> None:
+    entry = m.DatasetEntry(
+        id="e",
+        version="1",
+        tier="B",
+        license="MIT",
+        redistributable=True,
+        access="open",
+        files=[m.FileRef(path="f", sha256=_HEX)],
+        datasheet="d.md",
+        retrieval=m.Retrieval(kind="http", url="u"),
+        citation=m.Citation(creator="A"),
+    )
+    report = m.validate(m.Manifest(datasets=[entry]))
+    assert any("citation" in w for w in report.warnings)
+
+
+def test_entry_from_croissant_mixed_distribution() -> None:
+    draft = m.entry_from_croissant(
+        {
+            "name": "x",
+            "citeAs": "Author (2020). X.",
+            "distribution": [
+                "not-a-dict",
+                {"contentUrl": "u1"},  # missing sha256 -> skipped
+                {"contentUrl": "u2", "sha256": _HEX, "contentSize": 5},
+            ],
+        }
+    )
+    assert [f.path for f in draft.files] == ["u2"]
+    assert draft.files[0].size == 5
+    assert draft.citation is not None
+
+
+def test_croissant_minimal_entry_omits_absent_fields() -> None:
+    doc = m.croissant_for(m.DatasetEntry(id="bare"))
+    assert doc["name"] == "bare"
+    for absent in ("version", "license", "description", "identifier", "distribution"):
+        assert absent not in doc

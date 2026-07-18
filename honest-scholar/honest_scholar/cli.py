@@ -290,29 +290,36 @@ def ingest(croissant: str) -> None:
 
 @dataset.command()
 def emit(
-    identifier: str,
+    identifier: Annotated[
+        str, typer.Argument(help="The dataset id to emit (omit with --all).")
+    ] = "",
+    emit_all: Annotated[
+        bool, typer.Option("--all", help="Emit every entry as a JSON array.")
+    ] = False,
     manifest: Annotated[
         str, typer.Option(help="Path to the manifest to read.")
     ] = "datasets.yml",
 ) -> None:
-    """Emit a Croissant JSON-LD document for a manifest entry.
+    """Emit a Croissant JSON-LD document for a manifest entry (or all entries).
 
-    :param identifier: The dataset id to emit (``--all`` for the whole registry).
+    :param identifier: The dataset id to emit; omit when using ``--all``.
+    :param emit_all: Emit every registry entry as a JSON array.
     :param manifest: Path to the manifest to read.
-    :raises typer.Exit: Code 1 if the manifest is malformed or the id is unknown.
+    :raises typer.Exit: Code 1 if the manifest is malformed, no id/``--all`` is
+        given, or the id is unknown.
     """
     try:
         parsed = manifest_mod.load(manifest)
     except manifest_mod.ManifestError as exc:
         typer.echo(f"emit failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc
-    if identifier == "--all":
-        typer.echo(
-            json.dumps(
-                [manifest_mod.croissant_for(e) for e in parsed.datasets], indent=2
-            )
-        )
+    if emit_all:
+        docs = [manifest_mod.croissant_for(e) for e in parsed.datasets]
+        typer.echo(json.dumps(docs, indent=2))
         raise typer.Exit(code=0)
+    if not identifier:
+        typer.echo("emit: give a dataset id or --all", err=True)
+        raise typer.Exit(code=1)
     for entry in parsed.datasets:
         if entry.id == identifier:
             typer.echo(json.dumps(manifest_mod.croissant_for(entry), indent=2))
