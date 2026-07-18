@@ -35,7 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # tokenless Codecov upload via OIDC
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -58,12 +59,12 @@ jobs:
         working-directory: honest-scholar
         run: uv run pytest
       - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.13'
+        if: ${{ matrix.python-version == '3.13' && env.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ env.CODECOV_TOKEN }}
           files: honest-scholar/coverage.xml
-          use_oidc: true
-          fail_ci_if_error: false # a Codecov hiccup must not fail CI; the gate is the pytest --cov-fail-under
+          fail_ci_if_error: true
 
   plugin-validate:
     runs-on: ubuntu-latest
