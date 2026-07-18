@@ -67,11 +67,11 @@ the author elects to stop and record the gap.
 > (`honest_scholar/defend/record.py`) — ensure via
 > [`ensure-tooling`](../../resources/ensure-tooling.md); it appends the
 > `understanding` frontmatter block and persists the transcript (issue #4).
-> **Interim, until it lands:** edit the artifact's frontmatter directly — set
-> `understanding: {status: ok|gaps, unresolved: [...]}` to match the schema
-> `progress` reads (`../progress/SKILL.md`), and bump the artifact's top-level
-> `last-updated` (do **not** nest a date inside `understanding`). If a transcript
-> is kept, write it beside the artifact as `defend-<date>.md`.
+> **Interim, until it lands:** edit the artifact's frontmatter directly — under the
+> `status:` block, set `understanding: {status: ok|gaps, unresolved: [...]}` to match
+> the schema `progress` reads (`../progress/SKILL.md`), and bump `status.last-updated`
+> (do **not** nest a date inside `understanding`). If a transcript is kept, write it
+> beside the artifact as `defend-<date>.md`.
 
 ## Example (a methodology probe)
 

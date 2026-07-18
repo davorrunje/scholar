@@ -8,8 +8,7 @@ The `literature` skill's `scout` and `position` modes both walk one citation-gra
 substrate: **OpenAlex** (keyless backbone, `mailto=` polite pool) plus **Semantic
 Scholar** (S2AG — citation contexts, SciCite intents, `isInfluential`,
 recommendations). Today there is no client: `../../../skills/literature/SKILL.md`
-(§ *Helper script*, the `TODO — literature graph module` at ~line 170) marks it
-unimplemented. **Interim (until the module is implemented):** the skill orchestrates
+(§ *Tooling*) marks it unimplemented. **Interim (until the module is implemented):** the skill orchestrates
 the graph step manually / via direct tool calls — persisting raw JSON as the
 provenance root and editing `references.json` / `triage.yml` — which is
 unreproducible and pushes pagination, degradation, and rate-limit handling onto the
@@ -89,7 +88,8 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
   `tooling-package.md`; already pulled by `pooch`, so zero net dep). No OpenAlex/S2
   SDKs, no graph libraries (`networkx` etc.); neighbor math is stdlib
   `set`/`collections.Counter`.
-- **stdlib** for JSON, argparse, on-disk cache.
+- **stdlib** for JSON and the on-disk cache; the CLI layer is **Typer** (the
+  package's house CLI framework, per `tooling-package.md`), not argparse.
 - `mailto=` on every OpenAlex call (polite pool); `x-api-key` header on S2 iff a key
   is configured (env / `.honest-scholar/config.yml`), else omit and degrade.
 - **Rate-limits / caching:** respect OpenAlex 10 req/s + 100k/day and S2's lower
@@ -129,7 +129,7 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
 
 ## Links
 
-- Skill + the TODO: `../../../skills/literature/SKILL.md` (§ *Helper script*, ~line 170)
+- Skill: `../../../skills/literature/SKILL.md` (§ *Tooling*)
 - Scout methodology: `../../../resources/references/citation-scouting.md`
 - Position methodology: `../../../resources/references/related-works-synthesis.md`
 - Substrate + light-dep posture: `../../../resources/substrate/asset-registry.md`

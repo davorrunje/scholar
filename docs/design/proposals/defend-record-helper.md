@@ -4,9 +4,9 @@
 
 ## Context
 
-The `defend` skill's record step (SKILL.md step 6) currently has no tooling. The
-`TODO (supporting module)` note (`../../../skills/defend/SKILL.md`, ~line 65) marks
-it unimplemented. **Interim (until the module is implemented):** the skill
+The `defend` skill's record step (SKILL.md step 6) currently has no tooling. Its
+§ *Tooling* note (`../../../skills/defend/SKILL.md`) marks it unimplemented.
+**Interim (until the module is implemented):** the skill
 orchestrates the write by hand — editing the target artifact's frontmatter to add an
 `understanding` block, and (if a transcript is kept) dropping it beside the artifact
 as `defend-<date>.md`; once `honest-scholar` is installed (via
@@ -133,7 +133,7 @@ entry per examination, and the full transcript beside the artifact as `defend-<d
 
 ## Links
 
-- `defend` skill (record step + TODO): `../../../skills/defend/SKILL.md`
+- `defend` skill (record step + § *Tooling*): `../../../skills/defend/SKILL.md`
 - Progress skill (frontmatter schema, `understanding`): `../../../skills/progress/SKILL.md`
 - Understanding & defense digest: `../../../resources/references/understanding-and-defense.md`
 - ADR-0021 thesis gate per-gap confirmation: `../../../decisions/0021-thesis-gate-per-gap-confirmation.md`

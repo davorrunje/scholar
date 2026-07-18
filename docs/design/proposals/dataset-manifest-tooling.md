@@ -63,12 +63,15 @@ keep the surface stdlib-only and JSON/YAML round-trippable.
 - **Core (all tiers):** `id` (unique slug), `version`, `tier ∈ {A,B,C}`, `license`
   (SPDX id *or* explicit terms + URL), `redistributable: bool`,
   `access ∈ {open,gated}`, `files[]` each with `path` + `sha256` matching
-  `^sha256:?[0-9a-f]{64}$`, `datasheet` (path/URL or `"N/A + <reason>"`).
+  `^sha256:?[0-9a-f]{64}$`, `datasheet` (path/URL required; a `"N/A + <reason>"`
+  placeholder is accepted structurally by `validate` but flagged by `audit` as a
+  datasheet-completeness deficiency, never a clean state).
 - **Tier-conditional:** `source`/`retrieval` required for **Tier B** (and
   `retrieval.kind ∈ {http,doi,openml,git-lfs,manual}`); acquisition `instructions`
   required for **Tier C**; `sensitivity` required if PII/confidential.
-- **Cross-entry:** duplicate `id` detection; `redistributable=false` with `tier: A`
-  is a hard error (tier follows license, not convenience).
+- **Cross-entry:** duplicate `id` detection; a `tier: A` entry with
+  `redistributable: false` **or** `access: gated` is a hard error (tier follows the
+  license/access, not convenience — matches the skill's tier-consistency guardrail).
 - Errors accumulate (report all, not first-fail) and are formatted as
   `entry '<id>': <field>: <reason>`; validation returns a structured result the
   `audit` verb renders as a gap report.
@@ -152,7 +155,8 @@ honest-scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
   omission (B: source/retrieval; C: instructions; PII: sensitivity), accumulating
   all violations with `entry '<id>': <field>: <reason>` messages; exits non-zero
   from the CLI on any error.
-- Duplicate `id` and `tier: A` + `redistributable: false` are hard errors.
+- Duplicate `id`, and a `tier: A` entry with `redistributable: false` or
+  `access: gated`, are hard errors.
 - `emit` produces schema.org/Dataset Croissant JSON-LD whose `distribution[]`
   carries `contentUrl` + `sha256`, validated by a round-trip
   `entry → croissant → entry` that preserves core + citation fields.
@@ -160,12 +164,13 @@ honest-scholar dataset emit <id> [-o <id>.croissant.json]   # or --all
   tier/retrieval/datasheet/sensitivity as human-TODO.
 - No dependency beyond `pyyaml` + stdlib; no network or filesystem access to data
   files during validate/emit/ingest.
-- `register` and `audit` invoke `honest-scholar dataset …`; the SKILL TODO block (~line 105)
-  is updated to point at the CLI instead of the interim manual workaround.
+- `register` and `audit` invoke `honest-scholar dataset …`; the skill's § *Tooling*
+  note already documents this CLI (the interim manual workaround stays until the
+  module lands).
 
 ## Links
 
-- Skill: `../../../skills/dataset/SKILL.md` (Manifest, Tiers; TODO ~line 105)
+- Skill: `../../../skills/dataset/SKILL.md` (Manifest, Tiers; § *Tooling*)
 - Standards digest: `../../../resources/references/dataset-management-standards.md` (§2, §3)
 - Substrate base record: `../../../resources/substrate/asset-registry.md`
 - Design: `../03-dataset.md`, `../04-substrate-and-contract.md`
