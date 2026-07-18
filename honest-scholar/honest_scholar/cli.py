@@ -7,14 +7,21 @@ issues (see ADR-0024 and ``docs/design/proposals/tooling-package.md``).
 
 from __future__ import annotations
 
+import json
+import os
 import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
-from typing import Annotated
+from pathlib import Path
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 
 from honest_scholar import __version__
+from honest_scholar.literature import graph as graph_mod
+
+if TYPE_CHECKING:
+    from honest_scholar.core.http import HttpClient
 
 app = typer.Typer(
     name="honest-scholar",
@@ -108,49 +115,119 @@ literature = typer.Typer(
 app.add_typer(literature, name="literature")
 
 
+def _lit_client() -> HttpClient:
+    """Build the literature HTTP client from config + environment.
+
+    Reads ``literature.mailto`` from ``.honest-scholar/config.yml`` (polite pool)
+    and ``S2_API_KEY`` from the environment; caches responses under
+    ``.honest-scholar/cache/http``. Tests monkeypatch this to inject a fake client.
+    """
+    from honest_scholar.core.config import load_config
+    from honest_scholar.core.http import HttpClient
+
+    config = load_config()
+    lit = config.get("literature")
+    mailto = lit.get("mailto") if isinstance(lit, dict) else None
+    return HttpClient(
+        cache_dir=Path(".honest-scholar/cache/http"),
+        mailto=mailto or os.environ.get("OPENALEX_MAILTO"),
+        s2_key=os.environ.get("S2_API_KEY"),
+    )
+
+
+def _openalex_id(client: HttpClient, identifier: str) -> str:
+    """Resolve `identifier` to an OpenAlex id, or exit 1 if it cannot resolve."""
+    record = graph_mod.resolve(identifier, client=client)
+    if not record.get("resolved") or not record.get("openalex"):
+        typer.echo(
+            f"could not resolve {identifier!r}: {record.get('reason')}", err=True
+        )
+        raise typer.Exit(code=1)
+    return str(record["openalex"])
+
+
 @literature.command()
 def resolve(identifier: str) -> None:
-    """Resolve an identifier (DOI, arXiv id, title) to a canonical work.
+    """Resolve an identifier (DOI, arXiv id, OpenAlex/S2 id) to a canonical work.
 
     :param identifier: The identifier to resolve.
     """
-    _not_implemented(1)
+    typer.echo(
+        json.dumps(graph_mod.resolve(identifier, client=_lit_client()), indent=2)
+    )
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def cites(identifier: str) -> None:
-    """List works that cite the given work.
+def cites(
+    identifier: str,
+    max_results: Annotated[int, typer.Option("--max", help="Cap on rows.")] = 0,
+) -> None:
+    """List works that cite the given work (JSON array).
 
     :param identifier: The work identifier.
+    :param max_results: Optional cap on the number of rows (0 = all).
     """
-    _not_implemented(1)
+    client = _lit_client()
+    rows = graph_mod.cites(
+        _openalex_id(client, identifier),
+        client=client,
+        max_results=max_results or None,
+    )
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @literature.command()
 def refs(identifier: str) -> None:
-    """List the references of the given work.
+    """List the backward references (OpenAlex ids) of the given work.
 
     :param identifier: The work identifier.
     """
-    _not_implemented(1)
+    client = _lit_client()
+    typer.echo(
+        json.dumps(graph_mod.refs(_openalex_id(client, identifier), client=client))
+    )
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def enrich(identifier: str) -> None:
-    """Enrich a work's metadata from external sources.
+def enrich(
+    identifiers: list[str],
+    with_context: Annotated[bool, typer.Option("--context")] = False,
+) -> None:
+    """Enrich one or more works with their metadata bundle (JSON array).
 
-    :param identifier: The work identifier.
+    :param identifiers: The work identifiers to enrich.
+    :param with_context: Request S2 citation-context fields (degrades w/o a key).
     """
-    _not_implemented(1)
+    client = _lit_client()
+    ids = [_openalex_id(client, ident) for ident in identifiers]
+    rows = graph_mod.enrich(ids, client=client, with_context=with_context)
+    typer.echo(json.dumps(rows, indent=2))
+    raise typer.Exit(code=0)
 
 
 @literature.command()
-def neighbors(identifier: str) -> None:
-    """List citation-graph neighbors of the given work.
+def neighbors(
+    identifier: str,
+    kind: Annotated[
+        str, typer.Option("--kind", help="cocite | couple | both.")
+    ] = "both",
+    top: Annotated[int, typer.Option("--top")] = 20,
+) -> None:
+    """List co-citation / bibliographic-coupling neighbours of the given work.
 
     :param identifier: The work identifier.
+    :param kind: ``cocite`` / ``couple`` / ``both``.
+    :param top: Number of neighbours per set.
     """
-    _not_implemented(1)
+    client = _lit_client()
+    result = graph_mod.neighbors(
+        _openalex_id(client, identifier), client=client, kind=kind, top=top
+    )
+    typer.echo(json.dumps(result, indent=2))
+    raise typer.Exit(code=0)
 
 
 # --- dataset (honest-scholar#2 manifest / #3 retrieval) ---------------------------
