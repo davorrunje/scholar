@@ -6,6 +6,11 @@
 
 <p align="center">Keep your research honest — <strong>especially now that AI is in the loop</strong>.</p>
 
+<p align="center">
+  <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://codecov.io/gh/davorrunje/honest-scholar/branch/main/graph/badge.svg" alt="coverage"></a>
+</p>
+
 ---
 
 **`honest-scholar`** helps you keep research honest — *especially now that AI is in

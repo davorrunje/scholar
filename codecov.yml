@@ -1,0 +1,18 @@
+# Codecov configuration.
+#
+# The *enforcing* coverage gate is pytest's `--cov-fail-under` (see
+# honest-scholar/pyproject.toml), enabled once the package reaches 100%. Until
+# then Codecov reports coverage informationally and never blocks a PR, so a
+# below-target percentage during the module build-out does not red the checks.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "reach, diff, files"
+  require_changes: false

@@ -97,7 +97,7 @@ disallow_any_generics = true
 no_implicit_reexport = true
 
 [tool.pytest.ini_options]
-addopts = '--cov=honest_scholar --cov-branch --cov-report=term-missing'
+addopts = '--cov=honest_scholar --cov-branch --cov-report=term-missing --cov-report=xml'
 testpaths = ["tests"]
 
 [tool.coverage.report]
