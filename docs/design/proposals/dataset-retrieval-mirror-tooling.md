@@ -7,8 +7,8 @@
 The `dataset` skill defines a resolution chain (local cache → private mirror →
 public source → gated instructions) with SHA-256 fixity at every hop, but the
 `fetch`/`verify`/`mirror`/`audit` verbs currently have no executable backing —
-`../../../skills/dataset/SKILL.md` (§Retrieval & mirror, ~line 156) lists the pooch
-fetcher and rclone wrappers as unwritten TODOs. **Interim (until the module is
+`../../../skills/dataset/SKILL.md` (§Retrieval & mirror, § *Tooling*) documents the
+pooch fetcher and rclone wrappers as not-yet-implemented. **Interim (until the module is
 implemented):** the skill orchestrates the resolution chain manually / via direct
 tool calls — fetch, `sha256sum` fixity checks, and hand-run `rclone` — which is
 error-prone; once `honest-scholar` is installed (via
@@ -95,7 +95,8 @@ Verb → core mapping:
 - `verify` → `verify` (steps-1 fixity only, offline)
 - `mirror` → `mirror_put` across an entry's files (populate/refresh)
 - `audit`  → `verify` + `mirror_check` across every manifest entry, plus
-  schema/license/datasheet completeness (owned by the loader/validator TODO)
+  schema/license/datasheet/tier-consistency completeness (owned by the manifest
+  loader/validator)
 
 CLI shape mirrors the verbs: `honest-scholar dataset fetch <id>`,
 `honest-scholar dataset verify [<id>|--all]`, `honest-scholar dataset mirror <id>`,
@@ -142,8 +143,8 @@ gitignored; CI uses env-var remotes sourced from secrets.
   `sha256/<hash>` key and a subsequent `fetch` (cache cleared) resolves from the
   mirror at step 2.
 - `verify` recomputes on-disk SHA-256 offline and never touches the network.
-- `audit` reports fixity + mirror presence + license/datasheet completeness across
-  the whole manifest.
+- `audit` reports fixity + mirror presence + license/datasheet/tier-consistency
+  completeness across the whole manifest.
 - rclone config resolves from either an untracked `rclone.conf` or env-var
   remotes; no test or fixture commits credentials; only `rclone.conf.example` is
   tracked.
@@ -152,7 +153,7 @@ gitignored; CI uses env-var remotes sourced from secrets.
 
 ## Links
 
-- `../../../skills/dataset/SKILL.md` — the skill and the TODO block this implements
+- `../../../skills/dataset/SKILL.md` — the skill (§ *Retrieval & mirror*, § *Tooling*) this implements
 - `../../../resources/substrate/asset-registry.md` — resolution chain + two-layer fixity
 - `../../../resources/references/dataset-tooling-mirror.md` — tooling review / stack decision
 - `../03-dataset.md`, `../04-substrate-and-contract.md`

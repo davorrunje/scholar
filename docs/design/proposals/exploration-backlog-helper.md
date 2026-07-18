@@ -9,11 +9,10 @@ table, and both currently leave the mechanics unimplemented. **Interim (until th
 module is implemented):** each skill orchestrates the row edits by hand / via direct
 tool calls; once `honest-scholar` is installed (via
 [`ensure-tooling`](../../../resources/ensure-tooling.md)) the skill calls
-`honest-scholar backlog …` instead. The two skills' `TODO`s:
+`honest-scholar backlog …` instead. The two skills:
 
 - `hypothesis-exploration` (`../../../skills/hypothesis-exploration/SKILL.md`, §Verbs,
-  and the `TODO (supporting script)` at ~L67) drives rows in a paper's
-  `docs/research/<paper>/backlog.md`.
+  § *Tooling*) drives rows in a paper's `docs/research/<paper>/backlog.md`.
 - `paper-exploration` (`../../../skills/paper-exploration/SKILL.md`, §Verbs) drives
   rows in `docs/research/portfolio-backlog.md`, and on `promote` also writes the
   paper registry `docs/research/papers.md`.
@@ -96,8 +95,9 @@ that touches files outside the backlog, and only on an explicit human pick:
 
 **Interaction with `papers.md`.** The helper only ever *appends* a registry row on
 paper-level `promote`; it never edits an existing registry row and never sets a
-`decision.md` verdict. `progress` (`../../../skills/progress/SKILL.md`) reads both
-the backlog and the registry read-only and is unchanged by this proposal.
+`decision.md` verdict. `progress` (`../../../skills/progress/SKILL.md`) reads the
+registry + artifact frontmatter read-only (**not** the backlog table) and is
+unchanged by this proposal.
 
 ## Dependencies & posture
 
@@ -119,7 +119,7 @@ the backlog and the registry read-only and is unchanged by this proposal.
 1. **Storage format.** Keep the human-readable markdown table and have the helper
    escape/round-trip provenance, or back the backlog with a YAML sidecar rendered
    to markdown for reading? The table is author-friendly and already parsed by
-   `rank`/`progress`; a sidecar is safer for verbatim snippets. Leaning: keep the
+   `rank`/`list`; a sidecar is safer for verbatim snippets. Leaning: keep the
    table, escape on write.
 2. **Slug ownership.** Does `promote` mint the `<YYYY-MM-DD-slug>` / `paper-id`, or
    does the human supply it? (`paper-id` must be stable and never reused.)
@@ -137,8 +137,8 @@ the backlog and the registry read-only and is unchanged by this proposal.
 - `promote` scaffolds the correct next-stage artifact, writes its status
   frontmatter, links it from the row, and — at paper level — appends the
   `papers.md` registry row; it runs only on an explicit id argument (human pick).
-- No verb writes a verdict or `decision.md`; `progress` continues to parse both
-  backlogs unchanged.
+- No verb writes a verdict or `decision.md`; `progress` continues to read the
+  registry + artifact frontmatter unchanged (it does not read the backlog table).
 - Deps limited to `pyyaml` + stdlib.
 
 ## Links

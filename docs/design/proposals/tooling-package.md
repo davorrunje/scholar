@@ -21,7 +21,7 @@ environment.
 
 ```
 honest-scholar/                     # subdirectory of the plugin repo
-├── pyproject.toml                 # deps + [project.scripts] honest-scholar = honest_scholar.cli:app + [project.entry-points] mcp
+├── pyproject.toml                 # deps + [project.scripts] honest-scholar / hsch = honest_scholar.cli:app + [project.optional-dependencies] mcp
 ├── honest_scholar/
 │   ├── core/                      # shared: requests-based http client, on-disk cache, config read, provenance
 │   ├── literature/graph.py        # ← proposal: literature-citation-graph-client
@@ -40,11 +40,14 @@ A Typer command tree that mirrors the skill verbs; each command emits JSON:
 
 ```
 honest-scholar literature resolve | cites | refs | enrich | neighbors
-honest-scholar dataset    register | fetch | verify | mirror | audit
+honest-scholar dataset    validate | ingest | emit | fetch | verify | mirror | audit
 honest-scholar defend     record
-honest-scholar backlog    add | rank | promote | drop        # shared by both exploration skills
+honest-scholar backlog    park | add | list | rank | promote | drop   # shared by both exploration skills
 honest-scholar --version
 ```
+
+(`register` / `export` are *skill* verbs that call these CLI commands — `register`
+runs `ingest`+`validate`, `export` is `emit`; `add` realizes the `generate` verb.)
 
 The skills invoke these via Bash (after `ensure-tooling`). Typer is consistent
 with the experiment backend's CLI choice (ADR-0013).
@@ -89,12 +92,12 @@ uvx --from "git+https://github.com/davorrunje/honest-scholar.git#subdirectory=ho
   release candidates are validated from **TestPyPI** first. The git-subdirectory
   install (`uv tool install "git+…#subdirectory=honest-scholar"`) is the fallback
   for unreleased refs or when PyPI is unreachable.
+- **Names claimed:** distribution `honest-scholar`, CLI `honest-scholar` (+ short
+  alias `hsch`); the name is reserved on both PyPI and TestPyPI (pre-release
+  `0.0.0a0` published).
 
 ## Open questions
 
-- **Names:** distribution `honest-scholar`, CLI `honest-scholar` (+ short alias
-  `hsch`) — confirm the `honest-scholar` name is claimed on PyPI/TestPyPI ahead of
-  the first publish.
 - **MCP timing:** ship the wrapper in v0.1, or wait for a concrete need?
 - **Version pin source:** how the plugin communicates its pinned `honest-scholar`
   version to `ensure-tooling`. Since the package is co-versioned in the same repo,
