@@ -14,8 +14,9 @@
 ## 1. The `literature` skill
 
 One skill, two modes over one citation-graph substrate. Each mode takes a
-`level ∈ {hypothesis, paper}` parameter that tunes ranking / depth / stopping —
-the level split is a *parameter*, not a skill boundary.
+`level ∈ {hypothesis, paper, thesis}` parameter (the three mirror levels) that
+tunes ranking / depth / stopping — the level split is a *parameter*, not a skill
+boundary.
 
 | Mode | Intent | Feeds | Output |
 |---|---|---|---|
@@ -48,7 +49,8 @@ human triages via the exploration skills).
 **Level tuning:** `hypothesis` → precision; small set, read full text,
 context/intent dominates (find Contrasting / Result-comparison citations).
 `paper` → recall; large set, skim metadata, co-citation clustering + research-front
-/ burst detection dominates.
+/ burst detection dominates. `thesis` → program-wide recall across *all* aims,
+unioned/deduplicated across the papers' sets.
 
 Idea-shaping lenses (applied by the exploration skills, not scout): gap-spotting
 vs. problematization (Sandberg & Alvesson 2011); feasibility × interest (Alon
@@ -74,7 +76,10 @@ weak baselines (matched tuning/splits).
 "would a reviewer say this is already known?" → verdict + the 1–3 papers that
 would reject it + the surviving delta; feeds `strategy.md`. `paper` → full
 taxonomy + comparison table + related-work prose + baseline list → `positioning.md`.
-Ship a PRISMA-style log in both.
+`thesis` → the widest synthesis: independent related work at thesis scope,
+unioned/deduplicated across every aim/paper (a PhD's literature footprint exceeds
+the union of its published papers) → the kappa's independent related-work chapter.
+Ship a PRISMA-style log at every level.
 
 ## 4. Registry — bib + triage sidecar
 

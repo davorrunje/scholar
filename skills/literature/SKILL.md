@@ -14,8 +14,8 @@ situate a committed claim against prior work). Both walk the same graph engine �
 **OpenAlex** backbone (free, keyless via `mailto=` polite pool) plus **Semantic
 Scholar** for citation contexts, SciCite intents, and recommendations — and both
 write to the same registry (a CSL-JSON bib + a YAML triage sidecar). A `level`
-parameter (`hypothesis` | `paper`) tunes ranking, depth, and stopping; it is a
-*parameter*, not a mode boundary.
+parameter (`hypothesis` | `paper` | `thesis`) — the three mirror levels — tunes
+ranking, depth, and stopping; it is a *parameter*, not a mode boundary.
 
 This skill **proposes and surfaces**; it never adjudicates. `scout` proposes
 leads, `position` surfaces precedent — the human decides what to pursue and what
@@ -43,8 +43,8 @@ deciding novelty/what to publish (a human sign-off, per the agency principle).
 | `scout` | outward / generative | mine the citation graph for leads → ranked idea-backlog rows |
 | `position` | inward / defensive | situate a committed claim/paper → precedent verdict / `positioning.md` |
 
-A `level` parameter (`hypothesis` \| `paper`) tunes ranking/depth/stopping — see
-the per-mode "Level tuning" notes below. Both modes run through the
+A `level` parameter (`hypothesis` \| `paper` \| `thesis`) tunes ranking/depth/stopping
+— see the per-mode "Level tuning" notes below. Both modes run through the
 `honest-scholar literature` CLI (see [Tooling](#tooling)).
 
 ## How it works — `scout` mode
@@ -76,7 +76,9 @@ Until the module lands, orchestrate the API calls manually (Tooling shows how).
 **Level tuning.** `hypothesis` → precision: small set, read full text,
 context/intent dominates (surface Contrasting / Result-comparison citations).
 `paper` → recall: large set, skim metadata, co-citation clustering + research-front
-/ burst detection dominates.
+/ burst detection dominates. `thesis` → program-wide recall: mine the whole
+program's citation neighborhood across *all* aims (future-work fronts that span
+papers), unioned and deduplicated across the papers' sets.
 
 > *e.g.* anchor = the group's ICML'23 paper → a citing paper with a
 > **Result-comparison** intent whose snippet reads *"unlike [anchor], our method
@@ -113,7 +115,11 @@ Snowball steps use the same `honest-scholar literature` commands (`resolve` /
 "would a reviewer say this is already known?" → verdict + the 1–3 papers that
 would reject it + the surviving delta; feeds `strategy.md`. `paper` → full
 taxonomy + comparison table + related-work prose + baseline list →
-`positioning.md`. Ship a PRISMA-style log in **both**.
+`positioning.md`. `thesis` → the **widest** synthesis: independent related work at
+thesis scope, unioned and deduplicated across *every* aim/paper — deliberately
+broader than any single paper's `positioning.md` (a PhD's literature footprint
+exceeds the union of its published papers) → the kappa's independent related-work
+chapter. Ship a PRISMA-style log at **every** level.
 
 ## Registry — bib + triage sidecar
 
@@ -155,7 +161,8 @@ gate whether a PDF may be committed vs. mirror-only.
   feasibility × interest) — `scout` does not.
 - **`hypothesis-testing`** reads `position --level hypothesis` verdicts into
   `strategy.md`. **`paper-synthesis`** reads `position --level paper` into
-  `positioning.md` and the baseline list.
+  `positioning.md` and the baseline list. **`thesis`** reads
+  `position --level thesis` into the kappa's independent related-work chapter.
 - **`defend`** (target `cited-work`) draws on this registry to check "does ref [12]
   actually support this sentence?" — the same surface-don't-adjudicate posture.
 - **Substrate**: shares the persistent-ID / mirror / fixity mechanism with
@@ -168,7 +175,7 @@ gate whether a PDF may be committed vs. mirror-only.
   decisions recorded with sign-off.
 - **Provenance is mandatory.** Every `scout` idea row carries the source-paper id
   + exact citing-context snippet. No orphan ideas.
-- **PRISMA in both position levels.** Every candidate gets an include/exclude
+- **PRISMA at every position level.** Every candidate gets an include/exclude
   reason logged (via triage `rationale`); this is the anti-cherry-picking record.
 - **Anti-patterns → safeguards:** cherry-picking → PRISMA log + diverse seed set;
   author-by-author prose → concept matrix; overclaiming novelty → adversarial

@@ -59,7 +59,8 @@ Assemble the **kappa** (see below) over the framed papers, then run the
 the framing chapter, surfaces coverage gaps, and stages the mock viva — the author
 authors the prose and decides defensibility.
 
-The staged progression at this level:
+The full thesis-level staged progression spans **both** modes — the first three
+are `framing` outputs, the last is this mode:
 `prospectus → aims/narrative → chapter↔paper map → kappa + defensibility`.
 
 ## The kappa
@@ -73,7 +74,7 @@ work. Draft it in `docs/research/thesis/kappa/`. Components (the artifact schema
 |---|---|
 | Introduction / background | the problem space the aims sit in |
 | Unifying narrative / aims | the through-line from `aims.md`; how the papers cohere |
-| Independent related work | an **extensive** related-works synthesis at thesis scope — broader than any single paper's positioning; draw on `literature position` |
+| Independent related work | an **extensive** related-works synthesis at thesis scope — broader than any single paper's positioning; draw on `literature position --level thesis` |
 | Per-paper summary + contribution statement | for each appended paper, a summary **and an explicit statement of the candidate's own contribution** to co-authored work |
 | Unifying discussion | the comprehensive concluding discussion across all papers — the original contribution to knowledge |
 | Future work | where the program goes next |
@@ -132,8 +133,9 @@ acknowledge *each* surfaced gap in writing before proceeding.
 - **Reads down** — the `papers.md` registry and each paper's `decision`/status
   frontmatter (which papers are done), and `portfolio-backlog.md`. It consumes
   resolved papers; it does not resolve them.
-- **`literature position`** — for the kappa's extensive independent related-works
-  synthesis (thesis scope, broader than a single paper's positioning).
+- **`literature position --level thesis`** — for the kappa's extensive independent
+  related-works synthesis (thesis scope, unioned/deduplicated across every aim and
+  paper, broader than a single paper's positioning).
 - **`defend`** — the mock viva at the defensibility gate; also self-invokable on any
   aim or contribution statement.
 - **`progress`** — reads the thesis frontmatter (coverage / defensibility +
@@ -162,6 +164,8 @@ Hard rules, not preferences.
   never grades a novel claim's substance or decides a gap is "critical."
 - **No cross-repo aggregation.** Papers living in a separate repo are out of scope
   (`../../docs/design/00-meta-spec.md` §1); each repo's top level is self-contained.
+  A possible future extension is sketched in
+  `../../docs/design/proposals/cross-repo-thesis-aggregation.md`.
 
 ## Commit attribution
 
