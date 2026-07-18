@@ -162,3 +162,13 @@ Hard rules, not preferences.
   never grades a novel claim's substance or decides a gap is "critical."
 - **No cross-repo aggregation.** Papers living in a separate repo are out of scope
   (`../../docs/design/00-meta-spec.md` §1); each repo's top level is self-contained.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: thesis
+```

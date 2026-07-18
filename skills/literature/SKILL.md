@@ -184,3 +184,13 @@ gate whether a PDF may be committed vs. mirror-only.
 >   `https://api.semanticscholar.org/recommendations/v1/papers/forpaper/<id>`.
 > - Persist the raw JSON responses as the provenance root before enriching; edit
 >   `references.json` / `triage.yml` directly for now.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: literature
+```

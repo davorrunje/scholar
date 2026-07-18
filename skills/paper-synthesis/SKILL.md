@@ -169,3 +169,13 @@ Hard rules — the load-bearing constraints, not preferences.
 - **Firewall.** Explore proposes, resolve disposes, synthesize reports. This
   skill develops and assembles a committed paper; it does not generate paper
   ideas and does not adjudicate its own decision.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: paper-synthesis
+```

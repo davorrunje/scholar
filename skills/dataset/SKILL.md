@@ -195,3 +195,13 @@ TODO (helper scripts, not yet written):
   cache and/or the private mirror, never committed.
 - **Never decide dataset appropriateness for a claim** — out of scope (agency
   principle).
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: dataset
+```

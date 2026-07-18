@@ -167,3 +167,13 @@ live in [`../../resources/rigor/`](../../resources/rigor/); the *why* is grounde
   decision.
 - **Follow-ups become issues, not TODOs** — a deferred check or a known gap in the
   record is captured as a self-contained GitHub issue, not left in a doc's margin.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: hypothesis-testing
+```

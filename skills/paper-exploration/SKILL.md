@@ -160,3 +160,13 @@ Hard rules — load-bearing, not preferences.
   `../../docs/design/00-meta-spec.md` §3.6).
 - **Domain-neutral.** No monotonic-network or ML assumptions live here; the lenses
   and the registry are generic. Domain content comes from the consuming repo.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: paper-exploration
+```

@@ -163,3 +163,13 @@ cannot classify with confidence is surfaced as an open question, not decided.
 - **Do not commit** as part of this skill — leave the scaffolding staged for the
   author to review and commit ([ADR-0001](../../decisions/0001-separate-plugin-repo.md)
   frames the plugin↔consumer boundary this respects).
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: research-init
+```

@@ -178,3 +178,13 @@ Hard rules — these are the load-bearing constraints, not preferences.
   adjudicates a claim, decides a verdict, or hard-blocks. The human decides and
   signs off (`../../docs/design/00-meta-spec.md` §2.1; lifecycle §6,
   `../../docs/design/01-lifecycle.md`).
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: grill
+```

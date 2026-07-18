@@ -158,3 +158,13 @@ Load-bearing constraints, not preferences.
 - **No scores, ever** (see Anti-Goodhart). If a future request asks for a
   percentage, a velocity, a burndown, or a success rate, decline and point here —
   this is a design invariant, not a missing feature.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: progress
+```

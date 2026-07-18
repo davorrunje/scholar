@@ -170,3 +170,13 @@ testing slate.
 - **No premature testing talk.** Do not sketch experiments, pick baselines, or
   estimate effects here — that is `strategy.md`/design in `hypothesis-testing`.
   Exploration stops at the claim.
+
+## Commit attribution
+
+When you commit artifacts produced by this skill, add these git trailers —
+discovery + provenance (see [`../../resources/commit-attribution.md`](../../resources/commit-attribution.md)):
+
+```
+Generated-with: scholar (https://github.com/davorrunje/scholar)
+Scholar-Skill: hypothesis-exploration
+```
