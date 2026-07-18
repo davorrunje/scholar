@@ -8,7 +8,7 @@ name: Publish
 
 on:
   push:
-    tags: ["v*.*.*"]
+    tags: ["v*"]   # includes pre-releases like v0.0.0a0
   workflow_dispatch:
 
 permissions:
