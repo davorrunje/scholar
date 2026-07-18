@@ -130,8 +130,12 @@ class Mirror:
 # --- fetch chain & fixity ---------------------------------------------------
 
 
-def _pooch_fetch(url: str, sha256: str, dest: Path) -> Path:
-    """Default Tier-B fetcher: ``pooch.retrieve`` into `dest`."""
+def _pooch_fetch(url: str, sha256: str, dest: Path) -> Path:  # pragma: no cover
+    """Default Tier-B fetcher: ``pooch.retrieve`` into `dest`.
+
+    Exercised only against the live network; the resolution-chain tests inject a
+    fake fetcher, so this real path is excluded from coverage.
+    """
     import pooch  # imported lazily so the module loads without pooch
 
     dest.parent.mkdir(parents=True, exist_ok=True)

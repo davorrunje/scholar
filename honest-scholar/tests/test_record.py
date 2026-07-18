@@ -205,3 +205,110 @@ def test_cli_record_gaps_without_sign_off_fails(tmp_path: Path) -> None:
         ],
     )
     assert result.exit_code == 1
+
+
+def test_cli_record_with_transcript_and_acks(tmp_path: Path) -> None:
+    artifact = _artifact(tmp_path)
+    transcript = tmp_path / "t.md"
+    transcript.write_text("Q: why? A: because.", encoding="utf-8")
+    result = runner.invoke(
+        app,
+        [
+            "defend",
+            "record",
+            "--artifact",
+            str(artifact),
+            "--target",
+            "claim",
+            "--gaps",
+            "gap one",
+            "--acks",
+            "gap one::D. Runje",
+            "--signed-off-by",
+            "D. Runje",
+            "--transcript",
+            str(transcript),
+            "--log-dir",
+            str(tmp_path / "log"),
+        ],
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["outcome"] == "acknowledged-per-gap"
+
+
+def test_patch_unterminated_frontmatter() -> None:
+    with pytest.raises(r.RecordError, match="unterminated"):
+        r.patch_understanding("---\nstatus:\n  x: 1\n", "ok", [], last_updated="d")
+
+
+def test_patch_no_status_block() -> None:
+    with pytest.raises(r.RecordError, match="no 'status:'"):
+        r.patch_understanding(
+            "---\nfoo: bar\n---\n\nbody\n", "ok", [], last_updated="d"
+        )
+
+
+def test_record_unresolved_outcome(tmp_path: Path) -> None:
+    result = r.record(
+        _artifact(tmp_path),
+        "claim",
+        ["gap"],
+        log_dir=tmp_path / "log",
+        today="2026-07-18",
+    )
+    assert result.outcome == "unresolved"
+
+
+def test_record_log_dedup(tmp_path: Path) -> None:
+    artifact = _artifact(tmp_path)
+    r.record(artifact, "claim", [], log_dir=tmp_path / "log", today="2026-07-18")
+    second = r.record(
+        artifact, "claim", [], log_dir=tmp_path / "log", today="2026-07-18"
+    )
+    assert second.log_entry.name.endswith("-2.yml")
+
+
+def test_cli_record_transcript_from_stdin(tmp_path: Path) -> None:
+    artifact = _artifact(tmp_path)
+    result = runner.invoke(
+        app,
+        [
+            "defend",
+            "record",
+            "--artifact",
+            str(artifact),
+            "--target",
+            "methodology",
+            "--transcript",
+            "-",
+            "--log-dir",
+            str(tmp_path / "log"),
+        ],
+        input="piped transcript\n",
+    )
+    assert result.exit_code == 0
+    assert (tmp_path / "log").exists()
+
+
+def test_patch_blank_line_and_trailing_top_key() -> None:
+    text = (
+        "---\nstatus:\n\n  understanding: {status: pending, unresolved: []}\n"
+        "foo: bar\n---\n\nbody\n"
+    )
+    out = r.patch_understanding(text, "ok", [], last_updated="2026-07-18")
+    assert "foo: bar" in out
+    assert '"status": "ok"' in out
+
+
+def test_patch_zero_indent_line_after_status() -> None:
+    text = "---\nstatus:\nfoo: bar\n  understanding: {status: pending, unresolved: []}\n---\nbody\n"
+    out = r.patch_understanding(text, "ok", [], last_updated="2026-07-18")
+    assert "foo: bar" in out
+
+
+def test_patch_status_block_without_children() -> None:
+    out = r.patch_understanding(
+        "---\nstatus:\n---\n\nbody\n", "ok", [], last_updated="d"
+    )
+    assert "understanding" in out
+    assert "last-updated" in out

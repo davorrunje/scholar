@@ -101,6 +101,8 @@ addopts = '--cov=honest_scholar --cov-branch --cov-report=term-missing --cov-rep
 testpaths = ["tests"]
 
 [tool.coverage.report]
+fail_under = 100
+show_missing = true
 exclude_also = [
     "if TYPE_CHECKING:",
     "\\.\\.\\.",

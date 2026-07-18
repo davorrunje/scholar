@@ -193,3 +193,117 @@ def test_cli_full_lifecycle(tmp_path: Path) -> None:
     assert json.loads(ranked.stdout)["status"] == "ranked"
     promoted = runner.invoke(app, ["backlog", "promote", "h1", "--backlog", path])
     assert json.loads(promoted.stdout)["status"] == "promoted"
+
+
+def test_cli_add_without_provenance_fails(tmp_path: Path) -> None:
+    path = str(tmp_path / "b.md")
+    result = runner.invoke(
+        app, ["backlog", "add", "x", "--provenance", "", "--backlog", path]
+    )
+    assert result.exit_code == 1
+
+
+def test_cli_rank_unknown_id_fails(tmp_path: Path) -> None:
+    path = str(tmp_path / "b.md")
+    result = runner.invoke(app, ["backlog", "rank", "nope", "--backlog", path])
+    assert result.exit_code == 1
+
+
+def test_cli_promote_not_ranked_fails(tmp_path: Path) -> None:
+    path = str(tmp_path / "b.md")
+    runner.invoke(
+        app,
+        ["backlog", "add", "c", "--provenance", "own", "--backlog", path, "--id", "h1"],
+    )
+    result = runner.invoke(app, ["backlog", "promote", "h1", "--backlog", path])
+    assert result.exit_code == 1
+
+
+def test_cli_drop_and_list_status(tmp_path: Path) -> None:
+    path = str(tmp_path / "b.md")
+    runner.invoke(
+        app,
+        ["backlog", "add", "c", "--provenance", "own", "--backlog", path, "--id", "h1"],
+    )
+    dropped = runner.invoke(
+        app, ["backlog", "drop", "h1", "--reason", "superseded", "--backlog", path]
+    )
+    assert dropped.exit_code == 0
+    assert json.loads(dropped.stdout)["status"] == "dropped"
+    listed = runner.invoke(
+        app, ["backlog", "list", "--backlog", path, "--status", "dropped"]
+    )
+    assert len(json.loads(listed.stdout)) == 1
+
+
+def test_cli_drop_without_reason_fails(tmp_path: Path) -> None:
+    path = str(tmp_path / "b.md")
+    runner.invoke(
+        app,
+        ["backlog", "add", "c", "--provenance", "own", "--backlog", path, "--id", "h1"],
+    )
+    result = runner.invoke(
+        app, ["backlog", "drop", "h1", "--reason", "", "--backlog", path]
+    )
+    assert result.exit_code == 1
+
+
+def test_add_duplicate_id_raises() -> None:
+    board = b.Backlog(level="hypothesis")
+    board.add("x", "own", row_id="h1")
+    with pytest.raises(b.BacklogError, match="already exists"):
+        board.add("y", "own", row_id="h1")
+
+
+def test_today_is_iso() -> None:
+    assert len(b._today()) == 10
+
+
+def test_registry_root_fallback(tmp_path: Path) -> None:
+    research = tmp_path / "a" / "b"
+    research.mkdir(parents=True)
+    outside = tmp_path.parent / "elsewhere-xyz"
+    assert b._registry_root(outside, research) == str(outside)
+
+
+def test_split_cells_without_borders() -> None:
+    assert b._split_cells("a | b | c") == ["a", "b", "c"]
+
+
+def test_loads_short_row_pads() -> None:
+    text = "| id | one-line | status |\n|---|---|---|\n| h1 |\n"
+    board = b.Backlog.loads(text, "hypothesis")
+    assert board.rows[0]["one-line"] == ""
+
+
+def test_get_second_row() -> None:
+    board = b.Backlog(level="hypothesis")
+    board.add("first", "own", row_id="a")
+    board.add("second", "own", row_id="z")
+    assert board.get("z")["one-line"] == "second"
+
+
+def test_rank_ignores_foreign_score() -> None:
+    board = b.Backlog(level="paper")  # paper level has no EIG column
+    board.add("p", "own", row_id="p1")
+    board.rank("p1", EIG="high", feas="med")
+    assert "EIG" not in board.get("p1")
+
+
+def test_append_registry_without_trailing_newline(tmp_path: Path) -> None:
+    papers = tmp_path / "papers.md"
+    papers.write_text("| paper-id | root | backend |\n|---|---|---|", encoding="utf-8")
+    b.append_papers_registry(papers, "p1", "docs/research/p1", "bench")
+    assert "p1" in papers.read_text(encoding="utf-8")
+
+
+def test_loads_skips_lines_without_pipe() -> None:
+    text = "some prose\n| id | status |\n|---|---|\n| h1 | parked |\n"
+    board = b.Backlog.loads(text, "hypothesis")
+    assert len(board.rows) == 1
+
+
+def test_fresh_id_double_collision() -> None:
+    board = b.Backlog(level="hypothesis")
+    ids = {board.add("same title", "own")["id"] for _ in range(3)}
+    assert len(ids) == 3  # base, base-2, base-3

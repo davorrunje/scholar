@@ -235,3 +235,46 @@ def test_audit_fails_on_validation_error(tmp_path: Path) -> None:
     report = r.audit(m.Manifest(datasets=[bad]), cache_dir=tmp_path)
     assert not report.ok
     assert not report.validation.ok
+
+
+def test_fetch_tier_b_no_url_raises(tmp_path: Path) -> None:
+    entry = _entry("B", "e" * 64)  # no retrieval / source
+    with pytest.raises(r.RetrievalError, match="no source URL"):
+        r.fetch(entry, cache_dir=tmp_path / "cache")
+
+
+def test_fetch_tier_b_no_mirror_success(tmp_path: Path) -> None:
+    payload = b"nomirror"
+    digest = hashlib.sha256(payload).hexdigest()
+    entry = _entry("B", digest, retrieval=m.Retrieval(kind="http", url="u"))
+
+    def _f(url: str, sha: str, dest: Path) -> Path:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(payload)
+        return dest
+
+    paths = r.fetch(entry, cache_dir=tmp_path / "c", tier_b_fetch=_f)
+    assert paths[0].read_bytes() == payload
+
+
+def test_audit_with_mirror_present(tmp_path: Path) -> None:
+    payload = b"p"
+    digest = hashlib.sha256(payload).hexdigest()
+    blob = tmp_path / "c" / "sha256" / digest
+    blob.parent.mkdir(parents=True)
+    blob.write_bytes(payload)
+    entry = _entry("B", digest, retrieval=m.Retrieval(kind="http", url="u"))
+    mirror = r.Mirror(remote="s", run=FakeRclone(present=True))
+    report = r.audit(
+        m.Manifest(datasets=[entry]), cache_dir=tmp_path / "c", mirror=mirror
+    )
+    assert report.mirror_present["d1"] is True
+
+
+def test_mirror_put_failure_raises() -> None:
+    def _fail(args: list[str], **_kw: object) -> FakeProc:
+        return FakeProc(1)
+
+    mirror = r.Mirror(remote="s", run=_fail)
+    with pytest.raises(r.RetrievalError, match="copyto to mirror failed"):
+        mirror.put("/tmp/x", "a" * 64)
