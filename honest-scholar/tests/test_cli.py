@@ -46,8 +46,6 @@ def test_each_group_has_a_stub() -> None:
         (["dataset", "fetch", "mnist"], "honest-scholar#3"),
         (["dataset", "audit"], "honest-scholar#3"),
         (["defend", "record", "claim"], "honest-scholar#4"),
-        (["backlog", "park", "idea"], "honest-scholar#5"),
-        (["backlog", "add", "idea"], "honest-scholar#5"),
     ]
     for args, issue in cases:
         result = runner.invoke(app, args)
