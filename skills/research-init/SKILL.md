@@ -53,7 +53,7 @@ docs/research/
   <paper>/
     hypotheses/<YYYY-MM-DD-slug>/{hypothesis,strategy,design,plan,findings}.md
     backlog.md                   # hypothesis backlog for this paper
-    paper/{pitch,positioning,outline,ledger,decision}.md
+    paper/{pitch,positioning,outline,plan,ledger,decision}.md
     paper/sections/              # assembled manuscript sections
   portfolio-backlog.md           # paper-level backlog
   thesis/                        # OPTIONAL — only if this is a thesis repo
@@ -67,7 +67,7 @@ docs/research/
 datasets.yml                     # dataset registry (entries + checksums + tiers + license)
 .datasets-cache/                 # gitignored materialized data
 .honest-scholar/
-  config.yml                     # rclone remote name, literature anchors, experiment-backend binding
+  config.yml                     # rclone remote name, literature anchors, experiment-backend + engineering_backend bindings
   rclone.conf.example            # committed template (remote name/type only)
   rclone.conf                    # gitignored (credentials)
 ```
@@ -78,11 +78,13 @@ paper comes from the shared templates in
 [`resources/templates/`](../../resources/templates/); every hypothesis/paper/thesis
 artifact carries the status frontmatter block that feeds `progress`.
 
-`.honest-scholar/config.yml` records the three consumer bindings: the **rclone remote
+`.honest-scholar/config.yml` records the four consumer bindings: the **rclone remote
 name** for the private mirror, the **literature anchors** (seed works/authors the
-`literature` capability ranks around), and the **experiment-backend binding**
+`literature` capability ranks around), the **experiment-backend binding**
 (which repo-local harness implements the run/evidence/tables/is-current
-contract). `.gitignore` is updated to exclude `.datasets-cache/` and
+contract), and the **engineering-backend binding** (`engineering_backend:` — the
+`design`/`plan`/`implement` delegate the pipeline skills hand engineering off to;
+ADR-0023). `.gitignore` is updated to exclude `.datasets-cache/` and
 `.honest-scholar/rclone.conf`.
 
 The `thesis/` tree is optional — scaffold it only when the repo is a
@@ -131,7 +133,7 @@ cannot classify with confidence is surfaced as an open question, not decided.
 - **Delegates per-item registration to the capability skills' verbs** — it does
   not reimplement them. After scaffolding, populate via
   [`literature`](../literature/SKILL.md) (`scout` / `position`),
-  [`dataset`](../dataset/SKILL.md) (`init/register/fetch/verify/mirror/audit`),
+  [`dataset`](../dataset/SKILL.md) (`init/register/fetch/verify/mirror/audit/export`),
   and the pipeline skills
   ([`hypothesis-exploration`](../hypothesis-exploration/SKILL.md),
   [`hypothesis-testing`](../hypothesis-testing/SKILL.md),

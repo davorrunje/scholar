@@ -58,7 +58,7 @@ env-var remotes), all keyed by content address `mirror:<base_path>/sha256/<hash>
 - `mirror_get(sha256, dst)` → `rclone copyto mirror:base/sha256/<hash> <dst>`, then re-hash
 - `mirror_check(sha256)` → `rclone check` / `rclone hashsum` as a transport-level
   presence/integrity probe; `--download` when backend hash sets are disjoint
-Config resolution: prefer `RCLONE_CONFIG=$PWD/.rclone/rclone.conf` (untracked),
+Config resolution: prefer `RCLONE_CONFIG=$PWD/.honest-scholar/rclone.conf` (untracked),
 fall back to env-var remotes (`RCLONE_CONFIG_<NAME>_TYPE=…`) for CI from secrets.
 
 **Fixity — two layers, SHA-256 authoritative.** rclone's native hash (often MD5)
@@ -116,7 +116,7 @@ path from `datasets.yml`; none embed credentials.
 
 **Secret hygiene (non-negotiable).** Never commit `rclone.conf`, tokens, or
 `rclone obscure` output (`obscure` is not encryption). `init` ships only
-`.rclone/rclone.conf.example` (remote name + type). The cache and real config are
+`.honest-scholar/rclone.conf.example` (remote name + type). The cache and real config are
 gitignored; CI uses env-var remotes sourced from secrets.
 
 ## Open questions
