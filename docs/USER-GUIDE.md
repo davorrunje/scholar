@@ -12,14 +12,19 @@ under [`docs/design/`](design/); this guide is the *how*.
 
 ## 1. What honest-scholar is (and the two rules it runs on)
 
-`honest-scholar` is a Claude Code plugin for the **scientific** side of research — idea →
+`honest-scholar` helps you keep research honest — **especially now that AI is in the
+loop**. It is a Claude Code plugin for the **scientific** side of research — idea →
 literature → hypothesis → test → publish-decision → paper → (optional) thesis. It
 delegates the *engineering* (design, plans, code) to the bound **engineering
 backend** via the engineering-delegation contract; `honest-scholar` calls out to that
 backend for all of that rather than reimplementing it.
 
-Everything you do sits under two rules. They are not decoration — they change how
-the skills behave at every step:
+To be clear up front: honest-scholar does **not** certify that your work is honest —
+there is no seal of honesty. It gives you the *mechanics* to do honest work and to
+disclose truthfully what you and the AI each did; readers judge the result.
+
+Honesty here is mechanical, not a slogan. Everything you do sits under two rules.
+They are not decoration — they change how the skills behave at every step:
 
 1. **Agency — you decide and sign off.** The skills draft, keep the accounts, and
    advise like a colleague. They never make a *material* scientific decision for
@@ -27,7 +32,8 @@ the skills behave at every step:
    whether a paper is worth publishing, whether a thesis is defensible. Each of
    those is recorded in the artifact with a **named human sign-off + date**. You
    cannot "run" honest-scholar to produce a paper — you drive it. In practice: expect the
-   skill to stop at every judgement point and ask you.
+   skill to stop at every judgement point and ask you. *So the science is honestly
+   yours.*
 
 2. **Understanding — the `defend` skill verifies and teaches.** Before any material decision,
    the [`defend`](../skills/defend/SKILL.md) skill probes whether you can actually
@@ -35,7 +41,15 @@ the skills behave at every step:
    at a time. When it finds a gap it *teaches* (source-grounded), then re-asks. It
    never grades the substance of your novel claim; it makes sure you understand
    what you are signing. In practice: expect to be asked "why this method?" and
-   "what would falsify this?" before you sign anything.
+   "what would falsify this?" before you sign anything. *So "I understand my own
+   paper" is true, not assumed.*
+
+Around these two rules sits the rest of the honesty kit, all covered below: the
+**rigor kit** against cargo-cult method (§4b), **provenance** so evidence is honest
+— every number traces to a run-ref (§4d), **anti-Goodhart** metrics with no
+productivity score to game (§7), and **file-drawer + disclosure** discipline —
+dropped ideas are retired not deleted (§4a), and AI use is disclosed truthfully
+(§5a).
 
 Between them sits the **firewall**: exploration *proposes* candidates, resolution
 *disposes* (tests to a verdict), synthesis *reports*. No single skill both
@@ -238,6 +252,24 @@ The paper level mirrors the hypothesis level one step up.
   **grounds cite run-refs**. The **`decision.md`** publish/no-go verdict is a
   material, human-signed decision, gated by an examination over positioning + cited-work +
   claims. A **no-go reads as done, not failed.**
+
+### 5a. Honest AI use — disclose & cite
+
+When the paper is finalized you can add a truthful **AI-use disclosure** — a short
+statement of what you and the AI each did — plus a citation to `honest-scholar`. The
+template, how-to-cite, and an optional badge live in
+[`../DISCLOSURE.md`](../DISCLOSURE.md).
+
+You should not have to remember this: after the publish `decision` is signed off,
+[`paper-synthesis`](../skills/paper-synthesis/SKILL.md) **proactively proposes** the
+disclosure and citation, **drafted from your provenance record** (who signed off
+which decisions, which run-refs back which results) — so it is evidence-based, not
+boilerplate. It is opt-in and author-owned: you review, edit, adopt, or decline.
+
+Plainly: every published paper that carries the disclosure points other researchers
+to the tool. But honest-scholar only *supports* honest disclosure — it does **not**
+certify that your research is honest, and there is no seal of honesty. The statement
+says what was done and links the record; readers judge.
 
 ## 6. Thesis (optional)
 
