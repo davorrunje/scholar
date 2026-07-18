@@ -38,14 +38,22 @@ deciding novelty/what to publish (a human sign-off, per the agency principle).
 
 ## Modes
 
-| Mode | Direction | `hypothesis` level | `paper` level |
-|---|---|---|---|
-| `scout` | outward / generative | precision: small set, full-text, context+intent dominates | recall: large set, skim, co-citation clustering + front detection |
-| `position` | inward / defensive | fast adversarial precedent rapid-review → verdict | full taxonomy + comparison table + related-work + baselines |
+| Mode | Direction | For |
+|---|---|---|
+| `scout` | outward / generative | mine the citation graph for leads → ranked idea-backlog rows |
+| `position` | inward / defensive | situate a committed claim/paper → precedent verdict / `positioning.md` |
+
+A `level` parameter (`hypothesis` \| `paper`) tunes ranking/depth/stopping — see
+the per-mode "Level tuning" notes below. Both modes run through the
+`honest-scholar literature` CLI (see [Tooling](#tooling)).
 
 ## How it works — `scout` mode
 
 Grounding: [../../resources/references/citation-scouting.md](../../resources/references/citation-scouting.md).
+
+Steps 1–5 are `honest-scholar literature` commands (`resolve` / `cites` / `refs` /
+`enrich` / `neighbors`) — install via `ensure-tooling`; see [Tooling](#tooling).
+Until the module lands, orchestrate the API calls manually (Tooling shows how).
 
 1. **Fix the anchor set** — own papers + rival anchors from `.honest-scholar/config.yml`
    (or args). Resolve each to a stable id (DOI / arXiv / OpenAlex / S2).
@@ -70,9 +78,18 @@ context/intent dominates (surface Contrasting / Result-comparison citations).
 `paper` → recall: large set, skim metadata, co-citation clustering + research-front
 / burst detection dominates.
 
+> *e.g.* anchor = the group's ICML'23 paper → a citing paper with a
+> **Result-comparison** intent whose snippet reads *"unlike [anchor], our method
+> needs no lattice"* → idea row: `type: contradiction/rival | source: <id> |
+> snippet: "…no lattice" | why: a competing mechanism to test against |
+> feasibility: med`.
+
 ## How it works — `position` mode
 
 Grounding: [../../resources/references/related-works-synthesis.md](../../resources/references/related-works-synthesis.md).
+
+Snowball steps use the same `honest-scholar literature` commands (`resolve` /
+`cites` / `refs` / `enrich`); see [Tooling](#tooling).
 
 1. **Frame the claim(s)** as 1–3 falsifiable delta statements *before* searching.
 2. **Build a diverse seed set** — 3–6 anchors spanning communities/terminologies
@@ -165,15 +182,19 @@ gate whether a PDF may be committed vs. mirror-only.
 - **Reproducibility.** Record the search date, API versions, and query filters in
   the run's provenance; the same anchors + filters should reproduce the set.
 
-## Helper script
+## Tooling
 
-> **TODO — `scripts/graph.py` not yet implemented.** It will wrap the OpenAlex +
-> Semantic Scholar clients (resolve id → fetch forward/backward citations →
-> enrich with context/intent → cluster), the CSL-JSON bib loader/appender, and the
-> triage-sidecar join + PRISMA-log/concept-matrix generators. Deps: an HTTP client
-> + `pyyaml` (+ the substrate's rclone mirror). No heavy deps.
->
-> **Interim approach** — hit the public APIs directly over HTTP:
+The graph work is the **`honest_scholar/literature/graph.py`** module of the
+`honest-scholar` package, exposed as the CLI group **`honest-scholar literature`**
+(`resolve | cites | refs | enrich | neighbors`), each emitting JSON. **Ensure it
+before use** via [`ensure-tooling`](../../resources/ensure-tooling.md) (`uv tool
+install honest-scholar`, git/TestPyPI fallbacks). It wraps the OpenAlex + Semantic
+Scholar clients, the CSL-JSON bib loader/appender, and the triage-join +
+PRISMA-log / concept-matrix generators. Package deps: `requests` + `pyyaml` (+ the
+substrate's rclone mirror). Design: `../../docs/design/proposals/literature-citation-graph-client.md`
+(issue #1).
+
+> **Not yet implemented — interim (orchestrate the APIs manually until the module lands):**
 > - Forward citations: `curl 'https://api.openalex.org/works?filter=cites:<WORKID>&mailto=<email>&per-page=200'`
 >   (paginate via `cursor=*`). Backward: read `referenced_works` on the anchor's work record.
 > - Contexts + SciCite intents + `isInfluential`:
