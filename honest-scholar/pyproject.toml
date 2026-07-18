@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "honest-scholar"
 version = "0.0.0a0"
-description = "Supporting CLI/tooling for the honest-scholar research-workflow plugin"
+description = "honest-scholar — a CLI for honest, defensible AI-assisted research (tooling for the honest-scholar plugin)"
 authors = [{ name = "Davor Runje", email = "davor@synthpop.ai" }]
 maintainers = [{ name = "Davor Runje", email = "davor@synthpop.ai" }]
 requires-python = ">=3.11,<3.15"

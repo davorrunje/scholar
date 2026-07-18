@@ -1,52 +1,59 @@
 # honest-scholar
 
-Supporting CLI/tooling for the [honest-scholar](https://github.com/davorrunje/honest-scholar)
-research-workflow plugin. Distributed as `honest-scholar`; exposes the `honest-scholar`
-CLI.
+*Research you can defend.*
 
-Per [ADR-0024](../decisions/0024-tooling-package-and-bootstrap.md), the plugin
-stays pure-markdown and this package is installed **isolated** (never into a
-consumer's ML environment) on demand via the
-[`ensure-tooling`](../resources/ensure-tooling.md) procedure. The CLI is the
-authoritative interface; a thin MCP wrapper over the same modules may follow.
+**honest-scholar** helps you keep research honest — especially now that AI is in
+the loop. You (not the AI) make and sign off every material decision, and you must
+be able to explain and defend the work; the tool keeps the accounts, advises, and
+probes. It **supports** honest, disclosable AI-assisted research — it does **not**
+certify that any work is honest.
 
-## Install (development)
+This package is the **CLI / tooling** behind the
+[`honest-scholar` Claude Code plugin](https://github.com/davorrunje/honest-scholar).
+The plugin (skills + methodology) stays pure-markdown; this package provides the
+`honest-scholar` command it calls — `literature`, `dataset`, `defend`, `backlog`,
+and `doctor` — installed **isolated**, so it never touches your project's ML
+environment.
 
-```bash
-cd honest-scholar
-uv sync
-uv run honest-scholar --version
-uv run honest-scholar doctor
-```
-
-Isolated install (as `ensure-tooling` does) — **PyPI-first**, with the
-git-subdirectory install as the fallback for unreleased refs:
+## Install
 
 ```bash
-uv tool install honest-scholar                     # primary (PyPI)
-# fallback — unreleased ref or PyPI unreachable:
-uv tool install "git+https://github.com/davorrunje/honest-scholar.git#subdirectory=honest-scholar"
+uv tool install honest-scholar     # recommended (isolated tool env)
+# or: pipx install honest-scholar
+# or: pip install honest-scholar
+
+honest-scholar --version
+honest-scholar doctor              # reports python / uv / rclone
 ```
+
+Pre-releases are on TestPyPI (`--index-url https://test.pypi.org/simple/
+--extra-index-url https://pypi.org/simple/`).
 
 ## CLI
 
 ```
 honest-scholar --version
-honest-scholar doctor                                       # environment report (implemented)
-honest-scholar literature resolve | cites | refs | enrich | neighbors   # honest-scholar#1
-honest-scholar dataset    register | fetch | verify | mirror | audit    # honest-scholar#2 / #3
-honest-scholar defend     record                                        # honest-scholar#4
-honest-scholar backlog    add | list | rank | promote | drop            # honest-scholar#5
+honest-scholar doctor                                        # environment report (implemented)
+honest-scholar literature resolve|cites|refs|enrich|neighbors   # issue #1
+honest-scholar dataset    register|fetch|verify|mirror|audit    # issues #2 / #3
+honest-scholar defend     record                                # issue #4
+honest-scholar backlog    add|list|rank|promote|drop            # issue #5
 ```
 
-Only `doctor` and `--version` are implemented; the domain sub-commands are
-typed stubs exiting with code 2 and a pointer to their tracking issue.
+Currently only `doctor` and `--version` are implemented; the domain sub-commands
+are typed stubs exiting with a pointer to their tracking issue.
 
-## Develop
+## Learn more
 
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy
-uv run pytest
-```
+- **Plugin, docs, and full design record:** <https://github.com/davorrunje/honest-scholar>
+- **User guide:** <https://github.com/davorrunje/honest-scholar/blob/main/docs/USER-GUIDE.md>
+- **Disclose your AI use & cite honest-scholar:** <https://github.com/davorrunje/honest-scholar/blob/main/DISCLOSURE.md>
+
+## Status
+
+Early / pre-release — see
+<https://github.com/davorrunje/honest-scholar/blob/main/STATUS.md>.
+
+## License
+
+[Apache-2.0](https://github.com/davorrunje/honest-scholar/blob/main/LICENSE).
