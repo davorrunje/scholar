@@ -1,0 +1,78 @@
+name: Bump version
+
+# Bumps the honest-scholar PACKAGE version (PEP 440) and opens a release PR.
+# Compose a release-segment bump with a pre-release phase, e.g.
+#   release=minor pre=alpha -> 0.1.0a0 · pre=alpha -> …a{n+1} · pre=rc -> …rc0 ·
+#   pre=final -> drop prerelease · release=patch -> 0.0.1
+# The plugin (.claude-plugin/plugin.json) is versioned independently and is NOT
+# touched here. After merging the PR, push the tag v<version> to publish
+# (see publish.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Release segment to bump (clears any prerelease)"
+        type: choice
+        options: [none, patch, minor, major]
+        default: none
+      pre:
+        description: "Pre-release phase"
+        type: choice
+        options: [keep, alpha, beta, rc, final]
+        default: keep
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Compute + write the new version
+        id: bump
+        run: |
+          version=$(python tools/bump_version.py \
+            --release "${{ inputs.release }}" --pre "${{ inputs.pre }}")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Bumped honest-scholar to $version"
+      - name: Open release PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # A RELEASE_PAT (if set) lets the bump commit trigger CI on the PR;
+          # otherwise the default token is used and CI won't auto-run (see body).
+          token: ${{ secrets.RELEASE_PAT || github.token }}
+          branch: release/v${{ steps.bump.outputs.version }}
+          base: main
+          title: "release: honest-scholar v${{ steps.bump.outputs.version }}"
+          author: Davor Runje <davor@synthpop.ai>
+          committer: Davor Runje <davor@synthpop.ai>
+          commit-message: |
+            chore(release): honest-scholar v${{ steps.bump.outputs.version }}
+
+            Bump the package version (release=${{ inputs.release }}, pre=${{ inputs.pre }}).
+          labels: release
+          body: |
+            Bumps the **honest-scholar package** to `v${{ steps.bump.outputs.version }}`
+            (`--release ${{ inputs.release }} --pre ${{ inputs.pre }}`).
+
+            The plugin (`.claude-plugin/plugin.json`) is versioned independently and is
+            **not** touched here.
+
+            ### Publish after merging
+            ```bash
+            git switch main && git pull
+            git tag v${{ steps.bump.outputs.version }}
+            git push origin v${{ steps.bump.outputs.version }}   # → publish.yml → PyPI
+            ```
+            To validate on **TestPyPI** first, run the `Publish` workflow via
+            *workflow_dispatch* before tagging.
+
+            > If no CI checks appear on this PR, it was created with `GITHUB_TOKEN`
+            > (which can't trigger workflows). Add a `RELEASE_PAT` repo secret so the
+            > bump commit triggers CI, or re-run CI / admin-merge.
