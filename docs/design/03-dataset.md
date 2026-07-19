@@ -2,15 +2,15 @@
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
+**Status:** Implemented. Sub-spec of the `honest-scholar` meta-spec; realized in this repo (skills + CLI).
 
-> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
+> Sub-spec of [00-meta-spec.md](00-meta-spec.md).
 > Builds on the asset substrate of
-> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §2
+> [sub-spec 4](04-substrate-and-contract.md) §2
 > and feeds the experiment-backend contract (§3). Governed by the ⚑ agency (§2.1)
 > and Understanding (§2.2) principles.
-> Grounding: [dataset-management-standards](../honest-scholar/references/dataset-management-standards.md),
-> [dataset-tooling-mirror](../honest-scholar/references/dataset-tooling-mirror.md).
+> Grounding: [dataset-management-standards](../../resources/references/dataset-management-standards.md),
+> [dataset-tooling-mirror](../../resources/references/dataset-tooling-mirror.md).
 
 ## 1. The `dataset` skill
 

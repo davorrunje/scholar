@@ -1,6 +1,6 @@
 # Proposal: `defend record` — a helper to persist understanding status + the accountability trail
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: defend`
+`Status: implemented (designed 2026-07-18) · Skill: defend`
 
 ## Context
 

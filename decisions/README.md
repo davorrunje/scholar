@@ -37,5 +37,8 @@ Migrates to the plugin's `decisions/` alongside `resources/references/`.
 | [0023](0023-engineering-delegation-contract.md) | Delegate engineering via a contract, not a named tool | accepted |
 | [0024](0024-tooling-package-and-bootstrap.md) | Supporting tooling = one package (Typer CLI, optional MCP) + markdown `ensure-tooling` bootstrap | accepted |
 | [0025](0025-disclosure-and-citation-growth.md) | Honest AI-use disclosure + citation as the growth mechanism (auto-proposed by `paper-synthesis`) | accepted |
+| [0026](0026-independent-versioning-compat-pin.md) | Independent plugin/package versioning with a compatibility pin | accepted |
+| [0027](0027-release-driven-oidc-publish.md) | Publish via GitHub Releases + PyPI Trusted Publishing (OIDC, no tokens) | accepted |
+| [0028](0028-100-percent-coverage-gate.md) | 100% statement + branch coverage gate on the package | accepted |
 
 Format: MADR (Markdown Any Decision Records). Deciders: Davor Runje (with Claude).

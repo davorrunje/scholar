@@ -1,6 +1,6 @@
 # Proposal: Dataset retrieval, private-mirror & fixity tooling
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: dataset`
+`Status: implemented (designed 2026-07-18) · Skill: dataset`
 
 ## Context
 

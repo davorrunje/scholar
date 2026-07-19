@@ -2,22 +2,22 @@
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
+**Status:** Implemented. Sub-spec of the `honest-scholar` meta-spec; realized in this repo (skills + CLI).
 
-> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
+> Sub-spec of [00-meta-spec.md](00-meta-spec.md).
 > The integrative capstone: the three-level lifecycle, the five pipeline skills,
 > the rigor kit, and the two cross-cutting skills (`progress`, `defend`). Consumes
 > the experiment-backend contract of
-> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §3
+> [sub-spec 4](04-substrate-and-contract.md) §3
 > and the `literature`/`dataset` capabilities of
-> [sub-spec 2](2026-07-17-honest-scholar-2-literature-design.md) /
-> [sub-spec 3](2026-07-17-honest-scholar-3-dataset-design.md). Governed by the ⚑ agency
+> [sub-spec 2](02-literature.md) /
+> [sub-spec 3](03-dataset.md). Governed by the ⚑ agency
 > (§2.1) and Understanding (§2.2) principles.
 > Refines the four `2026-07-15-*` research-workflow specs (which migrate here) and
 > adds the thesis level, progress, and defend. Grounding:
-> [thesis-and-progress-tracking](../honest-scholar/references/thesis-and-progress-tracking.md),
-> [understanding-and-defense](../honest-scholar/references/understanding-and-defense.md),
-> [mentor-personas](../honest-scholar/references/mentor-personas.md).
+> [thesis-and-progress-tracking](../../resources/references/thesis-and-progress-tracking.md),
+> [understanding-and-defense](../../resources/references/understanding-and-defense.md),
+> [mentor-personas](../../resources/references/mentor-personas.md).
 
 ## 1. The three-level mirror & flywheels
 

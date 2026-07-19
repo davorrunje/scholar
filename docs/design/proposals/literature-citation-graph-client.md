@@ -1,6 +1,6 @@
 # Proposal: Citation-graph client (`honest_scholar/literature/graph.py`)
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: literature`
+`Status: implemented (designed 2026-07-18) · Skill: literature`
 
 ## Context
 

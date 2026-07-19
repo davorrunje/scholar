@@ -1,6 +1,6 @@
 # Proposal: `datasets.yml` manifest tooling — loader/validator + Croissant interop
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: dataset`
+`Status: implemented (designed 2026-07-18) · Skill: dataset`
 
 ## Context
 
