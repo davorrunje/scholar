@@ -13,7 +13,8 @@ without the network or the binary. Design:
 
 .. note::
    The pooch/rclone command shapes follow their public docs and are covered by
-   mocked tests; live validation is a follow-up (see the PR).
+   mocked tests; the opt-in live suite (``tests/test_live_retrieval.py``,
+   ``-m live``) exercises them against real ``pooch`` + ``rclone`` (honest-scholar#30).
 """
 
 from __future__ import annotations

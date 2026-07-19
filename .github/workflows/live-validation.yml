@@ -1,0 +1,37 @@
+name: Live validation
+
+# Opt-in end-to-end checks against REAL services — live OpenAlex / Semantic
+# Scholar, and real pooch + rclone (honest-scholar#30). NOT part of the required
+# PR gate (the hermetic suite + 100% coverage gate is in ci.yml); this is a
+# manual / weekly job that catches upstream endpoint or tool drift.
+#
+# S2_API_KEY is optional: without it the keyless-degrade path is exercised and the
+# S2-keyed assertions skip. OPENALEX_MAILTO joins the OpenAlex polite pool.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.1
+      - name: Install rclone
+        run: |
+          curl -fsSL -o rclone.zip https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip -q rclone.zip
+          sudo cp rclone-*/rclone /usr/local/bin/rclone
+          rclone version
+      - name: Run the live suite
+        working-directory: honest-scholar
+        env:
+          HONEST_SCHOLAR_LIVE: "1"
+          OPENALEX_MAILTO: davor@synthpop.ai
+          S2_API_KEY: ${{ secrets.S2_API_KEY }}
+        run: uv run pytest -m live --no-cov -v
