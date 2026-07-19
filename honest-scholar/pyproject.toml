@@ -30,9 +30,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage   = "https://github.com/davorrunje/honest-scholar"
-Repository = "https://github.com/davorrunje/honest-scholar"
-Issues     = "https://github.com/davorrunje/honest-scholar/issues"
+Homepage      = "https://honest-scholar.science/"
+Documentation = "https://honest-scholar.science/"
+Repository    = "https://github.com/davorrunje/honest-scholar"
+Issues        = "https://github.com/davorrunje/honest-scholar/issues"
+Changelog     = "https://github.com/davorrunje/honest-scholar/blob/main/CHANGELOG.md"
 
 [project.scripts]
 honest-scholar = "honest_scholar.cli:app"

@@ -26,8 +26,7 @@ honest-scholar --version
 honest-scholar doctor              # reports python / uv / rclone
 ```
 
-Pre-releases are on TestPyPI (`--index-url https://test.pypi.org/simple/
---extra-index-url https://pypi.org/simple/`).
+**Documentation:** <https://honest-scholar.science/>
 
 ## CLI
 
@@ -77,14 +76,14 @@ presence only.
 
 ## Learn more
 
-- **Plugin, docs, and full design record:** <https://github.com/davorrunje/honest-scholar>
-- **User guide:** <https://github.com/davorrunje/honest-scholar/blob/main/docs/USER-GUIDE.md>
+- **Documentation:** <https://honest-scholar.science/>
+- **User guide:** <https://honest-scholar.science/get-started/user-guide>
+- **Plugin, source & full design record:** <https://github.com/davorrunje/honest-scholar>
 - **Disclose your AI use & cite Honest Scholar:** <https://github.com/davorrunje/honest-scholar/blob/main/DISCLOSURE.md>
 
-## Status
+## Changelog
 
-Early / pre-release — see
-<https://github.com/davorrunje/honest-scholar/blob/main/STATUS.md>.
+<https://github.com/davorrunje/honest-scholar/blob/main/CHANGELOG.md>
 
 ## License
 
