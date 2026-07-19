@@ -34,6 +34,13 @@ each consuming repo binds whatever engineering backend it uses (or none) via
 - **Test-install locally:** `/plugin marketplace add ./` then
   `/plugin install honest-scholar@honest-scholar`.
 
+## Releasing
+
+Cutting a release of the **PyPI package** (Bump version → merge → Publish to
+TestPyPI/PyPI via Trusted Publishing) is documented in
+[`RELEASING.md`](RELEASING.md). The package is versioned independently of the
+plugin.
+
 ## Domain-neutrality
 
 `honest-scholar` must stay domain-neutral: no ML-, monotonic-network-, or repo-specific
