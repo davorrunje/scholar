@@ -261,14 +261,40 @@ def frontmatter(title: str, description: str | None) -> str:
 # --- MDX safety -------------------------------------------------------------------
 
 
+_HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+_AUTOLINK_RE = re.compile(r"<((?:https?://|mailto:)[^>\s]+)>")
+
+
+def _autolink_to_markdown(match: re.Match[str]) -> str:
+    """Convert a Markdown autolink to an explicit ``[text](url)`` link.
+
+    Mintlify's MDX parser reads a raw ``<https://…>`` autolink as a JSX tag and
+    fails on the ``//``. Rewriting it to an ordinary Markdown link keeps it
+    clickable while being MDX-safe. A ``mailto:`` link shows the bare address.
+    """
+    url = match.group(1)
+    text = url[len("mailto:") :] if url.startswith("mailto:") else url
+    return f"[{text}]({url})"
+
+
 def _escape_prose(segment: str) -> str:
     """Escape MDX-hostile characters in a non-code text segment.
 
-    ``{`` / ``}`` (JSX expression delimiters) and tag-like ``<`` are neutralised;
-    autolinks (``<https://…>``, ``<mailto:…>``) are preserved.
+    The generated site carries no intentional JSX, so anything tag- or
+    expression-like in prose must be neutralised or MDX compilation fails:
+
+    * HTML comments (``<!-- … -->``) are dropped — they are not valid MDX.
+    * Markdown autolinks (``<https://…>``, ``<mailto:…>``) are rewritten to
+      explicit ``[text](url)`` links so they still render (a raw autolink is
+      parsed as JSX and breaks the build).
+    * every remaining ``<`` becomes ``&lt;`` (a bare ``<foo>``, ``<0.05``, or
+      ``</x>`` in prose is otherwise read as a JSX tag), and ``{`` / ``}`` (JSX
+      expression delimiters) become HTML entities.
     """
+    segment = _HTML_COMMENT_RE.sub("", segment)
+    segment = _AUTOLINK_RE.sub(_autolink_to_markdown, segment)
     segment = segment.replace("{", "&#123;").replace("}", "&#125;")
-    return re.sub(r"<(?!https?://|mailto:)(?=[A-Za-z/!])", "&lt;", segment)
+    return segment.replace("<", "&lt;")
 
 
 def _escape_prose_region(region: str) -> str:
@@ -313,6 +339,52 @@ def mdx_safe(text: str) -> str:
     if fence is not None:  # an unterminated fence — emit verbatim
         out.append("\n".join(code))
     return "\n".join(out)
+
+
+def mdx_hazards(text: str) -> list[str]:
+    """Report residual MDX-hostile constructs in a *finished* page's prose.
+
+    A best-effort, deliberately independent sanity check (it does not reuse
+    :func:`_escape_prose`, so a bug there is caught): after fenced and inline code
+    are removed, a literal ``<`` (JSX tag) or ``{`` / ``}`` (JSX expression) in
+    prose is something Mintlify's MDX parser would reject — the sanitizer should
+    have turned it into an entity. Returned strings are ``"line:col message"``
+    describing each hazard; an empty list means clean.
+    """
+    # The YAML frontmatter is not MDX — its `{ }` / `<` are harmless. Skip it,
+    # keeping a line offset so reported positions match the file.
+    fm_text, body = split_frontmatter(text)
+    offset = text.count("\n", 0, len(text) - len(body)) if fm_text is not None else 0
+
+    # Blank fenced-code lines (keep length so line/col stay accurate).
+    masked: list[str] = []
+    fence: str | None = None
+    for line in body.split("\n"):
+        stripped = line.lstrip()
+        marker = stripped[:3] if stripped[:3] in ("```", "~~~") else None
+        if fence is None and marker:
+            fence = marker
+            masked.append(" " * len(line))
+        elif fence is not None:
+            if stripped.startswith(fence):
+                fence = None
+            masked.append(" " * len(line))
+        else:
+            masked.append(line)
+
+    # Blank inline code spans (which may wrap across a soft line break),
+    # preserving newlines so reported positions stay correct.
+    def _blank(match: re.Match[str]) -> str:
+        return "".join("\n" if ch == "\n" else " " for ch in match.group(0))
+
+    blob = re.sub(r"`+[^`]*?`+", _blank, "\n".join(masked))
+
+    hazards: list[str] = []
+    for lineno, line in enumerate(blob.split("\n"), start=1 + offset):
+        for col, ch in enumerate(line, start=1):
+            if ch in "<{}":
+                hazards.append(f"{lineno}:{col} unescaped {ch!r} (JSX-hostile)")
+    return hazards
 
 
 # --- link rewriting ---------------------------------------------------------------
@@ -580,6 +652,10 @@ def build(out: Path) -> dict[str, int]:
         dest = out / f"{route}.mdx"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(page, encoding="utf-8")
+        # Local MDX sanity — surface obvious breakage without a Node/Mintlify
+        # toolchain. The authoritative gate is `mint validate` in CI.
+        for hazard in mdx_hazards(page):
+            errors.append(f"{route}.mdx:{hazard}")
 
     # Every intra-site link must resolve to a real page.
     for link in sorted(site_links):
