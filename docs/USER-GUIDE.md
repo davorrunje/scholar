@@ -318,7 +318,46 @@ coherent through-line. Never a paper count.
   defend claim <hypothesis-id>          # rehearse before you sign
   ```
 
-## 8. Everyday tips
+## 8. API keys & credentials
+
+Some services the tooling reaches key-gate their *useful* rate limits. Providing
+a key is optional — everything degrades gracefully without one — but it removes
+the throttling that otherwise stalls citation-graph work.
+
+| Key | Service | What it buys | How to obtain |
+|---|---|---|---|
+| `S2_API_KEY` | Semantic Scholar | Raises the rate limit far above the shared keyless pool (which throttles hard). | <https://www.semanticscholar.org/product/api#api-key> |
+| `OPENALEX_MAILTO` | OpenAlex | Joins the "polite pool" (a contact email) for faster, more reliable responses. | <https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication> |
+| `RCLONE_CONFIG_<REMOTE>_*` | Private dataset mirror | rclone remote credentials, handed to rclone as scoped env vars (no config file needed). | Per your rclone remote (see `rclone config`). |
+
+honest-scholar keeps keys in a **CLI-managed JSON store** at
+`.honest-scholar/keys.json` — never a `.env` — and reads them with
+**`os.environ` > store > unset** precedence, so an environment variable always
+wins (CI / secrets injection is unaffected) and an unset key just degrades the
+service. Manage the store with the `keys` command group:
+
+```
+honest-scholar keys set S2_API_KEY        # prompts hidden, or reads piped stdin
+echo "$MY_KEY" | honest-scholar keys set S2_API_KEY
+honest-scholar keys set < keys.json       # a JSON object sets many at once
+honest-scholar keys list                  # metadata + presence + source (never values)
+honest-scholar keys check                 # compact presence/source report
+honest-scholar keys unset S2_API_KEY
+honest-scholar keys path                  # print the resolved store path
+```
+
+The value is **never** taken from the command line — only from stdin or a hidden
+prompt — so a secret never lands in your shell history or the process list.
+`keys list`/`check` and `doctor` report only **presence and source**, never a
+value.
+
+> **Honesty caveat — plaintext at rest.** The store is **not encrypted**.
+> Gitignore (`.honest-scholar/keys.json` is ignored) and `0600` file permissions
+> limit exposure, but anyone who can read the file reads the keys. Treat it as
+> convenience storage, not a secret vault. OS-keychain backing behind the same
+> `keys` interface is a planned follow-up (issue #49).
+
+## 9. Everyday tips
 
 - **What honest-scholar will NOT do.** It will not make a material decision for you
   (confirm/refute, publish/no-go, defensible), will not write your paper

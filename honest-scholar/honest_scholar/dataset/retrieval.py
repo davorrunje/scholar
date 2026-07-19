@@ -20,6 +20,7 @@ without the network or the binary. Design:
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess  # nosec B404 - rclone is a trusted, fixed-arg subprocess
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -29,6 +30,8 @@ from typing import TYPE_CHECKING, Protocol
 from honest_scholar.dataset import manifest as manifest_mod
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from honest_scholar.dataset.manifest import DatasetEntry, FileRef, Manifest
 
 #: A fetcher: ``(url, sha256, dest) -> path``; the default uses ``pooch``.
@@ -84,6 +87,10 @@ class Mirror:
     :param config_path: Optional ``--config`` path (untracked ``rclone.conf``).
     :param rclone_bin: The rclone executable name.
     :param run: The subprocess runner (defaults to :func:`subprocess.run`).
+    :param env: Optional scoped secrets (e.g. ``RCLONE_CONFIG_<REMOTE>_*`` from
+        the key store) merged over the process environment for each rclone call,
+        so credentials need not live in a config file (ADR-0029). ``None`` keeps
+        the inherited environment untouched.
     """
 
     remote: str
@@ -91,6 +98,7 @@ class Mirror:
     config_path: str | None = None
     rclone_bin: str = "rclone"
     run: Runner = subprocess.run
+    env: Mapping[str, str] | None = None
 
     def _target(self, sha256: str) -> str:
         key = f"{self.base_path.rstrip('/')}/sha256/{_bare(sha256)}".lstrip("/")
@@ -103,9 +111,12 @@ class Mirror:
         return [*base, *args]
 
     def _run_ok(self, *args: str) -> bool:
+        kwargs: dict[str, object] = {"capture_output": True, "check": False}
+        if self.env is not None:
+            kwargs["env"] = {**os.environ, **self.env}
         try:
             proc = self.run(  # nosec B603 - fixed rclone args, no shell
-                self._cmd(*args), capture_output=True, check=False
+                self._cmd(*args), **kwargs
             )
         except FileNotFoundError as exc:  # rclone not installed
             raise RetrievalError(

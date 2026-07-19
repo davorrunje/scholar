@@ -9,8 +9,8 @@ ADR-0024 and ``docs/design/proposals/tooling-package.md``.
 from __future__ import annotations
 
 import dataclasses
+import getpass
 import json
-import os
 import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Annotated
 import typer
 
 from honest_scholar import __version__
+from honest_scholar.core import keys as keys_mod
 from honest_scholar.dataset import manifest as manifest_mod
 from honest_scholar.dataset import retrieval as retrieval_mod
 from honest_scholar.defend import record as record_mod
@@ -105,6 +106,13 @@ def doctor() -> None:
     typer.echo(f"  python: {platform.python_version()} ({platform.platform()})")
     typer.echo(f"  {_tool_report('uv')}")
     typer.echo(f"  {_tool_report('rclone')}")
+    typer.echo("  keys:")
+    for known in keys_mod.KNOWN_KEYS.values():
+        source = keys_mod.source_of(known.name)
+        if source is None:
+            typer.echo(f"    {known.name}: not set")
+        else:
+            typer.echo(f"    {known.name}: set (source: {source})")
     raise typer.Exit(code=0)
 
 
@@ -116,11 +124,13 @@ app.add_typer(literature, name="literature")
 
 
 def _lit_client() -> HttpClient:
-    """Build the literature HTTP client from config + environment.
+    """Build the literature HTTP client from config + the key store.
 
-    Reads ``literature.mailto`` from ``.honest-scholar/config.yml`` (polite pool)
-    and ``S2_API_KEY`` from the environment; caches responses under
-    ``.honest-scholar/cache/http``. Tests monkeypatch this to inject a fake client.
+    Reads ``literature.mailto`` from ``.honest-scholar/config.yml`` (polite pool),
+    falling back to ``OPENALEX_MAILTO``, and sources ``S2_API_KEY`` through the
+    key store — both with ``os.environ`` > store precedence (ADR-0029). Caches
+    responses under ``.honest-scholar/cache/http``. Tests monkeypatch this to
+    inject a fake client.
     """
     from honest_scholar.core.config import load_config
     from honest_scholar.core.http import HttpClient
@@ -140,8 +150,8 @@ def _lit_client() -> HttpClient:
     mailto = lit.get("mailto") if isinstance(lit, dict) else None
     return HttpClient(
         cache_dir=Path(".honest-scholar/cache/http"),
-        mailto=mailto or os.environ.get("OPENALEX_MAILTO"),
-        s2_key=os.environ.get("S2_API_KEY"),
+        mailto=mailto or keys_mod.get("OPENALEX_MAILTO"),
+        s2_key=keys_mod.get("S2_API_KEY"),
     )
 
 
@@ -400,14 +410,21 @@ def _entry_or_exit(
 
 
 def _mirror_from(parsed: manifest_mod.Manifest) -> retrieval_mod.Mirror | None:
-    """Build a :class:`Mirror` from the manifest's mirror block, if configured."""
+    """Build a :class:`Mirror` from the manifest's mirror block, if configured.
+
+    Any ``RCLONE_CONFIG_<REMOTE>_*`` credentials in the key store (or environment)
+    for this remote are handed to rclone as a scoped, in-memory ``env`` (ADR-0029);
+    a hand-managed ``.honest-scholar/rclone.conf`` still works as a fallback.
+    """
     mir = parsed.mirror
     if mir is None or not mir.rclone_remote:
         return None
+    scoped = keys_mod.rclone_scoped_env(mir.rclone_remote)
     return retrieval_mod.Mirror(
         remote=mir.rclone_remote,
         base_path=mir.base_path or "",
         config_path=".honest-scholar/rclone.conf",
+        env=scoped or None,
     )
 
 
@@ -803,6 +820,173 @@ def drop(
         raise typer.Exit(code=1) from exc
     board.save(backlog_path)
     _emit_row(row)
+
+
+# --- keys (honest-scholar#42) -----------------------------------------------------
+keys = typer.Typer(
+    help="Store, list and check API keys & credentials (ADR-0029).",
+    no_args_is_help=True,
+)
+app.add_typer(keys, name="keys")
+
+
+def _stdin_is_piped() -> bool:
+    """Return whether stdin is a pipe/redirect rather than an interactive tty."""
+    return not sys.stdin.isatty()
+
+
+def _parse_json_object(raw: str) -> dict[str, object] | None:
+    """Parse `raw` as a JSON object, or ``None`` if it is not one.
+
+    :param raw: The raw stdin text.
+    :returns: The decoded mapping, or ``None`` when `raw` is not valid JSON or is
+        valid JSON but not an object (so it is treated as a single value).
+    """
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _warn_unknown(name: str) -> None:
+    """Warn on stderr when `name` is not a recognised key (but still store it)."""
+    if not keys_mod.is_known(name):
+        typer.echo(f"warning: {name!r} is not a known key; storing it anyway", err=True)
+
+
+def _set_many(blob: dict[str, object]) -> None:
+    """Set every entry of a piped JSON object; never echoes a value.
+
+    :param blob: The decoded ``{name: value}`` mapping.
+    :raises typer.Exit: Code 2 if the object is empty or any value is not a string.
+    """
+    if not blob:
+        typer.echo("keys set: the JSON object is empty", err=True)
+        raise typer.Exit(code=2)
+    for name, value in blob.items():
+        if not isinstance(value, str):
+            typer.echo(f"keys set: value for {name!r} must be a string", err=True)
+            raise typer.Exit(code=2)
+        _warn_unknown(name)
+        keys_mod.set_key(name, value)
+    typer.echo(f"stored {len(blob)} key(s) (source: store)")
+
+
+@keys.command(name="set")
+def set_(
+    name: Annotated[
+        str, typer.Argument(help="Key name; omit only when piping a JSON object.")
+    ] = "",
+) -> None:
+    """Store a key. The value comes from **stdin or a hidden prompt**, never argv.
+
+    Piping a JSON object (``{"NAME": "value", ...}``) sets many at once. Unknown
+    names warn but are still stored. No value is ever echoed.
+
+    :param name: The key name (unused when a JSON object is piped).
+    :raises typer.Exit: Code 2 on a missing name or an empty value; code 0 on
+        success.
+    """
+    if _stdin_is_piped():
+        raw = sys.stdin.read()
+        blob = _parse_json_object(raw)
+        if blob is not None:
+            _set_many(blob)
+            raise typer.Exit(code=0)
+        value: str | None = raw.strip()
+    else:
+        value = None
+    if not name:
+        typer.echo(
+            "keys set: provide NAME (or pipe a JSON object to set many)", err=True
+        )
+        raise typer.Exit(code=2)
+    if value is None:
+        value = getpass.getpass(f"Value for {name} (input hidden): ")
+    if not value:
+        typer.echo(f"keys set: empty value for {name}", err=True)
+        raise typer.Exit(code=2)
+    _warn_unknown(name)
+    keys_mod.set_key(name, value)
+    typer.echo(f"stored {name} (source: store)")
+    raise typer.Exit(code=0)
+
+
+def _key_report() -> list[dict[str, object]]:
+    """Build a presence report for every known + stored key — never a value.
+
+    :returns: One record per key with ``name``, ``service``, ``benefit``,
+        ``how_to_obtain``, ``present`` and ``source`` (``env``/``store``/``None``).
+    """
+    report: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for known in keys_mod.KNOWN_KEYS.values():
+        source = keys_mod.source_of(known.name)
+        report.append(
+            {
+                "name": known.name,
+                "service": known.service,
+                "benefit": known.benefit,
+                "how_to_obtain": known.how_to_obtain,
+                "present": source is not None,
+                "source": source,
+            }
+        )
+        seen.add(known.name)
+    report.extend(
+        {
+            "name": name,
+            "service": None,
+            "benefit": None,
+            "how_to_obtain": None,
+            "present": True,
+            "source": keys_mod.source_of(name),
+        }
+        for name in sorted(keys_mod.load_store())
+        if name not in seen
+    )
+    return report
+
+
+@keys.command(name="list")
+def list_keys() -> None:
+    """List every known + stored key with its metadata and presence (no values)."""
+    typer.echo(json.dumps(_key_report(), indent=2))
+    raise typer.Exit(code=0)
+
+
+@keys.command()
+def check() -> None:
+    """Report presence/absence and source of each key as JSON (never a value)."""
+    compact = [
+        {"name": row["name"], "present": row["present"], "source": row["source"]}
+        for row in _key_report()
+    ]
+    typer.echo(json.dumps(compact, indent=2))
+    raise typer.Exit(code=0)
+
+
+@keys.command()
+def unset(
+    name: Annotated[str, typer.Argument(help="Key name to remove from the store.")],
+) -> None:
+    """Remove a key from the store (a no-op if it was not stored).
+
+    :param name: The key name to remove.
+    """
+    if keys_mod.unset_key(name):
+        typer.echo(f"unset {name}")
+    else:
+        typer.echo(f"{name} was not in the store", err=True)
+    raise typer.Exit(code=0)
+
+
+@keys.command()
+def path() -> None:
+    """Print the resolved key-store path."""
+    typer.echo(str(keys_mod.store_path()))
+    raise typer.Exit(code=0)
 
 
 if __name__ == "__main__":  # pragma: no cover

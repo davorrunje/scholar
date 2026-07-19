@@ -39,10 +39,41 @@ honest-scholar dataset    validate|ingest|emit                  # manifest + Cro
 honest-scholar dataset    fetch|verify|mirror|audit             # SHA-256 retrieval + rclone mirror
 honest-scholar defend     record                                # understanding-status record
 honest-scholar backlog    park|add|list|rank|promote|drop       # exploration backlog
+honest-scholar keys       set|list|check|unset|path             # API-key & credential store
 ```
 
 Every command is implemented and emits JSON (the skills parse it). Network- and
 `rclone`-backed commands degrade gracefully when a key or the binary is absent.
+
+## API keys & credentials
+
+Some services throttle hard without a key. Providing one is optional (the tooling
+degrades gracefully) but lifts the ceiling:
+
+| Key | Service | What it buys | How to obtain |
+|---|---|---|---|
+| `S2_API_KEY` | Semantic Scholar | Rate limit well above the shared keyless pool. | <https://www.semanticscholar.org/product/api#api-key> |
+| `OPENALEX_MAILTO` | OpenAlex | The "polite pool" (a contact email) — faster, more reliable. | <https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication> |
+| `RCLONE_CONFIG_<REMOTE>_*` | Private dataset mirror | rclone remote credentials passed as scoped env vars (no config file). | Per your rclone remote. |
+
+Keys live in a **CLI-managed JSON store** at `.honest-scholar/keys.json`
+(gitignored, created `0600`), read with **`os.environ` > store > unset**
+precedence, so an environment variable always wins. Manage it with `keys`:
+
+```bash
+honest-scholar keys set S2_API_KEY        # hidden prompt, or reads piped stdin
+echo "$MY_KEY" | honest-scholar keys set S2_API_KEY
+honest-scholar keys set < keys.json       # a JSON object sets many at once
+honest-scholar keys list                  # presence + source (never the value)
+honest-scholar keys check | unset | path
+```
+
+The value is read only from stdin or a hidden prompt — never `argv` — so it never
+hits your shell history or the process list, and `list`/`check`/`doctor` report
+presence only.
+
+> **Plaintext at rest.** The store is **not encrypted**; gitignore + `0600` limit
+> exposure but are not a vault. OS-keychain backing is a planned follow-up (#49).
 
 ## Learn more
 

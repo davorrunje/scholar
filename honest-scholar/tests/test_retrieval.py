@@ -245,6 +245,41 @@ def test_mirror_missing_binary_is_actionable() -> None:
         mirror.check("a" * 64)
 
 
+def test_mirror_forwards_scoped_env_merged_over_process_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PATH", "/usr/bin")
+    captured: dict[str, object] = {}
+
+    def _runner(args: list[str], **kw: object) -> FakeProc:
+        captured.update(kw)
+        return FakeProc(0)
+
+    mirror = r.Mirror(
+        remote="store",
+        run=_runner,
+        env={"RCLONE_CONFIG_STORE_TYPE": "s3"},
+    )
+    assert mirror.check("a" * 64) is True
+    passed = captured["env"]
+    assert isinstance(passed, dict)
+    # scoped secret is present …
+    assert passed["RCLONE_CONFIG_STORE_TYPE"] == "s3"
+    # … merged over the inherited environment (PATH survives).
+    assert passed["PATH"] == "/usr/bin"
+
+
+def test_mirror_without_env_passes_no_env_kwarg() -> None:
+    captured: dict[str, object] = {}
+
+    def _runner(args: list[str], **kw: object) -> FakeProc:
+        captured.update(kw)
+        return FakeProc(0)
+
+    r.Mirror(remote="store", run=_runner).check("a" * 64)
+    assert "env" not in captured
+
+
 # --- audit ------------------------------------------------------------------
 
 
