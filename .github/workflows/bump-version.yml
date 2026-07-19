@@ -37,11 +37,16 @@ jobs:
       - name: Compute + write the new version
         id: bump
         run: |
+          old=$(grep -m1 '^version' honest-scholar/pyproject.toml | cut -d'"' -f2)
           version=$(python tools/bump_version.py \
             --release "${{ inputs.release }}" --pre "${{ inputs.pre }}")
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Bumped honest-scholar to $version"
+          {
+            echo "old=$old"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+          echo "Bumped honest-scholar $old -> $version"
       - name: Open release PR
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           # A RELEASE_PAT (if set) lets the bump commit trigger CI on the PR;
@@ -76,3 +81,17 @@ jobs:
             > If no CI checks appear on this PR, it was created with `GITHUB_TOKEN`
             > (which can't trigger workflows). Add a `RELEASE_PAT` repo secret so the
             > bump commit triggers CI, or re-run CI / admin-merge.
+      - name: Job summary
+        run: |
+          {
+            echo "### 🔖 Bumped honest-scholar → \`${{ steps.bump.outputs.version }}\`"
+            echo ""
+            echo "\`${{ steps.bump.outputs.old }}\` → \`${{ steps.bump.outputs.version }}\`  (release=\`${{ inputs.release }}\`, pre=\`${{ inputs.pre }}\`)"
+            echo ""
+            echo "Release PR: ${{ steps.cpr.outputs.pull-request-url }}"
+            echo ""
+            echo "After merging, publish with:"
+            echo '```bash'
+            echo "git tag v${{ steps.bump.outputs.version }} && git push origin v${{ steps.bump.outputs.version }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -32,7 +32,7 @@ runs:
         esac
         version=$(basename "$(ls dist/*.whl | head -1)" | cut -d- -f2)
         url="${project}/honest-scholar/${version}/"
-        echo "::notice title=Published to ${name}::honest-scholar ${version} -> ${url}"
+        echo "::notice title=Published to ${name}::honest-scholar ${version}"
         {
           echo "### 📦 Published to ${name}"
           echo ""
