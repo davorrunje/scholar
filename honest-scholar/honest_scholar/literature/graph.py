@@ -13,8 +13,8 @@ the module is exercised offline in tests. Design:
 
 .. note::
    Endpoint shapes follow the public OpenAlex / S2 documentation; the code is
-   covered by mocked-transport tests. Validation against the live services is a
-   follow-up (see the PR).
+   covered by mocked-transport tests. Validation against the live services is
+   tracked in honest-scholar#30.
 """
 
 from __future__ import annotations
@@ -122,6 +122,51 @@ def _fetch_work(client: HttpClient, openalex_id: str) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _arxiv_doi(arxiv_id: str) -> str:
+    """Build the arXiv DataCite DOI for an arXiv id, dropping any ``vN`` suffix.
+
+    arXiv registers one DOI per paper (``10.48550/arXiv.<id>``) with no version
+    component, so a versioned id like ``2205.11775v4`` must have the suffix
+    stripped before the lookup — otherwise it resolves to a non-existent DOI.
+    """
+    unversioned = re.sub(r"v\d+$", "", arxiv_id)
+    return f"10.48550/arXiv.{unversioned}"
+
+
+def _lookup_url(kind: str, norm: str) -> str | None:
+    """Map a ``(kind, normalized-id)`` pair to its OpenAlex work-lookup URL."""
+    return {
+        "openalex": f"{OPENALEX}/works/{norm}",
+        "doi": f"{OPENALEX}/works/doi:{norm}",
+        "arxiv": f"{OPENALEX}/works/doi:{_arxiv_doi(norm)}",
+    }.get(kind)
+
+
+def _s2_crossref(client: HttpClient, s2_id: str) -> tuple[str, str] | None:
+    """Cross-reference a Semantic Scholar id to a ``(kind, id)`` OpenAlex anchor.
+
+    OpenAlex has no S2 lookup, so an S2 id (``CorpusId:…`` / SHA) is resolved
+    through S2's ``externalIds`` to a DOI or arXiv id that OpenAlex *does* index.
+
+    :returns: ``("doi", …)`` / ``("arxiv", …)``, or ``None`` if S2 misses or the
+        paper carries no DOI/arXiv cross-reference.
+    """
+    from honest_scholar.core.http import HttpError
+
+    try:
+        paper = client.get_json(
+            f"{S2}/paper/{s2_id}", {"fields": "externalIds"}, s2=True
+        )
+    except HttpError:
+        return None
+    ext = (paper.get("externalIds") or {}) if isinstance(paper, dict) else {}
+    if ext.get("DOI"):
+        return "doi", str(ext["DOI"])
+    if ext.get("ArXiv"):
+        return "arxiv", str(ext["ArXiv"])
+    return None
+
+
 def resolve(identifier: str, *, client: HttpClient) -> dict[str, Any]:
     """Resolve any identifier to a canonical work record.
 
@@ -133,11 +178,15 @@ def resolve(identifier: str, *, client: HttpClient) -> dict[str, Any]:
     from honest_scholar.core.http import HttpError
 
     kind, norm = _classify(identifier)
-    lookup = {
-        "openalex": f"{OPENALEX}/works/{norm}",
-        "doi": f"{OPENALEX}/works/doi:{norm}",
-        "arxiv": f"{OPENALEX}/works/doi:10.48550/arXiv.{norm}",
-    }.get(kind)
+    if kind == "s2":
+        xref = _s2_crossref(client, norm)
+        if xref is None:
+            return {
+                "resolved": False,
+                "reason": f"could not cross-reference S2 id {norm!r} to a DOI/arXiv",
+            }
+        kind, norm = xref
+    lookup = _lookup_url(kind, norm)
     if lookup is None:
         return {"resolved": False, "reason": f"unsupported identifier kind: {kind}"}
     try:
@@ -198,26 +247,111 @@ def refs(openalex_id: str, *, client: HttpClient) -> list[str]:
     return [rid for ref in work.get("referenced_works", []) if (rid := _short_id(ref))]
 
 
+def _s2_paper_id(record: dict[str, Any]) -> str | None:
+    """Pick an S2-addressable id (``DOI:…`` / ``ARXIV:…``) for an enriched work."""
+    ids = record.get("id", {})
+    if ids.get("doi"):
+        return f"DOI:{ids['doi']}"
+    if ids.get("arxiv"):
+        unversioned = re.sub(r"v\d+$", "", str(ids["arxiv"]))
+        return f"ARXIV:{unversioned}"
+    return None
+
+
+def _s2_context(client: HttpClient, s2_paper_id: str) -> dict[str, Any]:
+    """Aggregate a work's incoming S2 citation edges into a per-work context bundle.
+
+    S2 exposes citation context / SciCite intent / ``isInfluential`` per *edge*
+    (``/paper/{id}/citations``); for a work in isolation we surface a representative
+    citing sentence and intent plus whether *any* citation is influential. Returns
+    ``{s2, context_snippet, intent, is_influential}`` (each ``None`` when absent);
+    an S2 miss/error yields all-``None`` (best effort — the key was still used).
+    """
+    from honest_scholar.core.http import HttpError
+
+    out: dict[str, Any] = {
+        "s2": None,
+        "context_snippet": None,
+        "intent": None,
+        "is_influential": None,
+    }
+    try:
+        meta = client.get_json(
+            f"{S2}/paper/{s2_paper_id}", {"fields": "externalIds"}, s2=True
+        )
+    except HttpError:
+        meta = {}
+    corpus = (
+        (meta.get("externalIds") or {}).get("CorpusId")
+        if isinstance(meta, dict)
+        else None
+    )
+    if corpus is not None:
+        out["s2"] = f"CorpusId:{corpus}"
+    try:
+        page = client.get_json(
+            f"{S2}/paper/{s2_paper_id}/citations",
+            {"fields": "contexts,intents,isInfluential", "limit": "100"},
+            s2=True,
+        )
+    except HttpError:
+        return out
+    edges = page.get("data", []) if isinstance(page, dict) else []
+    for edge in edges:
+        if not isinstance(edge, dict):
+            continue
+        if out["context_snippet"] is None and edge.get("contexts"):
+            out["context_snippet"] = edge["contexts"][0]
+        if out["intent"] is None and edge.get("intents"):
+            out["intent"] = edge["intents"][0]
+        if edge.get("isInfluential"):
+            out["is_influential"] = True
+    if out["is_influential"] is None and edges:
+        out["is_influential"] = False
+    return out
+
+
 def enrich(
     openalex_ids: list[str], *, client: HttpClient, with_context: bool = False
 ) -> list[dict[str, Any]]:
     """Enrich each work id with its metadata bundle.
 
+    With `with_context`, each record also carries ``context_snippet`` / ``intent``
+    / ``is_influential`` from Semantic Scholar (and its ``s2`` id). When **no S2
+    key** is configured those fields degrade to ``null`` with a ``degraded``
+    marker — distinct from "S2 was queried and returned nothing", where the fields
+    are ``null`` *without* the marker.
+
     :param openalex_ids: The works to enrich.
     :param client: The HTTP client.
-    :param with_context: Request S2 citation-context fields; when no S2 key is
-        configured they degrade to ``null`` with a ``degraded`` marker.
+    :param with_context: Attach the S2 citation-context bundle (see above).
     :returns: One enrichment record per id.
     """
     records: list[dict[str, Any]] = []
     for wid in openalex_ids:
         record = enrich_work(_fetch_work(client, wid))
         if with_context:
-            record["context_snippet"] = None
-            record["intent"] = None
-            record["is_influential"] = None
             if not client.s2_key:
+                record["context_snippet"] = None
+                record["intent"] = None
+                record["is_influential"] = None
                 record["degraded"] = ["context", "intent", "is_influential"]
+            else:
+                s2_id = _s2_paper_id(record)
+                bundle = (
+                    _s2_context(client, s2_id)
+                    if s2_id is not None
+                    else {
+                        "context_snippet": None,
+                        "intent": None,
+                        "is_influential": None,
+                    }
+                )
+                if bundle.get("s2"):
+                    record["id"]["s2"] = bundle["s2"]
+                record["context_snippet"] = bundle["context_snippet"]
+                record["intent"] = bundle["intent"]
+                record["is_influential"] = bundle["is_influential"]
         records.append(record)
     return records
 
@@ -269,7 +403,10 @@ def neighbors(
     :param top: Number of neighbours to return per set.
     :param frontier: Max citers/references sampled for the computation.
     :returns: ``{cocitation: [...], coupling: [...], capped: bool}``.
+    :raises ValueError: If `kind` is not ``cocite`` / ``couple`` / ``both``.
     """
+    if kind not in ("cocite", "couple", "both"):
+        raise ValueError(f"unknown kind {kind!r} (want cocite | couple | both)")
     out: dict[str, Any] = {}
     citers = cites(openalex_id, client=client, max_results=frontier)
     out["capped"] = len(citers) >= frontier

@@ -365,3 +365,50 @@ def test_croissant_minimal_entry_omits_absent_fields() -> None:
     assert doc["name"] == "bare"
     for absent in ("version", "license", "description", "identifier", "distribution"):
         assert absent not in doc
+
+
+# --- input hardening + round-trip fidelity (honest-scholar#31) ---------------
+
+
+def test_decode_file_non_numeric_size_is_clean_error(tmp_path: Path) -> None:
+    text = (
+        "datasets:\n  - id: x\n    files:\n"
+        f"      - path: f\n        sha256: {_HEX}\n        size: not-a-number\n"
+    )
+    with pytest.raises(m.ManifestError, match="'size' must be an integer"):
+        m.load(_write(tmp_path, text))
+
+
+def test_decode_citation_non_numeric_year_is_clean_error(tmp_path: Path) -> None:
+    text = (
+        "datasets:\n  - id: x\n    citation:\n"
+        "      title: T\n      publicationYear: last-year\n"
+    )
+    with pytest.raises(m.ManifestError, match="'publicationYear' must be an integer"):
+        m.load(_write(tmp_path, text))
+
+
+def test_croissant_round_trip_preserves_id_and_title() -> None:
+    entry = m.DatasetEntry(
+        id="stable-slug",
+        version="1.0",
+        license="MIT",
+        title="A Human Title",
+        files=[m.FileRef(path="f", sha256=_HEX)],
+        citation=m.Citation(title="A Human Title", identifier="doi:10.1/x"),
+        pid="doi:10.1/x",
+    )
+    doc = m.croissant_for(entry)
+    assert doc["name"] == "A Human Title"
+    assert doc["alternateName"] == "stable-slug"  # slug preserved for round-trip
+    back = m.entry_from_croissant(doc)
+    assert back.id == "stable-slug"  # id is NOT collapsed onto the human name
+    assert back.title == "A Human Title"
+    assert back.citation is not None
+    assert back.citation.identifier == "doi:10.1/x"
+
+
+def test_croissant_no_alternate_name_when_title_equals_id() -> None:
+    doc = m.croissant_for(m.DatasetEntry(id="same", title="same"))
+    assert "alternateName" not in doc
+    assert m.entry_from_croissant(doc).id == "same"

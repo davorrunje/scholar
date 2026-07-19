@@ -307,3 +307,19 @@ def test_fresh_id_double_collision() -> None:
     board = b.Backlog(level="hypothesis")
     ids = {board.add("same title", "own")["id"] for _ in range(3)}
     assert len(ids) == 3  # base, base-2, base-3
+
+
+def test_loads_ignores_prose_pipes_before_table() -> None:
+    board = b.Backlog(level="hypothesis")
+    board.add("real claim", "own")
+    table = board.dumps()
+    # Prose above the table that itself contains stray pipes must NOT be mistaken
+    # for the header row (which is fixed by the following GFM separator).
+    doc = (
+        "|---|---|\n\n"  # a stray separator with no pending header candidate
+        "Notes: we compare cost | benefit | effort here.\n\n"
+        "Another | stray | prose line with no separator\n\n" + table
+    )
+    reloaded = b.Backlog.loads(doc, "hypothesis")
+    assert [r["one-line"] for r in reloaded.rows] == ["real claim"]
+    assert reloaded.columns == board.columns  # header taken from the real table

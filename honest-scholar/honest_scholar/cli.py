@@ -1,8 +1,9 @@
 """The ``honest-scholar`` command-line interface.
 
-A Typer command tree mirroring the plugin's skill verbs. ``doctor`` is
-implemented; the domain sub-commands are typed stubs pending their tracking
-issues (see ADR-0024 and ``docs/design/proposals/tooling-package.md``).
+A Typer command tree mirroring the plugin's skill verbs: ``doctor``,
+``literature`` (citation graph), ``dataset`` (manifest / retrieval / mirror),
+``defend record``, and ``backlog`` are all implemented and emit JSON. See
+ADR-0024 and ``docs/design/proposals/tooling-package.md``.
 """
 
 from __future__ import annotations
@@ -121,7 +122,11 @@ def _lit_client() -> HttpClient:
     from honest_scholar.core.config import load_config
     from honest_scholar.core.http import HttpClient
 
-    config = load_config()
+    try:
+        config = load_config()
+    except ValueError as exc:
+        typer.echo(f"invalid .honest-scholar/config.yml: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
     lit = config.get("literature")
     mailto = lit.get("mailto") if isinstance(lit, dict) else None
     return HttpClient(
@@ -219,9 +224,12 @@ def neighbors(
     :param top: Number of neighbours per set.
     """
     client = _lit_client()
-    result = graph_mod.neighbors(
-        _openalex_id(client, identifier), client=client, kind=kind, top=top
-    )
+    resolved = _openalex_id(client, identifier)
+    try:
+        result = graph_mod.neighbors(resolved, client=client, kind=kind, top=top)
+    except ValueError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
     typer.echo(json.dumps(result, indent=2))
     raise typer.Exit(code=0)
 

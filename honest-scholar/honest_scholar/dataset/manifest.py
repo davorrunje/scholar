@@ -201,14 +201,18 @@ def _decode_file_ref(raw: Any, where: str) -> FileRef:
     if not isinstance(raw, dict):
         raise ManifestError(f"{where}: each file must be a mapping")
     try:
-        size = raw.get("size")
-        return FileRef(
-            path=str(raw["path"]),
-            sha256=str(raw["sha256"]),
-            size=int(size) if size is not None else None,
-        )
+        path = str(raw["path"])
+        sha256 = str(raw["sha256"])
     except KeyError as exc:
         raise ManifestError(f"{where}: file missing required key {exc}") from exc
+    size = raw.get("size")
+    try:
+        size_int = int(size) if size is not None else None
+    except (ValueError, TypeError) as exc:
+        raise ManifestError(
+            f"{where}: 'size' must be an integer, got {size!r}"
+        ) from exc
+    return FileRef(path=path, sha256=sha256, size=size_int)
 
 
 def _decode_retrieval(raw: Any, where: str) -> Retrieval:
@@ -226,12 +230,18 @@ def _decode_citation(raw: Any, where: str) -> Citation:
     if not isinstance(raw, dict):
         raise ManifestError(f"{where}: 'citation' must be a mapping")
     year = raw.get("publicationYear", raw.get("publication_year"))
+    try:
+        year_int = int(year) if year is not None else None
+    except (ValueError, TypeError) as exc:
+        raise ManifestError(
+            f"{where}: 'publicationYear' must be an integer, got {year!r}"
+        ) from exc
     return Citation(
         identifier=_opt_str(raw.get("identifier")),
         creator=_opt_str(raw.get("creator")),
         title=_opt_str(raw.get("title")),
         publisher=_opt_str(raw.get("publisher")),
-        publication_year=int(year) if year is not None else None,
+        publication_year=year_int,
         resource_type=_opt_str(raw.get("resourceType", raw.get("resource_type"))),
     )
 
@@ -466,6 +476,10 @@ def croissant_for(entry: DatasetEntry) -> dict[str, Any]:
         "@type": "Dataset",
         "name": entry.title or entry.id,
     }
+    # Preserve the stable registry slug so an emit→ingest round-trip recovers the
+    # same `id` (and `title`) instead of collapsing both onto the human name.
+    if entry.title and entry.title != entry.id:
+        doc["alternateName"] = entry.id
     if entry.description:
         doc["description"] = entry.description
     if entry.version:
@@ -506,6 +520,10 @@ def entry_from_croissant(json_ld: dict[str, Any]) -> DatasetEntry:
     name = json_ld.get("name")
     if not name:
         raise ManifestError("croissant: document has no 'name' to derive an id from")
+    # A round-tripped export carries the stable slug in `alternateName`; external
+    # Croissant files won't, so fall back to `name` for the id.
+    entry_id = str(json_ld.get("alternateName") or name)
+    title = str(name) if str(name) != entry_id else None
 
     files: list[FileRef] = []
     for obj in json_ld.get("distribution") or []:
@@ -524,11 +542,19 @@ def entry_from_croissant(json_ld: dict[str, Any]) -> DatasetEntry:
             )
 
     return DatasetEntry(
-        id=str(name),
+        id=entry_id,
         version=_opt_str(json_ld.get("version")),
         license=_opt_str(json_ld.get("license")),
+        title=title,
         description=_opt_str(json_ld.get("description")),
         pid=_opt_str(json_ld.get("identifier")),
         files=files,
-        citation=Citation(title=str(name)) if json_ld.get("citeAs") else None,
+        citation=(
+            Citation(
+                title=title or str(name),
+                identifier=_opt_str(json_ld.get("identifier")),
+            )
+            if json_ld.get("citeAs")
+            else None
+        ),
     )
