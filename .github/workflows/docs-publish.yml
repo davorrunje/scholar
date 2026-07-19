@@ -1,0 +1,107 @@
+name: Docs publish
+
+# Builds the Mintlify docs site from this repo's markdown + the honest-scholar
+# Typer CLI (tools/build_docs_site.py) and publishes it to the generated docs repo
+# davorrunje/honest-scholar-docs, which Mintlify renders at honest-scholar.science.
+# See docs/design/proposals/docs-site.md and ADR-0030.
+#
+#   * pull_request      → strict build check (fails on any build error / broken
+#                         link); never pushes.
+#   * release published → build + push to the docs repo (release-gated, ADR-0027).
+#   * workflow_dispatch → build + push (the first / manual publish).
+#
+# Maintainer prerequisite: create a repo Actions secret DOCS_DEPLOY_TOKEN — a
+# fine-grained PAT with Contents: read and write on davorrunje/honest-scholar-docs
+# (only). Without it the publish job fails fast with an explanatory message.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "README.md"
+      - "DISCLOSURE.md"
+      - "docs/**"
+      - "skills/**"
+      - "decisions/**"
+      - "resources/references/**"
+      - "assets/wordmark.svg"
+      - "honest-scholar/**"
+      - "tools/build_docs_site.py"
+      - ".github/workflows/docs-publish.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-check:
+    # Strict build on every relevant PR — fails on a broken link or missing page,
+    # but does not push anywhere.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.1
+      - name: Sync honest-scholar
+        run: uv sync --project honest-scholar
+      - name: Build the docs site (strict)
+        run: |
+          uv run --project honest-scholar python tools/build_docs_site.py \
+            --out "$RUNNER_TEMP/docs-site"
+
+  publish:
+    # Release or manual dispatch → build and push to the generated docs repo.
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.1
+      - name: Guard — DOCS_DEPLOY_TOKEN must be configured
+        env:
+          DOCS_DEPLOY_TOKEN: ${{ secrets.DOCS_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$DOCS_DEPLOY_TOKEN" ]; then
+            echo "::error::DOCS_DEPLOY_TOKEN is not set. Create a fine-grained PAT with Contents:write on davorrunje/honest-scholar-docs and add it as a repo Actions secret named DOCS_DEPLOY_TOKEN."
+            exit 1
+          fi
+      - name: Sync honest-scholar
+        run: uv sync --project honest-scholar
+      - name: Build the docs site (strict)
+        run: |
+          uv run --project honest-scholar python tools/build_docs_site.py \
+            --out "$RUNNER_TEMP/docs-site"
+      - name: Checkout the docs repo
+        uses: actions/checkout@v7
+        with:
+          repository: davorrunje/honest-scholar-docs
+          token: ${{ secrets.DOCS_DEPLOY_TOKEN }}
+          path: docs-repo
+      - name: Replace generated content (preserve LICENSE + README.md)
+        run: |
+          cd docs-repo
+          # Remove every tracked file except the docs repo's own LICENSE + README.md.
+          git ls-files -z \
+            | grep -zvE '^(LICENSE|README\.md)$' \
+            | xargs -0 -r git rm -q --cached --
+          find . -mindepth 1 -not -path './.git*' \
+            -not -name LICENSE -not -name README.md -delete
+          # Copy the freshly built site in.
+          cp -R "$RUNNER_TEMP/docs-site/." .
+      - name: Commit and push
+        run: |
+          cd docs-repo
+          git config user.name "honest-scholar docs bot"
+          git config user.email "davor@synthpop.ai"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Docs site unchanged — nothing to publish."
+            exit 0
+          fi
+          git commit --no-gpg-sign \
+            -m "docs: publish site from davorrunje/honest-scholar@${GITHUB_SHA}"
+          git push
