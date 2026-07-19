@@ -150,13 +150,16 @@ def _s2_crossref(client: HttpClient, s2_id: str) -> tuple[str, str] | None:
 
     :returns: ``("doi", …)`` / ``("arxiv", …)``, or ``None`` if S2 misses or the
         paper carries no DOI/arXiv cross-reference.
+    :raises RateLimitError: If S2 rate-limits — a throttle is not a "no such paper".
     """
-    from honest_scholar.core.http import HttpError
+    from honest_scholar.core.http import HttpError, RateLimitError
 
     try:
         paper = client.get_json(
             f"{S2}/paper/{s2_id}", {"fields": "externalIds"}, s2=True
         )
+    except RateLimitError:
+        raise
     except HttpError:
         return None
     ext = (paper.get("externalIds") or {}) if isinstance(paper, dict) else {}
@@ -172,10 +175,13 @@ def resolve(identifier: str, *, client: HttpClient) -> dict[str, Any]:
 
     :param identifier: DOI / arXiv id / OpenAlex ``W…`` / S2 id.
     :param client: The HTTP client.
-    :returns: ``{resolved, openalex, doi, s2, arxiv, title, year}``; on a miss,
-        ``{resolved: False, reason: …}`` — never raises for a not-found id.
+    :returns: ``{resolved, openalex, doi, s2, arxiv, title, year}``; on a genuine
+        miss (``404`` / empty body / no cross-reference), ``{resolved: False,
+        reason: …}``.
+    :raises RateLimitError: If a provider rate-limits — a throttle must propagate,
+        never be recorded as a "not found".
     """
-    from honest_scholar.core.http import HttpError
+    from honest_scholar.core.http import HttpError, RateLimitError
 
     kind, norm = _classify(identifier)
     if kind == "s2":
@@ -191,6 +197,8 @@ def resolve(identifier: str, *, client: HttpClient) -> dict[str, Any]:
         return {"resolved": False, "reason": f"unsupported identifier kind: {kind}"}
     try:
         work = client.get_json(lookup)
+    except RateLimitError:
+        raise
     except HttpError as exc:
         return {"resolved": False, "reason": str(exc)}
     if not isinstance(work, dict) or not work.get("id"):
@@ -265,9 +273,13 @@ def _s2_context(client: HttpClient, s2_paper_id: str) -> dict[str, Any]:
     (``/paper/{id}/citations``); for a work in isolation we surface a representative
     citing sentence and intent plus whether *any* citation is influential. Returns
     ``{s2, context_snippet, intent, is_influential}`` (each ``None`` when absent);
-    an S2 miss/error yields all-``None`` (best effort — the key was still used).
+    an S2 miss/error yields all-``None`` (best effort — the key was still used). A
+    rate-limit is *not* best-effort: it propagates rather than masquerading as "S2
+    had no data".
+
+    :raises RateLimitError: If S2 rate-limits during either sub-request.
     """
-    from honest_scholar.core.http import HttpError
+    from honest_scholar.core.http import HttpError, RateLimitError
 
     out: dict[str, Any] = {
         "s2": None,
@@ -279,6 +291,8 @@ def _s2_context(client: HttpClient, s2_paper_id: str) -> dict[str, Any]:
         meta = client.get_json(
             f"{S2}/paper/{s2_paper_id}", {"fields": "externalIds"}, s2=True
         )
+    except RateLimitError:
+        raise
     except HttpError:
         meta = {}
     corpus = (
@@ -294,9 +308,21 @@ def _s2_context(client: HttpClient, s2_paper_id: str) -> dict[str, Any]:
             {"fields": "contexts,intents,isInfluential", "limit": "100"},
             s2=True,
         )
+    except RateLimitError:
+        raise
     except HttpError:
         return out
     edges = page.get("data", []) if isinstance(page, dict) else []
+    _aggregate_s2_edges(edges, out)
+    return out
+
+
+def _aggregate_s2_edges(edges: list[Any], out: dict[str, Any]) -> None:
+    """Fold S2 citation edges into `out` (representative snippet / intent / flag).
+
+    :param edges: The raw ``/citations`` edge list (non-dict entries are ignored).
+    :param out: The context bundle mutated in place.
+    """
     for edge in edges:
         if not isinstance(edge, dict):
             continue
@@ -308,7 +334,6 @@ def _s2_context(client: HttpClient, s2_paper_id: str) -> dict[str, Any]:
             out["is_influential"] = True
     if out["is_influential"] is None and edges:
         out["is_influential"] = False
-    return out
 
 
 def enrich(

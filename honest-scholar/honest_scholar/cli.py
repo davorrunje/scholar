@@ -15,6 +15,7 @@ import platform
 import shutil
 import subprocess  # nosec B404 - used only to read `--version` of trusted tools
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -28,6 +29,8 @@ from honest_scholar.exploration import backlog as backlog_mod
 from honest_scholar.literature import graph as graph_mod
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from honest_scholar.core.http import HttpClient
 
 app = typer.Typer(
@@ -136,6 +139,33 @@ def _lit_client() -> HttpClient:
     )
 
 
+@contextmanager
+def _http_guard(client: HttpClient) -> Iterator[None]:
+    """Translate an HTTP failure into a clean, actionable non-zero exit.
+
+    A rate-limit (``RateLimitError``) is distinguished from other transport
+    failures so the researcher is told *why* the lookup stopped — never a
+    traceback, and never silently folded into an empty result.
+
+    :param client: The client whose retry budget informs the message.
+    :raises typer.Exit: Code 1 on any :class:`HttpError` (message on stderr).
+    """
+    from honest_scholar.core.http import HttpError, RateLimitError
+
+    try:
+        yield
+    except RateLimitError as exc:
+        typer.echo(
+            f"rate-limited by Semantic Scholar after {client.max_retries} retries "
+            "— set S2_API_KEY for higher limits, or retry later",
+            err=True,
+        )
+        raise typer.Exit(code=1) from exc
+    except HttpError as exc:
+        typer.echo(f"literature request failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
 def _openalex_id(client: HttpClient, identifier: str) -> str:
     """Resolve `identifier` to an OpenAlex id, or exit 1 if it cannot resolve."""
     record = graph_mod.resolve(identifier, client=client)
@@ -153,10 +183,10 @@ def resolve(identifier: str) -> None:
 
     :param identifier: The identifier to resolve.
     """
-    typer.echo(
-        json.dumps(graph_mod.resolve(identifier, client=_lit_client()), indent=2)
-    )
-    raise typer.Exit(code=0)
+    client = _lit_client()
+    with _http_guard(client):
+        typer.echo(json.dumps(graph_mod.resolve(identifier, client=client), indent=2))
+        raise typer.Exit(code=0)
 
 
 @literature.command()
@@ -170,13 +200,14 @@ def cites(
     :param max_results: Optional cap on the number of rows (0 = all).
     """
     client = _lit_client()
-    rows = graph_mod.cites(
-        _openalex_id(client, identifier),
-        client=client,
-        max_results=max_results or None,
-    )
-    typer.echo(json.dumps(rows, indent=2))
-    raise typer.Exit(code=0)
+    with _http_guard(client):
+        rows = graph_mod.cites(
+            _openalex_id(client, identifier),
+            client=client,
+            max_results=max_results or None,
+        )
+        typer.echo(json.dumps(rows, indent=2))
+        raise typer.Exit(code=0)
 
 
 @literature.command()
@@ -186,10 +217,11 @@ def refs(identifier: str) -> None:
     :param identifier: The work identifier.
     """
     client = _lit_client()
-    typer.echo(
-        json.dumps(graph_mod.refs(_openalex_id(client, identifier), client=client))
-    )
-    raise typer.Exit(code=0)
+    with _http_guard(client):
+        typer.echo(
+            json.dumps(graph_mod.refs(_openalex_id(client, identifier), client=client))
+        )
+        raise typer.Exit(code=0)
 
 
 @literature.command()
@@ -203,10 +235,11 @@ def enrich(
     :param with_context: Request S2 citation-context fields (degrades w/o a key).
     """
     client = _lit_client()
-    ids = [_openalex_id(client, ident) for ident in identifiers]
-    rows = graph_mod.enrich(ids, client=client, with_context=with_context)
-    typer.echo(json.dumps(rows, indent=2))
-    raise typer.Exit(code=0)
+    with _http_guard(client):
+        ids = [_openalex_id(client, ident) for ident in identifiers]
+        rows = graph_mod.enrich(ids, client=client, with_context=with_context)
+        typer.echo(json.dumps(rows, indent=2))
+        raise typer.Exit(code=0)
 
 
 @literature.command()
@@ -224,14 +257,15 @@ def neighbors(
     :param top: Number of neighbours per set.
     """
     client = _lit_client()
-    resolved = _openalex_id(client, identifier)
-    try:
-        result = graph_mod.neighbors(resolved, client=client, kind=kind, top=top)
-    except ValueError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from exc
-    typer.echo(json.dumps(result, indent=2))
-    raise typer.Exit(code=0)
+    with _http_guard(client):
+        resolved = _openalex_id(client, identifier)
+        try:
+            result = graph_mod.neighbors(resolved, client=client, kind=kind, top=top)
+        except ValueError as exc:
+            typer.echo(str(exc), err=True)
+            raise typer.Exit(code=1) from exc
+        typer.echo(json.dumps(result, indent=2))
+        raise typer.Exit(code=0)
 
 
 # --- dataset (honest-scholar#2 manifest / #3 retrieval) ---------------------------
