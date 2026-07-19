@@ -44,25 +44,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
-        with: { name: dist, path: dist }
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@v5 # needed to resolve the local composite action
+      - uses: ./.github/actions/publish-package
         with:
-          repository-url: https://test.pypi.org/legacy/
-      - name: Report the published version
-        run: |
-          version=$(basename "$(ls dist/*.whl | head -1)" | cut -d- -f2)
-          url="https://test.pypi.org/project/honest-scholar/${version}/"
-          echo "::notice title=Published to TestPyPI::honest-scholar ${version} -> ${url}"
-          {
-            echo "### 📦 Published to TestPyPI"
-            echo ""
-            echo "**honest-scholar ${version}** -> <${url}>"
-            echo ""
-            echo '```'
-            echo "uv tool install --index https://test.pypi.org/simple/ honest-scholar==${version}"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          index: testpypi
 
   pypi:
     # Version tag → PyPI, or manual dispatch with target=pypi
@@ -73,20 +58,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
-        with: { name: dist, path: dist }
-      - uses: pypa/gh-action-pypi-publish@release/v1
-      - name: Report the published version
-        run: |
-          version=$(basename "$(ls dist/*.whl | head -1)" | cut -d- -f2)
-          url="https://pypi.org/project/honest-scholar/${version}/"
-          echo "::notice title=Published to PyPI::honest-scholar ${version} -> ${url}"
-          {
-            echo "### 📦 Published to PyPI"
-            echo ""
-            echo "**honest-scholar ${version}** -> <${url}>"
-            echo ""
-            echo '```'
-            echo "uv tool install honest-scholar==${version}"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v5 # needed to resolve the local composite action
+      - uses: ./.github/actions/publish-package
+        with:
+          index: pypi
