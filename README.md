@@ -129,9 +129,9 @@ consuming repo's `.claude/settings.json`:
 }
 ```
 
-By default this tracks the plugin's `main`. Once a plugin release is tagged you can
-pin it by adding a `"ref": "<tag>"` inside the marketplace `source` for a fixed
-version. See [`STATUS.md`](STATUS.md) for the current state.
+To pin a fixed release, add `"ref": "v0.1.0"` inside the marketplace `source`;
+omit it to track the plugin's `main`. See [`STATUS.md`](STATUS.md) for the current
+state.
 
 ## Design & reasoning
 
