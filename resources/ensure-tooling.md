@@ -22,8 +22,9 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
    - else `python3` (with `venv` + `pip`).
 3. **Install, isolated** — **PyPI-first**. The primary source is the published
    package `honest-scholar` on PyPI, pinned to a **compatible range**
-   (`honest-scholar>=<min>,<<next>`, where `<min>` is the minimum package version
-   this plugin release requires — see the *Version pinning* note):
+   (`honest-scholar>=0.1.0,<0.2.0` — the minimum package version this plugin
+   release requires, up to the next incompatible boundary; see the *Version
+   pinning* note):
    - `uv tool install honest-scholar` — installs Python + deps in an isolated tool
      env; or run ad hoc with `uvx honest-scholar …` (no persistent install).
    - else `pipx install honest-scholar`.
@@ -58,11 +59,12 @@ environment changes** (installing `uv`/Python is the user's call), **honest stop
   anyone's torch/jax install.
 - **Idempotency:** step 1 must be cheap; only steps 2–3 touch the network.
 - **Version pinning:** the plugin and the `honest-scholar` package are versioned
-  **independently**. The plugin pins a *compatible range* (`>=<min>,<<next>`), not an
-  exact string-lock — `<min>` is the minimum package version the plugin's skills
-  need (declared by the plugin; bump it deliberately when a skill starts using a new
-  CLI capability), `<next>` the next incompatible boundary. The package's own
-  releases (PEP 440, `v*` tags → PyPI) proceed on their own cadence.
+  **independently** (ADR-0026). The plugin pins a *compatible range* (currently
+  `>=0.1.0,<0.2.0`), not an exact string-lock — the lower bound is the minimum
+  package version the plugin's skills need (bump it deliberately when a skill
+  starts using a new CLI capability), the upper bound the next incompatible
+  boundary. The package's own releases (PEP 440, `v*` tags → PyPI) proceed on
+  their own cadence.
 - **rclone** (the private-mirror engine) is a separate single static binary — **not
   a Python dependency**; `honest-scholar` shells out to it. It is **optional**: only
   private-mirror operations need it (Tier-A git/LFS and Tier-B `pooch` fetch do
