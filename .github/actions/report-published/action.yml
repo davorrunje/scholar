@@ -1,0 +1,44 @@
+name: Report published version
+description: >-
+  Annotate the run with the published package's project link + install hint —
+  a ::notice:: (shows in Annotations) and a job-summary block. Pure shell, so it
+  is safe to call from a job (unlike the Docker-based pypi-publish action, which
+  must stay at the job top level). Reads the version from the built wheel in
+  `dist/`.
+
+inputs:
+  index:
+    description: "Target index: 'testpypi' or 'pypi'."
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Report the published version
+      shell: bash
+      run: |
+        case "${{ inputs.index }}" in
+          testpypi)
+            name=TestPyPI
+            project=https://test.pypi.org/project
+            install="uv tool install --index https://test.pypi.org/simple/ " ;;
+          pypi)
+            name=PyPI
+            project=https://pypi.org/project
+            install="uv tool install " ;;
+          *)
+            echo "::error::unknown index '${{ inputs.index }}' (want testpypi|pypi)"
+            exit 1 ;;
+        esac
+        version=$(basename "$(ls dist/*.whl | head -1)" | cut -d- -f2)
+        url="${project}/honest-scholar/${version}/"
+        echo "::notice title=Published to ${name}::honest-scholar ${version} -> ${url}"
+        {
+          echo "### 📦 Published to ${name}"
+          echo ""
+          echo "**honest-scholar ${version}** -> <${url}>"
+          echo ""
+          echo '```'
+          echo "${install}honest-scholar==${version}"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

@@ -44,8 +44,13 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5 # needed to resolve the local composite action
-      - uses: ./.github/actions/publish-package
+      - uses: actions/checkout@v5 # resolve the local report-published action
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist }
+      - uses: pypa/gh-action-pypi-publish@release/v1 # Docker action — must stay top-level
+        with:
+          repository-url: https://test.pypi.org/legacy/
+      - uses: ./.github/actions/report-published
         with:
           index: testpypi
 
@@ -58,7 +63,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5 # needed to resolve the local composite action
-      - uses: ./.github/actions/publish-package
+      - uses: actions/checkout@v5 # resolve the local report-published action
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist }
+      - uses: pypa/gh-action-pypi-publish@release/v1 # Docker action — must stay top-level
+      - uses: ./.github/actions/report-published
         with:
           index: pypi
