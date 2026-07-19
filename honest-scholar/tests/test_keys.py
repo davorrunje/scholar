@@ -49,8 +49,10 @@ def test_missing_store_is_empty(tmp_path: Path) -> None:
 
 def test_set_creates_parent_and_0600(tmp_path: Path) -> None:
     store = tmp_path / "nested" / "keys.json"
-    keys_mod.set_key("S2_API_KEY", "secret", store)
-    assert keys_mod.load_store(store) == {"S2_API_KEY": "secret"}
+    keys_mod.set_key("S2_API_KEY", "fake-s2-key", store)
+    assert keys_mod.load_store(store) == {
+        "S2_API_KEY": "fake-s2-key"  # pragma: allowlist secret
+    }
     assert stat.S_IMODE(store.stat().st_mode) == 0o600
 
 
@@ -93,7 +95,11 @@ def test_get_precedence(tmp_path: Path) -> None:
     assert keys_mod.get("S2_API_KEY", path=store, environ={}) == "from-store"
     # a present env var always wins
     assert (
-        keys_mod.get("S2_API_KEY", path=store, environ={"S2_API_KEY": "from-env"})
+        keys_mod.get(
+            "S2_API_KEY",
+            path=store,
+            environ={"S2_API_KEY": "from-env"},  # pragma: allowlist secret
+        )
         == "from-env"
     )
     # unset everywhere
@@ -144,18 +150,26 @@ def test_rclone_config_env_translation() -> None:
 def test_rclone_scoped_env_is_per_remote(tmp_path: Path) -> None:
     store = tmp_path / "keys.json"
     keys_mod.set_key("RCLONE_CONFIG_STORE_TYPE", "s3", store)
-    keys_mod.set_key("RCLONE_CONFIG_STORE_SECRET_ACCESS_KEY", "shh", store)
+    keys_mod.set_key(
+        "RCLONE_CONFIG_STORE_SECRET_ACCESS_KEY",  # pragma: allowlist secret
+        "fake-mirror-secret",
+        store,
+    )
     keys_mod.set_key("RCLONE_CONFIG_OTHER_TYPE", "sftp", store)
     scoped = keys_mod.rclone_scoped_env("store", path=store, environ={})
     assert scoped == {
         "RCLONE_CONFIG_STORE_TYPE": "s3",
-        "RCLONE_CONFIG_STORE_SECRET_ACCESS_KEY": "shh",
+        "RCLONE_CONFIG_STORE_SECRET_ACCESS_KEY": (  # pragma: allowlist secret
+            "fake-mirror-secret"
+        ),
     }
     # a var supplied only via the environment is picked up too
     scoped_env_only = keys_mod.rclone_scoped_env(
-        "store", path=store, environ={"RCLONE_CONFIG_STORE_TOKEN": "t"}
+        "store",
+        path=store,
+        environ={"RCLONE_CONFIG_STORE_TOKEN": "fake-token"},  # pragma: allowlist secret
     )
-    assert scoped_env_only["RCLONE_CONFIG_STORE_TOKEN"] == "t"
+    assert scoped_env_only["RCLONE_CONFIG_STORE_TOKEN"] == "fake-token"
 
 
 # --- keys CLI group ---------------------------------------------------------
@@ -163,10 +177,12 @@ def test_rclone_scoped_env_is_per_remote(tmp_path: Path) -> None:
 
 def test_set_single_via_stdin(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
-    result = runner.invoke(app, ["keys", "set", "S2_API_KEY"], input="s3cr3t\n")
+    result = runner.invoke(app, ["keys", "set", "S2_API_KEY"], input="fake-s2-key\n")
     assert result.exit_code == 0
-    assert "s3cr3t" not in result.stdout  # never echoes the value
-    assert keys_mod.load_store() == {"S2_API_KEY": "s3cr3t"}
+    assert "fake-s2-key" not in result.stdout  # never echoes the value
+    assert keys_mod.load_store() == {
+        "S2_API_KEY": "fake-s2-key"  # pragma: allowlist secret
+    }
 
 
 def test_set_numeric_value_is_not_treated_as_json(
@@ -243,12 +259,14 @@ def test_set_interactive_uses_hidden_prompt(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(cli, "_stdin_is_piped", lambda: False)
     monkeypatch.setattr(
-        "honest_scholar.cli.getpass.getpass", lambda prompt: "typed-secret"
+        "honest_scholar.cli.getpass.getpass", lambda prompt: "fake-typed-value"
     )
     result = runner.invoke(app, ["keys", "set", "S2_API_KEY"])
     assert result.exit_code == 0
-    assert "typed-secret" not in result.stdout
-    assert keys_mod.load_store() == {"S2_API_KEY": "typed-secret"}
+    assert "fake-typed-value" not in result.stdout
+    assert keys_mod.load_store() == {
+        "S2_API_KEY": "fake-typed-value"  # pragma: allowlist secret
+    }
 
 
 def test_set_interactive_missing_name_errors(
