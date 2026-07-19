@@ -44,11 +44,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
-        with: { name: dist, path: dist }
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@v5 # needed to resolve the local composite action
+      - uses: ./.github/actions/publish-package
         with:
-          repository-url: https://test.pypi.org/legacy/
+          index: testpypi
 
   pypi:
     # Version tag → PyPI, or manual dispatch with target=pypi
@@ -59,6 +58,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
-        with: { name: dist, path: dist }
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: actions/checkout@v5 # needed to resolve the local composite action
+      - uses: ./.github/actions/publish-package
+        with:
+          index: pypi

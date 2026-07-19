@@ -1,0 +1,61 @@
+name: Publish package
+description: >-
+  Download the built dist, publish it to a PyPI-compatible index via Trusted
+  Publishing (OIDC), and annotate the run with the project link + install hint.
+  The calling job must supply `environment:` and `permissions: id-token: write`.
+
+inputs:
+  index:
+    description: "Target index: 'testpypi' or 'pypi'."
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v4
+      with: { name: dist, path: dist }
+
+    - name: Resolve index endpoints
+      id: idx
+      shell: bash
+      run: |
+        if [ "${{ inputs.index }}" = "testpypi" ]; then
+          name="TestPyPI"
+          repo="https://test.pypi.org/legacy/"
+          project="https://test.pypi.org/project"
+          install="uv tool install --index https://test.pypi.org/simple/ "
+        elif [ "${{ inputs.index }}" = "pypi" ]; then
+          name="PyPI"
+          repo="https://upload.pypi.org/legacy/"
+          project="https://pypi.org/project"
+          install="uv tool install "
+        else
+          echo "::error::unknown index '${{ inputs.index }}' (want testpypi|pypi)"
+          exit 1
+        fi
+        {
+          echo "name=$name"
+          echo "repo=$repo"
+          echo "project=$project"
+          echo "install=$install"
+        } >> "$GITHUB_OUTPUT"
+
+    - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: ${{ steps.idx.outputs.repo }}
+
+    - name: Report the published version
+      shell: bash
+      run: |
+        version=$(basename "$(ls dist/*.whl | head -1)" | cut -d- -f2)
+        url="${{ steps.idx.outputs.project }}/honest-scholar/${version}/"
+        echo "::notice title=Published to ${{ steps.idx.outputs.name }}::honest-scholar ${version} -> ${url}"
+        {
+          echo "### 📦 Published to ${{ steps.idx.outputs.name }}"
+          echo ""
+          echo "**honest-scholar ${version}** -> <${url}>"
+          echo ""
+          echo '```'
+          echo "${{ steps.idx.outputs.install }}honest-scholar==${version}"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
