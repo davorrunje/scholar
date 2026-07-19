@@ -47,9 +47,13 @@ Driven by three workflows — no local build / `twine` needed:
 
 3. **Validate on TestPyPI.** Actions → **Publish** → *Run workflow* with
    `target: testpypi` (the default). Check the run **summary** for the link, then
-   optionally smoke-test:
+   optionally smoke-test (the extra index resolves the runtime deps, which live
+   on real PyPI; `--prerelease=allow` is needed for an a/b/rc version):
    ```bash
-   uv tool install --index https://test.pypi.org/simple/ honest-scholar==<version>
+   uv tool install \
+     --index-url https://test.pypi.org/simple/ \
+     --extra-index-url https://pypi.org/simple/ \
+     --prerelease=allow honest-scholar==<version>
    honest-scholar --version
    ```
 

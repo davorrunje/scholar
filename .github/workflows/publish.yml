@@ -21,12 +21,26 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.1
+      - name: Guard — release tag matches package version
+        if: github.event_name == 'release'
+        run: |
+          version=$(grep -m1 '^version' honest-scholar/pyproject.toml | cut -d'"' -f2)
+          tag="${{ github.event.release.tag_name }}"
+          if [ "$tag" != "v$version" ]; then
+            echo "::error::release tag '$tag' does not match pyproject version 'v$version' — refusing to publish the wrong version"
+            exit 1
+          fi
+          echo "release tag '$tag' matches pyproject 'v$version'"
       - name: Build sdist + wheel
         working-directory: honest-scholar
         run: uv build
@@ -44,7 +58,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5 # resolve the local report-published action
+      - uses: actions/checkout@v7 # resolve the local report-published action
       - uses: actions/download-artifact@v4
         with: { name: dist, path: dist }
       - uses: pypa/gh-action-pypi-publish@release/v1 # Docker action — must stay top-level
@@ -63,7 +77,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5 # resolve the local report-published action
+      - uses: actions/checkout@v7 # resolve the local report-published action
       - uses: actions/download-artifact@v4
         with: { name: dist, path: dist }
       - uses: pypa/gh-action-pypi-publish@release/v1 # Docker action — must stay top-level

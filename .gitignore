@@ -1,5 +1,5 @@
 # honest-scholar plugin — consumers create these in THEIR repos, never here
-.datasets-cache/
+.honest-scholar/cache/          # http + dataset caches (cli.py writes here)
 .honest-scholar/rclone.conf
 *.rclone.conf
 
