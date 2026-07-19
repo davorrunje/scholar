@@ -13,7 +13,7 @@ type: software
 authors:
   - family-names: Runje
     given-names: Davor
-    email: davor@synthpop.ai
+    email: davor.runje@fer.hr
 repository-code: "https://github.com/davorrunje/honest-scholar"
 url: "https://github.com/davorrunje/honest-scholar"
 version: 0.1.0
