@@ -26,7 +26,7 @@ on:
       - "skills/**"
       - "decisions/**"
       - "resources/references/**"
-      - "assets/wordmark.svg"
+      - "assets/**"
       - "honest-scholar/**"
       - "tools/build_docs_site.py"
       - ".github/workflows/docs-publish.yml"

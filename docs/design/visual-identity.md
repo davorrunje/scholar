@@ -1,85 +1,74 @@
-# honest-scholar — Visual Identity (v1, text)
+# Visual identity
 
-**Date:** 2026-07-17 · **Status:** first proposal (text/SVG). A browser-companion
-pass (`/design consent`) can later render mockups; this establishes the direction.
+Honest Scholar's identity is built to read as rigorous, not decorative: a deep
+indigo grounds the system in credibility, a single coral accent carries every
+call to action and moment of confirmation — the checkmark, the sign-off, the
+"verified." Quietly confident and understated, it is built for researchers
+evaluating a new tool, not for a landing page.
 
-`honest-scholar` covers the *scientific* workflow (engineering is delegated to a bound
-engineering backend via the engineering-delegation contract). Its identity should
-read **scholarly, rigorous, and calm** — a trusted mentor/colleague, not a flashy
-product. Lowercase, understated, typographic; the opposite of hype.
+This page is the design-record narrative. The **canonical asset spec** — exact
+roles, sizes, clearspace, and the source SVGs — lives alongside the assets in
+[`assets/visual-identity.md`](../../assets/visual-identity.md); keep the two in
+sync (palette and asset roles here must match it).
 
-## Name & wordmark
+## Logo
 
-- **Name:** `honest-scholar` (always lowercase).
-- **Wordmark:** the word set in a humanist **serif** (scholarship, print, the
-  paper), lowercase. Optional bracket motif around it — `[ honest-scholar ]` — nodding to
-  citations. See `assets/wordmark.svg`.
-- **Skill names** render in **monospace** (`defend`, `literature`, `hypothesis-
-  testing`) — they are commands.
+![Wordmark lockup on a light surface](../../assets/wordmark-lockup-light.svg)
 
-## Logo mark
+The icon mark ([`assets/icon-mark.svg`](../../assets/icon-mark.svg)) is a coral
+circle with a white checkmark, used standalone as the favicon and app icon at
+32/24/16px, and paired with the wordmark in the lockups:
 
-Recommended concept — **"citation & through-line"** (`assets/logo-concept.svg`):
-two citation brackets `[ ]` embracing an upward stroke with a dot above it. Reads
-as: *scholarship (brackets/citations) enclosing a claim (dot) and its rising
-through-line (understanding/argument)*. Abstract, geometric, works at favicon size,
-pairs with a code aesthetic.
+- [`wordmark-lockup-light.svg`](../../assets/wordmark-lockup-light.svg) — indigo
+  wordmark, for **light** surfaces (docs in light mode, README body).
+- [`wordmark-lockup-dark.svg`](../../assets/wordmark-lockup-dark.svg) — white
+  wordmark with the coral mark, for **dark** surfaces (docs in dark mode).
 
-Alternatives considered (not chosen for v1):
-- **Owl** — the classic scholar/wisdom symbol; warm but common and harder to keep
-  distinctive at small sizes.
-- **Mortarboard** — too narrowly "graduation/degree"; undersells the research-
-  program and colleague framing.
-- **Compass/through-line** — nice for "coherent narrative" but less legible as a
-  mark.
+**Clearspace & minimum size.** Keep clearspace equal to the icon's radius on
+every side. Never render the lockup narrower than 120px, or the icon alone below
+16px. Don't recolor the mark, stretch or skew the lockup, add shadows or
+outlines, or place it on busy imagery.
 
-## Color palette
+## Color
 
-Academic and quiet, with one warm accent for *insight*.
+| Name | Hex | Usage |
+|---|---|---|
+| Indigo | `#241852` | Primary — headers, dark surfaces, wordmark text on white |
+| Coral | `#ff6558` | Accent — the mark, CTAs, confirmations. Never for large fills |
+| White | `#ffffff` | Base for docs, README body, light surfaces |
+| Ink | `#3a3350` | Body text on white |
+| Muted | `#8b7fae` | Captions, secondary labels |
 
-| Role | Name | Hex | Use |
-|---|---|---|---|
-| Primary text / dark | Ink | `#16181D` | body text, dark UI |
-| Brand | Indigo | `#4338CA` | logo brackets, links, primary accents |
-| Accent | Amber | `#F59E0B` | the "insight"/through-line, highlights (sparingly) |
-| Positive | Honest-Scholar Green | `#059669` | **"refuted = done"** states, passed checks |
-| Secondary text | Slate | `#4B5563` | captions, metadata |
-| Light background | Parchment | `#FAF7F0` | page background, cards |
-
-Note the deliberate choice to give **refuted/negative-result** states a *positive*
-green — reinforcing the principle that a refuted hypothesis is successful science
-(anti-Goodhart, ADR-0014).
+Coral is deliberately reserved for **confirmation** — the checkmark, the signed
+sign-off, the "verified" — reinforcing the principle that a decision is real only
+once a human signs it (agency; ADR-0016). It is an accent, never a fill: one
+coral moment per view.
 
 ## Typography
 
-- **Display / headings:** a scholarly serif — **Source Serif 4** (or Charter /
-  Lora). Evokes the paper.
-- **Body / UI:** a humanist sans — **Inter** (or IBM Plex Sans).
-- **Code / skill names / registries:** **JetBrains Mono** (or IBM Plex Mono).
+- **Display — Space Grotesk** (500–700): headlines, wordmark, section labels.
+- **Body — Source Sans 3** (400–700): docs, README prose, UI copy.
+- **Mono — JetBrains Mono**: code, CLI commands, badges, skill names, run-refs —
+  the machine parts.
 
-Pairing rationale: serif headings signal *scholarship*; sans body keeps docs
-readable; mono marks the *machine* parts (skills, YAML, run-refs).
+## Applications
 
-## Voice & tone
+- **README header** — the banner ([`assets/wordmark-banner.svg`](../../assets/wordmark-banner.svg)),
+  centred at ~640px.
+- **Docs site** — `docs.json` uses the indigo primary, the light-surface lockup
+  in light mode and the dark-surface lockup in dark mode, and the icon mark as
+  the favicon. The build tool ([`tools/build_docs_site.py`](../../tools/build_docs_site.py))
+  copies these assets into the generated site.
+- **Badges** — flat-square style, `labelColor=241852` (indigo). Status/metric
+  badges (CI, coverage) keep their signal color; static badges use `color=ff6558`
+  (coral). See the shields.io URLs in the root [`README.md`](../../README.md).
+- **Social preview** — [`assets/social-preview.svg`](../../assets/social-preview.svg)
+  (1280×640), the GitHub repo social image / OG card.
 
-Mentor-and-colleague: rigorous but supportive; asks more than it asserts; never
-grandiose. Directly reflects the mentor personas (ADR-0016) and the two
-principles — it advises and examines, but *you* decide and *you* author.
+## Voice
 
-- **Primary tagline:** *Research you can defend.*
-- **Secondary lines:** *You drive.* · *Understand your work.*
-
-## Usage notes
-
-- Prefer the wordmark alone in docs; use the mark for favicon/social/avatar.
-- Amber is an accent, not a fill — one highlight per view.
-- Keep whitespace generous; the identity is calm, not busy.
-- On dark backgrounds, Parchment text on Ink; Indigo lightens to `#818CF8`.
-
-## Assets
-
-- `assets/wordmark.svg` — the lowercase serif wordmark with bracket motif.
-- `assets/logo-concept.svg` — the citation & through-line mark.
-
-*(These are v1 concepts to react to; a browser-companion pass can iterate on real
-mockups, favicons, and social cards.)*
+Rigorous, plain, anti-hype. Say what the tool does, not how exciting it is.
+Quietly confident: no exclamation points, no "revolutionize," no unearned
+superlatives. Precise verbs over adjectives — "traces," "retires," "verifies,"
+not "seamlessly" or "powerful." This is the mentor-and-colleague register: it
+advises and examines, but *you* decide and *you* author.
