@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/wordmark-banner.svg" alt="honest-scholar" width="640">
+</p>
+
 <!-- honest-scholar user guide -->
 
 # honest-scholar — User Guide

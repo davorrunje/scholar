@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/wordmark.svg" alt="honest-scholar" width="360">
+  <img src="assets/wordmark-banner.svg" alt="honest-scholar" width="640">
 </p>
 
 <p align="center"><em>Research you can defend.</em></p>
@@ -7,8 +7,8 @@
 <p align="center">Keep your research honest — <strong>especially now that AI is in the loop</strong>.</p>
 
 <p align="center">
-  <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://codecov.io/gh/davorrunje/honest-scholar/branch/main/graph/badge.svg" alt="coverage"></a>
+  <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/davorrunje/honest-scholar/ci.yml?branch=main&style=flat-square&labelColor=241852&label=CI" alt="CI"></a>
+  <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://img.shields.io/codecov/c/github/davorrunje/honest-scholar?style=flat-square&labelColor=241852&label=coverage" alt="coverage"></a>
 </p>
 
 ---

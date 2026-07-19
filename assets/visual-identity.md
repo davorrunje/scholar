@@ -9,9 +9,9 @@ new tool, not for a landing page.
 ## Logo
 
 <p align="center">
-  <img src="../../assets/wordmark-lockup-dark.svg" alt="Lockup on dark" width="380">
+  <img src="wordmark-lockup-dark.svg" alt="Lockup on dark" width="380">
   &nbsp;&nbsp;
-  <img src="../../assets/wordmark-lockup-light.svg" alt="Lockup on light" width="380">
+  <img src="wordmark-lockup-light.svg" alt="Lockup on light" width="380">
 </p>
 
 The icon mark (`assets/icon-mark.svg`) is a coral circle with a white
@@ -48,13 +48,13 @@ below 16px.
 
 **README header:**
 
-<p align="center"><img src="../../assets/wordmark-banner.svg" alt="README header" width="640"></p>
+<p align="center"><img src="wordmark-banner.svg" alt="README header" width="640"></p>
 
 **Badges** use `labelColor=241852` (indigo) and `color=ff6558` (coral), flat-square style — see the shields.io URLs in the root `README.md`.
 
 **Social preview** (GitHub repo social image, 1280×640):
 
-<p align="center"><img src="../../assets/social-preview.svg" alt="Social preview" width="640"></p>
+<p align="center"><img src="social-preview.svg" alt="Social preview" width="640"></p>
 
 ## Voice
 
@@ -65,7 +65,7 @@ not "seamlessly" or "powerful."
 
 ## Assets
 
-All source files live in [`assets/`](../../assets):
+All source files live in [`assets/`](../assets):
 
 - `icon-mark.svg` — app icon / favicon source (512×512)
 - `wordmark-banner.svg` — README header (1200×300)

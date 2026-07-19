@@ -14,7 +14,8 @@ Mintlify site into an output directory:
   so it never drifts from the released CLI),
 * the design record — specs, proposals, the ADR log, reference digests, disclosure,
 * a ``docs.json`` with grouped navigation, brand colours, logo and social links,
-* the ``wordmark.svg`` asset.
+* the brand assets (the icon mark, the light/dark wordmark lockups, the social
+  preview) copied verbatim into the site root.
 
 Intra-repo relative markdown links are rewritten to site routes; links that point
 at repo files *not* in the site become absolute ``github.com`` URLs. A link that
@@ -55,10 +56,19 @@ SITE_DESCRIPTION = (
     "Research you can defend — keep your research honest, "
     "especially now that AI is in the loop."
 )
-PRIMARY = "#4338CA"
-COLOR_LIGHT = "#818CF8"
-COLOR_DARK = "#3730A3"
-WORDMARK = "wordmark.svg"
+# Brand palette (see assets/visual-identity.md): indigo primary, with a lighter
+# indigo for dark-mode chrome and a deeper indigo for light-mode hovers.
+PRIMARY = "#241852"
+COLOR_LIGHT = "#4a3a8f"
+COLOR_DARK = "#160f33"
+
+# Brand assets copied verbatim into the site root and referenced by absolute path.
+FAVICON = "icon-mark.svg"
+LOGO_LIGHT = "wordmark-lockup-light.svg"  # indigo lockup — for light surfaces
+LOGO_DARK = "wordmark-lockup-dark.svg"  # white/coral lockup — for dark surfaces
+SOCIAL_PREVIEW = "social-preview.svg"
+SITE_ASSETS = (FAVICON, LOGO_LIGHT, LOGO_DARK, SOCIAL_PREVIEW)
+ASSET_ROUTES = frozenset(f"/{name}" for name in SITE_ASSETS)
 
 # Directory links that have no page of their own map to a representative route.
 DIR_ALIASES = {
@@ -66,9 +76,7 @@ DIR_ALIASES = {
     "docs/design": "design/00-meta-spec",
 }
 # Asset links rewritten to the copied site asset.
-ASSET_ALIASES = {
-    "assets/wordmark.svg": f"/{WORDMARK}",
-}
+ASSET_ALIASES = {f"assets/{name}": f"/{name}" for name in SITE_ASSETS}
 
 
 class BuildError(Exception):
@@ -218,6 +226,19 @@ def extract_title(body: str, fallback: str) -> str:
 def strip_leading_h1(body: str) -> str:
     """Remove the first top-level ``# H1`` line (Mintlify renders the title)."""
     return re.sub(r"^\s*#\s+.+?(\n+)", "", body, count=1)
+
+
+_MASTHEAD_RE = re.compile(r'\A\s*<p align="center">.*?</p>\s*', re.S)
+
+
+def strip_leading_masthead(body: str) -> str:
+    """Drop a leading centred ``<p align="center">…</p>`` banner block.
+
+    Both ``README.md`` and ``docs/USER-GUIDE.md`` open with a raw-HTML wordmark
+    masthead for GitHub. The site has its own logo/chrome, and MDX would escape
+    that raw ``<img>`` block into literal text — so it is trimmed here.
+    """
+    return _MASTHEAD_RE.sub("", body, count=1)
 
 
 def first_paragraph_description(body: str) -> str | None:
@@ -450,8 +471,9 @@ def rewrite_links(
         if error:
             errors.append(error)
             return match.group(0)
-        if new_target.startswith("/") and not new_target.startswith(f"/{WORDMARK}"):
-            site_links.add(new_target.split("#", 1)[0])
+        stem = new_target.split("#", 1)[0]
+        if new_target.startswith("/") and stem not in ASSET_ROUTES:
+            site_links.add(stem)
         return f"{bang}[{textseg}]({new_target}{title or ''})"
 
     return _LINK_RE.sub(repl, body)
@@ -599,6 +621,10 @@ def build_page(
         description = truncate(skill_desc or title, 200)
         body = strip_leading_h1(body)
     else:
+        # docs/USER-GUIDE.md opens with the same centred wordmark masthead as the
+        # README; strip it before deriving the title/description (the site has its
+        # own chrome, and the raw <img> block is not valid MDX).
+        body = strip_leading_masthead(body)
         fallback = Path(source).stem
         title = extract_title(body, fallback)
         description = first_paragraph_description(strip_leading_h1(body)) or title
@@ -616,8 +642,9 @@ def build_docs_json(navigation: dict[str, object]) -> dict[str, object]:
         "name": SITE_NAME,
         "description": SITE_DESCRIPTION,
         "colors": {"primary": PRIMARY, "light": COLOR_LIGHT, "dark": COLOR_DARK},
-        "favicon": f"/{WORDMARK}",
-        "logo": {"light": f"/{WORDMARK}", "dark": f"/{WORDMARK}"},
+        "favicon": f"/{FAVICON}",
+        "logo": {"light": f"/{LOGO_LIGHT}", "dark": f"/{LOGO_DARK}"},
+        "seo": {"metatags": {"og:image": f"/{SOCIAL_PREVIEW}"}},
         "navigation": navigation,
         "navbar": {"links": [{"label": "GitHub", "href": GH_REPO}]},
         "footer": {"socials": {"github": GH_REPO}},
@@ -662,11 +689,12 @@ def build(out: Path) -> dict[str, int]:
         if link.lstrip("/") not in routes:
             errors.append(f"intra-site link {link!r} resolves to no page")
 
-    # Copy assets.
-    wordmark_src = REPO_ROOT / "assets" / WORDMARK
-    if not wordmark_src.is_file():
-        raise BuildError(f"missing asset {wordmark_src}")
-    shutil.copy2(wordmark_src, out / WORDMARK)
+    # Copy the brand assets into the site root (favicon, logo lockups, social).
+    for name in SITE_ASSETS:
+        asset_src = REPO_ROOT / "assets" / name
+        if not asset_src.is_file():
+            raise BuildError(f"missing asset {asset_src}")
+        shutil.copy2(asset_src, out / name)
 
     # Emit and re-parse docs.json to guarantee validity.
     docs_json = build_docs_json(navigation)
@@ -705,7 +733,7 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"  {stats['pages']} pages across {stats['groups']} top-level nav groups; "
         f"{stats['site_links']} intra-site links verified; docs.json valid; "
-        f"{WORDMARK} copied."
+        f"{len(SITE_ASSETS)} brand assets copied."
     )
     return 0
 

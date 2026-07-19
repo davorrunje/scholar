@@ -63,7 +63,7 @@ If you keep your research in a public repo, you can add a discovery badge (this
 describes the *disclosure*, it does not certify honesty):
 
 ```markdown
-[![AI use: disclosed with honest-scholar](https://img.shields.io/badge/AI%20use-disclosed%20with%20honest--scholar-4338CA)](https://github.com/davorrunje/honest-scholar)
+[![AI use: disclosed with honest-scholar](https://img.shields.io/badge/AI%20use-disclosed%20with%20honest--scholar-ff6558?style=flat-square&labelColor=241852)](https://github.com/davorrunje/honest-scholar)
 ```
 
 ## How it reaches you (the automatic step)
