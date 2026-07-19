@@ -34,11 +34,14 @@ Commits are authored by **Davor Runje** with a `Co-Authored-By: Claude` trailer.
   `claude plugin validate` ✔); CI matrix, coverage gate, and PyPI Trusted
   Publishing via GitHub Releases.
 
-## In progress
+## Released
 
-- **First final release (`v0.1.0`)** — the release-readiness cleanup is underway
-  (see the `v0.1.0` milestone and the linked issues). The package currently
-  publishes as a pre-release (`0.0.0b0`) to TestPyPI/PyPI for validation.
+- **`v0.1.0` — first final** (2026-07-19). The plugin (10 skills) and the
+  `honest-scholar` CLI are published: the package is on **PyPI**
+  (`uv tool install honest-scholar`), the `v0.1.0` tag doubles as the plugin's
+  marketplace pin, and the docs are live at
+  [honest-scholar.science](https://honest-scholar.science/). Plugin and package
+  version independently (ADR-0026); see [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Planned
 
