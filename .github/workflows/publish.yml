@@ -1,15 +1,15 @@
 name: Publish
 
 # Publishes the honest-scholar package via PyPI Trusted Publishing (OIDC — no
-# tokens). A version tag publishes to PyPI; manual dispatch publishes to the
-# chosen `target` index (default **TestPyPI**, for pre-release validation).
-# Requires pending/registered trusted publishers on both indexes for repo
-# davorrunje/honest-scholar, workflow publish.yml, environments testpypi / pypi
-# (see README / DISCLOSURE docs).
+# tokens). A published **GitHub Release** publishes to PyPI; manual dispatch
+# publishes to the chosen `target` index (default **TestPyPI**, for pre-release
+# validation). Requires pending/registered trusted publishers on both indexes
+# for repo davorrunje/honest-scholar, workflow publish.yml, environments
+# testpypi / pypi (see README / RELEASING docs).
 
 on:
-  push:
-    tags: ["v*"]   # includes pre-releases like v0.0.0a0
+  release:
+    types: [published]   # includes pre-releases (a/b/rc) marked as such
   workflow_dispatch:
     inputs:
       target:
@@ -55,8 +55,8 @@ jobs:
           index: testpypi
 
   pypi:
-    # Version tag → PyPI, or manual dispatch with target=pypi
-    if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi') }}
+    # Published GitHub Release → PyPI, or manual dispatch with target=pypi
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi') }}
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
