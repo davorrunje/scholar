@@ -9,6 +9,7 @@
 <p align="center">
   <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/davorrunje/honest-scholar/ci.yml?branch=main&style=flat-square&labelColor=241852&label=CI" alt="CI"></a>
   <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://img.shields.io/codecov/c/github/davorrunje/honest-scholar?style=flat-square&labelColor=241852&label=coverage" alt="coverage"></a>
+  <a href="https://honest-scholar.science/"><img src="https://img.shields.io/badge/docs-honest--scholar.science-241852?style=flat-square&labelColor=241852" alt="docs"></a>
 </p>
 
 ---
@@ -34,7 +35,7 @@ and never re-derive the workflow, or its rigor, per project. Concretely, it:
 Because AI is in the loop, it is also built so the science stays honestly *yours*
 and defensible (see [The mechanics of honesty](#the-mechanics-of-honesty)).
 
-> **New here?** Start with the **[User Guide](docs/USER-GUIDE.md)**.
+> **New here?** Read the docs at **[honest-scholar.science](https://honest-scholar.science/)** — start with the **[User Guide](docs/USER-GUIDE.md)**.
 >
 > **Status: pre-release, actively developed.** The design is complete and recorded
 > (see [Design & reasoning](#design--reasoning)); the skills and their supporting
