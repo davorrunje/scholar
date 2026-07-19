@@ -2,15 +2,15 @@
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
+**Status:** Implemented. Sub-spec of the `honest-scholar` meta-spec; realized in this repo (skills + CLI).
 
-> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
+> Sub-spec of [00-meta-spec.md](00-meta-spec.md).
 > Defines the foundation that sub-specs 2 (literature) and 3 (dataset) build on:
 > the **asset-provenance substrate** (registry pattern + private mirror + fixity +
 > persistent-ID) and the **experiment-backend contract**. Governed by the meta-spec's
 > ⚑ guiding principle (assistants, not researchers) and its light-dependency posture.
-> Grounding: [dataset-management-standards](../honest-scholar/references/dataset-management-standards.md),
-> [dataset-tooling-mirror](../honest-scholar/references/dataset-tooling-mirror.md).
+> Grounding: [dataset-management-standards](../../resources/references/dataset-management-standards.md),
+> [dataset-tooling-mirror](../../resources/references/dataset-tooling-mirror.md).
 
 ## 1. Purpose
 

@@ -1,6 +1,6 @@
 # Proposal: Shared `backlog` helper for the two exploration skills
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Skill: hypothesis-exploration / paper-exploration`
+`Status: implemented (designed 2026-07-18) · Skill: hypothesis-exploration / paper-exploration`
 
 ## Context
 

@@ -2,15 +2,23 @@
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; parent meta-spec, pending four sub-specs and implementation plans.
+**Status:** Implemented. Parent meta-spec for the `honest-scholar` plugin; the four
+sub-specs (§8) and the CLI proposals (`proposals/`) are realized in this repo.
+Retained as the design record.
 
 > **Scope of this document.** This is the *parent* spec for a new, standalone
 > Claude Code plugin — **`honest-scholar`** — that packages the scientific
-> research-workflow skills currently being designed inside `mononet`
+> research-workflow skills originally designed inside `mononet`
 > (`docs/superpowers/specs/2026-07-15-*`). It establishes the global picture:
 > identity, scope, plugin architecture, the plugin↔consumer boundary, the
-> onboarding skill, distribution, and how the existing in-repo work migrates.
+> onboarding skill, distribution, and how the existing in-repo work migrated.
 > The detailed designs live in four sub-specs (§8). **Read this first.**
+>
+> **Historical note.** The plugin has since been extracted into its own
+> repository (`davorrunje/honest-scholar`) and the migration described in §9 is
+> complete. This document is retained as the design record; where it cites
+> `mononet` PRs or `docs/superpowers/` paths, that is the origin context, not a
+> live dependency.
 
 ## ⚑ Guiding principle — assistants, not researchers
 
@@ -34,9 +42,9 @@ examines and teaches until you can.
 
 Elaborated in §2.1–§2.2; fully grounded, with verified sources and enforceable
 guardrails, in
-[`honest-scholar/references/agency-principle.md`](../honest-scholar/references/agency-principle.md)
+[`resources/references/agency-principle.md`](../../resources/references/agency-principle.md)
 and
-[`honest-scholar/references/understanding-and-defense.md`](../honest-scholar/references/understanding-and-defense.md).
+[`resources/references/understanding-and-defense.md`](../../resources/references/understanding-and-defense.md).
 
 ## 1. Goals & non-goals
 
@@ -137,7 +145,7 @@ judgement points" rule is demanded by the automation-bias literature
 LLM citation fabrication. The positive framing is the augmentation tradition
 (Engelbart 1962; Bush 1945): amplify judgement, do not replace it. Full digest
 with verified sources and the enforceable guardrails:
-[`honest-scholar/references/agency-principle.md`](../honest-scholar/references/agency-principle.md).
+[`resources/references/agency-principle.md`](../../resources/references/agency-principle.md).
 
 ### 2.2 Understanding principle
 
@@ -169,7 +177,7 @@ decision advance past something the author cannot explain or defend — silently
   cited works) and, for novel claims, teaches how to reason and defend.
 
 Fully grounded, with sources and constraints, in
-[`honest-scholar/references/understanding-and-defense.md`](../honest-scholar/references/understanding-and-defense.md).
+[`resources/references/understanding-and-defense.md`](../../resources/references/understanding-and-defense.md).
 
 ### 2.3 The firewall
 
@@ -356,7 +364,7 @@ respecting the firewall by producing evidence the human acts on).
   learning-styles myth) and would violate agency; the rule is *match the voice to
   the task and the author's stated choice, never to an inferred personality.*
   Grounded in
-  [`honest-scholar/references/mentor-personas.md`](../honest-scholar/references/mentor-personas.md).
+  [`resources/references/mentor-personas.md`](../../resources/references/mentor-personas.md).
 
 ## 4. Plugin repo layout
 
@@ -397,7 +405,7 @@ plus the eight generated this session — **citation scouting**, **related-works
 synthesis**, **dataset-management standards**, **dataset tooling / mirror
 architecture**, **thesis-by-publication & progress tracking**, the
 **agency principle**, **the understanding principle & defense**, and **mentor /
-reviewer personas** (all already persisted under `honest-scholar/references/`). These are
+reviewer personas** (all already persisted under `resources/references/`). These are
 the evidentiary base for the sub-specs and must be persisted, not left in
 conversation.
 
@@ -505,7 +513,11 @@ This meta-spec defers detail to four sub-specs (each date-prefixed under
 
 ## 9. Migration of existing in-repo work
 
-The scientific-workflow work currently lives inside `mononet`. It relocates:
+> **Status: complete.** This migration has been executed — the plugin now lives in
+> `davorrunje/honest-scholar` and `mononet` consumes it. The plan is retained below
+> for provenance; the `mononet` PR / path references are the origin context.
+
+The scientific-workflow work originally lived inside `mononet`. It relocated:
 
 - **PR #128** (four research-workflow specs + `docs/research/README.md` + four
   reference digests) → **retargets the `honest-scholar` plugin repo** instead of
@@ -514,9 +526,8 @@ The scientific-workflow work currently lives inside `mononet`. It relocates:
 - **PR #127** (benchmark experiment orchestration) → **stays in `mononet`** as
   its implementation of the experiment-backend contract; it is re-described as
   "mononet's experiment backend" rather than a general facility.
-- The methodology digests (this session's eight + #128's four) → become
-  `resources/references/` in the plugin. This session's eight are already staged
-  under `docs/superpowers/honest-scholar/references/`.
+- The methodology digests (the design session's eight + #128's four) → became
+  `resources/references/` in the plugin (their current home).
 - `mononet` becomes the reference **consumer**: it runs `research-init adopt`
   against itself once the plugin exists.
 
@@ -532,9 +543,9 @@ implementation plans, then the plugin repo is created and `mononet` adopts it.
 - **Plugin license** — *resolved:* Apache-2.0 (ADR-0022).
 - **`literature` one-skill-with-modes** — carried as decided (`scout`/`position`
   in one skill); reconfirm at sub-spec time.
-- **Mirror hash algorithm** — MD5 (lowest common denominator across Google
-  Drive + S3 via rclone) vs SHA-256 (stronger, but disjoint backend hash sets);
-  resolve in sub-spec 3/4.
+- **Mirror hash algorithm** — *resolved:* SHA-256 is authoritative (identity ==
+  integrity == citation-verifiability); rclone's per-backend hash is a transport
+  check only, and bytes are always re-hashed against the manifest (ADR-0011).
 - **`.honest-scholar/` vs existing conventions** — confirm the config directory name
   and that it does not collide with existing repo conventions.
 - **Thesis milestone schema** — the shape of `milestones.yml` (institution

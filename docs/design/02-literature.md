@@ -2,14 +2,14 @@
 
 **Date:** 2026-07-17
 **Author:** Davor Runje
-**Status:** Brainstorming output; sub-spec of the `honest-scholar` meta-spec, pending implementation plan.
+**Status:** Implemented. Sub-spec of the `honest-scholar` meta-spec; realized in this repo (skills + CLI).
 
-> Sub-spec of [2026-07-17-honest-scholar-plugin-design.md](2026-07-17-honest-scholar-plugin-design.md).
+> Sub-spec of [00-meta-spec.md](00-meta-spec.md).
 > Builds on the asset substrate of
-> [sub-spec 4](2026-07-17-honest-scholar-4-substrate-and-experiment-contract-design.md) §2.
+> [sub-spec 4](04-substrate-and-contract.md) §2.
 > Governed by the ⚑ agency (§2.1) and Understanding (§2.2) principles.
-> Grounding: [citation-scouting](../honest-scholar/references/citation-scouting.md),
-> [related-works-synthesis](../honest-scholar/references/related-works-synthesis.md).
+> Grounding: [citation-scouting](../../resources/references/citation-scouting.md),
+> [related-works-synthesis](../../resources/references/related-works-synthesis.md).
 
 ## 1. The `literature` skill
 

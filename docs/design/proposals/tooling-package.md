@@ -1,6 +1,6 @@
 # Proposal: `honest-scholar` package (Typer CLI, optional MCP)
 
-`Status: draft (for discussion) · Date: 2026-07-18 · Umbrella for the supporting-script proposals`
+`Status: implemented (designed 2026-07-18) · Umbrella for the supporting-script proposals`
 
 ## Context
 
@@ -8,7 +8,7 @@ Per ADR-0024, the plugin's executable tooling ships as **one Python package**,
 not loose `scripts/*.py`. The five supporting-script proposals become **modules**
 of this package; this doc is the umbrella that organizes them and defines the
 shared shape (packaging, CLI, bootstrap, optional MCP). The plugin stays
-pure-markdown; skills call the CLI after the [`ensure-tooling`](../../resources/ensure-tooling.md)
+pure-markdown; skills call the CLI after the [`ensure-tooling`](../../../resources/ensure-tooling.md)
 procedure.
 
 ## Package
@@ -60,7 +60,7 @@ CLI-first); nothing depends on it. Adding it is a wrapper, not a rewrite.
 
 ## Bootstrap
 
-Install/upgrade is handled entirely by [`ensure-tooling`](../../resources/ensure-tooling.md):
+Install/upgrade is handled entirely by [`ensure-tooling`](../../../resources/ensure-tooling.md):
 detect `uv`→`pipx`→`python3`, install isolated + pinned (prefer `uv tool install`,
 which also provisions Python), record the CLI in `.honest-scholar/config.yml`, stop with
 instructions if the env can't self-heal.
@@ -105,11 +105,11 @@ uvx --from "git+https://github.com/davorrunje/honest-scholar.git#subdirectory=ho
 
 ## Acceptance criteria
 
-- [ ] `honest-scholar` skeleton: `pyproject.toml`, `core/`, Typer `cli.py`, `tests/`.
-- [ ] `honest-scholar --version` works via an isolated `uv tool` / `pipx` / venv install.
-- [ ] `ensure-tooling` provisions it on a machine with only `uv` (no prior Python).
-- [ ] Each module implemented per its own proposal; CLI subcommands wired.
-- [ ] Skills updated: interim manual / direct-tool-call orchestration replaced with
+- [x] `honest-scholar` skeleton: `pyproject.toml`, `core/`, Typer `cli.py`, `tests/`.
+- [x] `honest-scholar --version` works via an isolated `uv tool` / `pipx` / venv install.
+- [x] `ensure-tooling` provisions it on a machine with only `uv` (no prior Python).
+- [x] Each module implemented per its own proposal; CLI subcommands wired.
+- [x] Skills updated: interim manual / direct-tool-call orchestration replaced with
       `ensure-tooling` + `honest-scholar …` calls.
 - [ ] (Later) MCP wrapper exposing the same functions.
 
