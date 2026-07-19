@@ -1,15 +1,22 @@
 name: Publish
 
 # Publishes the honest-scholar package via PyPI Trusted Publishing (OIDC — no
-# tokens). TestPyPI on manual dispatch (pre-release validation); PyPI on a
-# version tag. Requires pending/registered trusted publishers on both indexes
-# for repo davorrunje/honest-scholar, workflow publish.yml, environments
-# testpypi / pypi (see README / DISCLOSURE docs).
+# tokens). A version tag publishes to PyPI; manual dispatch publishes to the
+# chosen `target` index (default **TestPyPI**, for pre-release validation).
+# Requires pending/registered trusted publishers on both indexes for repo
+# davorrunje/honest-scholar, workflow publish.yml, environments testpypi / pypi
+# (see README / DISCLOSURE docs).
 
 on:
   push:
     tags: ["v*"]   # includes pre-releases like v0.0.0a0
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Index to publish to"
+        type: choice
+        options: [testpypi, pypi]
+        default: testpypi
 
 permissions:
   contents: read
@@ -29,8 +36,8 @@ jobs:
           path: honest-scholar/dist/
 
   testpypi:
-    # Manual dispatch → TestPyPI (validate before a real release)
-    if: github.event_name == 'workflow_dispatch'
+    # Manual dispatch with target=testpypi (default) — validate before a real release
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi' }}
     needs: build
     runs-on: ubuntu-latest
     environment: testpypi
@@ -44,8 +51,8 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
 
   pypi:
-    # Version tag → PyPI
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Version tag → PyPI, or manual dispatch with target=pypi
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi') }}
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
