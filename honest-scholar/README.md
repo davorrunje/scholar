@@ -41,8 +41,13 @@ honest-scholar backlog    park|add|list|rank|promote|drop       # exploration ba
 honest-scholar keys       set|list|check|unset|path             # API-key & credential store
 ```
 
-Every command is implemented and emits JSON (the skills parse it). Network- and
-`rclone`-backed commands degrade gracefully when a key or the binary is absent.
+Every command is implemented and emits JSON (the skills parse it). **Failures are
+surfaced honestly:** a rate-limit or transient network error is retried with
+backoff (honoring `Retry-After`) and, if it persists, reported as a distinct,
+actionable message — never a silent "not found" and never a traceback. A missing
+API key or `rclone` binary is reported cleanly, and an optional key (e.g.
+`S2_API_KEY`) simply lifts the rate ceiling — see
+[API keys & credentials](#api-keys--credentials).
 
 ## API keys & credentials
 
