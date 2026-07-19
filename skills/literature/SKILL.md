@@ -53,7 +53,6 @@ Grounding: [../../resources/references/citation-scouting.md](../../resources/ref
 
 Steps 1–5 are `honest-scholar literature` commands (`resolve` / `cites` / `refs` /
 `enrich` / `neighbors`) — install via `ensure-tooling`; see [Tooling](#tooling).
-Until the module lands, orchestrate the API calls manually (Tooling shows how).
 
 1. **Fix the anchor set** — own papers + rival anchors from `.honest-scholar/config.yml`
    (or args). Resolve each to a stable id (DOI / arXiv / OpenAlex / S2).
@@ -198,20 +197,17 @@ before use** via [`ensure-tooling`](../../resources/ensure-tooling.md) (`uv tool
 install honest-scholar`, git/TestPyPI fallbacks). It wraps the OpenAlex + Semantic
 Scholar clients, the CSL-JSON bib loader/appender, and the triage-join +
 PRISMA-log / concept-matrix generators. Package deps: `requests` + `pyyaml` (+ the
-substrate's rclone mirror). Design: `../../docs/design/proposals/literature-citation-graph-client.md`
-(issue #1).
+substrate's rclone mirror). Design: `../../docs/design/proposals/literature-citation-graph-client.md`.
 
-> **Not yet implemented — interim (orchestrate the APIs manually until the module lands):**
+> **The endpoints the CLI wraps** (for reference, or a keyless manual check):
 > - Forward citations: `curl 'https://api.openalex.org/works?filter=cites:<WORKID>&mailto=<email>&per-page=200'`
 >   (paginate via `cursor=*`). Backward: read `referenced_works` on the anchor's work record.
 > - Contexts + SciCite intents + `isInfluential`:
 >   `curl 'https://api.semanticscholar.org/graph/v1/paper/<id>/citations?fields=contexts,intents,isInfluential,title,year,venue,authors'`
 >   (add the `x-api-key` header if a key is configured; omit and degrade to
->   OpenAlex-only otherwise).
+>   OpenAlex-only otherwise — `cites` marks the result `degraded` when it does).
 > - Recommendations (idea expansion):
 >   `https://api.semanticscholar.org/recommendations/v1/papers/forpaper/<id>`.
-> - Persist the raw JSON responses as the provenance root before enriching; edit
->   `references.json` / `triage.yml` directly for now.
 
 ## Commit attribution
 

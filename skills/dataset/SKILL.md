@@ -5,7 +5,7 @@ description: >-
   private rclone mirror, and SHA-256 fixity. Use when a run declares the data it
   needs, when adding/registering a dataset, or when fetching, verifying,
   mirroring, or auditing datasets so results resolve to exact bytes. Verbs:
-  init, register, fetch, verify, mirror, audit.
+  init, register, export, fetch, verify, mirror, audit.
 ---
 
 # dataset
@@ -110,8 +110,8 @@ datasets:
 **Tooling.** This is `honest_scholar/dataset/manifest.py`, exposed via
 `honest-scholar dataset validate` (loader/validator) and `honest-scholar dataset
 ingest|emit` (Croissant) — ensure via [`ensure-tooling`](../../resources/ensure-tooling.md);
-design in `../../docs/design/proposals/dataset-manifest-tooling.md` (issue #2).
-*Interim, until the module lands:*
+design in `../../docs/design/proposals/dataset-manifest-tooling.md`. By hand (if
+the CLI isn't available):
 - **loader/validator** — load with `python -c` + `yaml.safe_load` and eyeball the
   base record + tier-conditional required fields (self-describing `sha256:` values)
   against the table above.
@@ -164,9 +164,9 @@ file failing verification is treated as absent and the chain continues:
 **Tooling.** The resolution chain is `honest_scholar/dataset/retrieval.py`, exposed
 via `honest-scholar dataset fetch|verify|mirror|audit` — ensure via
 [`ensure-tooling`](../../resources/ensure-tooling.md); design in
-`../../docs/design/proposals/dataset-retrieval-mirror-tooling.md` (issue #3). rclone
+`../../docs/design/proposals/dataset-retrieval-mirror-tooling.md`. rclone
 is an optional external binary the wrappers shell out to, not a Python dep.
-*Interim, until the module lands:*
+By hand (if the CLI isn't available):
 - **Tier-B fetch** — `curl`/`wget` then `sha256sum` and manually compare to the
   manifest before use (the module will use `pooch.retrieve(url, known_hash="sha256:…")`
   into the content-addressed cache).

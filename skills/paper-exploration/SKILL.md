@@ -54,10 +54,11 @@ explicit human pick — the exploration/resolution firewall
 > **Tooling.** Row append/transition is the shared `honest-scholar backlog
 > park|add|list|rank|promote|drop` CLI group
 > (`honest_scholar/exploration/backlog.py`, shared with `hypothesis-exploration`)
-> — ensure via [`ensure-tooling`](../../resources/ensure-tooling.md) (issue #5),
+> — ensure via [`ensure-tooling`](../../resources/ensure-tooling.md),
 > operating on `portfolio-backlog.md` at the paper level. `add` realizes the
-> `generate` verb's row-append; `list` is a read-only inspection command.
-> **Interim, until it lands:** edit the `portfolio-backlog.md` table directly.
+> `generate` verb's row-append; `list` is a read-only inspection command. By hand
+> (if the CLI isn't available): edit the `portfolio-backlog.md` table directly,
+> keeping the column order.
 
 ## Generation lenses
 
