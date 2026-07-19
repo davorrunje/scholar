@@ -14,8 +14,9 @@ Mintlify site into an output directory:
   so it never drifts from the released CLI),
 * the design record — specs, proposals, the ADR log, reference digests, disclosure,
 * a ``docs.json`` with grouped navigation, brand colours, logo and social links,
-* the brand assets (the icon mark, the light/dark wordmark lockups, the social
-  preview) copied verbatim into the site root.
+* the brand assets (the icon mark, the light/dark navigation logos, the home-page
+  hero, the social preview, and the wordmark lockups still embedded by the
+  visual-identity page) copied verbatim into the site root.
 
 Intra-repo relative markdown links are rewritten to site routes; links that point
 at repo files *not* in the site become absolute ``github.com`` URLs. A link that
@@ -51,23 +52,41 @@ GH_REPO = "https://github.com/davorrunje/honest-scholar"
 GH_BLOB = f"{GH_REPO}/blob/main/"
 GH_TREE = f"{GH_REPO}/tree/main/"
 
-SITE_NAME = "honest-scholar"
+SITE_NAME = "Honest Scholar"
 SITE_DESCRIPTION = (
     "Research you can defend — keep your research honest, "
     "especially now that AI is in the loop."
 )
-# Brand palette (see assets/visual-identity.md): indigo primary, with a lighter
-# indigo for dark-mode chrome and a deeper indigo for light-mode hovers.
-PRIMARY = "#241852"
-COLOR_LIGHT = "#4a3a8f"
-COLOR_DARK = "#160f33"
+# Brand palette (see assets/visual-identity.md). Indigo (#241852) is the *ground*
+# — carried by the nav logos, dark surfaces, and the assets — so it stays out of
+# `colors`. Mintlify's `colors.primary` drives links/buttons/active states, so the
+# interactive accent is the brand coral: "a single coral accent carries every call
+# to action". `light` is a brighter coral for dark-mode chrome; `dark` (which
+# Mintlify uses as the primary in light mode) is a deeper coral that clears WCAG AA
+# (~4.9:1) for link text on white.
+PRIMARY = "#ff6558"
+COLOR_LIGHT = "#ff8a7d"
+COLOR_DARK = "#c9402e"
 
 # Brand assets copied verbatim into the site root and referenced by absolute path.
 FAVICON = "icon-mark.svg"
-LOGO_LIGHT = "wordmark-lockup-light.svg"  # indigo lockup — for light surfaces
-LOGO_DARK = "wordmark-lockup-dark.svg"  # white/coral lockup — for dark surfaces
+NAV_LOGO_LIGHT = "nav-logo-light.svg"  # navigation logo — light mode
+NAV_LOGO_DARK = "nav-logo-dark.svg"  # navigation logo — dark mode
+HERO = "docs-hero.svg"  # full-width home-page hero banner
 SOCIAL_PREVIEW = "social-preview.svg"
-SITE_ASSETS = (FAVICON, LOGO_LIGHT, LOGO_DARK, SOCIAL_PREVIEW)
+# The wordmark lockups are still embedded by the visual-identity design page, so
+# they are copied into the site even though the nav now uses the dedicated logos.
+WORDMARK_LIGHT = "wordmark-lockup-light.svg"
+WORDMARK_DARK = "wordmark-lockup-dark.svg"
+SITE_ASSETS = (
+    FAVICON,
+    NAV_LOGO_LIGHT,
+    NAV_LOGO_DARK,
+    HERO,
+    SOCIAL_PREVIEW,
+    WORDMARK_LIGHT,
+    WORDMARK_DARK,
+)
 ASSET_ROUTES = frozenset(f"/{name}" for name in SITE_ASSETS)
 
 # Directory links that have no page of their own map to a representative route.
@@ -616,6 +635,10 @@ def build_page(
         if "---" in lines:
             body = "\n".join(lines[lines.index("---") + 1 :])
         title, description = SITE_NAME, SITE_DESCRIPTION
+        # Full-width home-page hero above the intro text. A Markdown image is the
+        # MDX-safe construct here (no raw JSX for the sanitizer to mangle); the
+        # target is a copied site asset, so rewrite_links leaves it untouched.
+        body = f"![{SITE_NAME}](/{HERO})\n\n{body.lstrip()}"
     elif skill_name:  # a SKILL.md
         title = skill_name
         description = truncate(skill_desc or title, 200)
@@ -643,7 +666,7 @@ def build_docs_json(navigation: dict[str, object]) -> dict[str, object]:
         "description": SITE_DESCRIPTION,
         "colors": {"primary": PRIMARY, "light": COLOR_LIGHT, "dark": COLOR_DARK},
         "favicon": f"/{FAVICON}",
-        "logo": {"light": f"/{LOGO_LIGHT}", "dark": f"/{LOGO_DARK}"},
+        "logo": {"light": f"/{NAV_LOGO_LIGHT}", "dark": f"/{NAV_LOGO_DARK}"},
         "seo": {"metatags": {"og:image": f"/{SOCIAL_PREVIEW}"}},
         "navigation": navigation,
         "navbar": {"links": [{"label": "GitHub", "href": GH_REPO}]},

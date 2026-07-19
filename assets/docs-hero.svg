@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="420" viewBox="0 0 1600 420">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1240"></stop>
+      <stop offset="100%" stop-color="#33217a"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="420" fill="url(#bg)"></rect>
+  <circle cx="1360" cy="80" r="180" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="2"></circle>
+  <circle cx="180" cy="360" r="130" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="2"></circle>
+  <circle cx="800" cy="150" r="72" fill="#ff6558"></circle>
+  <path d="M764 154 L792 184 L840 122" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"></path>
+  <text x="800" y="290" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="80" fill="#ffffff" text-anchor="middle" letter-spacing="-1">Honest Scholar</text>
+  <text x="800" y="340" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="32" fill="#ff9b8f" text-anchor="middle">Research you can defend.</text>
+</svg>

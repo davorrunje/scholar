@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/wordmark-banner.svg" alt="honest-scholar" width="640">
+  <img src="assets/wordmark-banner.svg" alt="Honest Scholar" width="640">
 </p>
 
 <p align="center"><em>Research you can defend.</em></p>
@@ -104,7 +104,7 @@ drafted from your provenance record — who signed off what, which run-refs back
 which results. It is opt-in and author-owned: you review, edit, adopt, or decline.
 
 The growth angle, plainly: every published paper that carries the disclosure points
-other researchers to the tool. But honest-scholar only *supports* honest disclosure
+other researchers to the tool. But Honest Scholar only *supports* honest disclosure
 — it does **not** certify that your research is honest, and there is no seal of
 honesty. The statement says what was done and links the record; readers judge.
 

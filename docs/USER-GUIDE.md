@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="../assets/wordmark-banner.svg" alt="honest-scholar" width="640">
+  <img src="../assets/wordmark-banner.svg" alt="Honest Scholar" width="640">
 </p>
 
 <!-- honest-scholar user guide -->
 
-# honest-scholar — User Guide
+# User Guide
 
 A hands-on guide for a researcher meeting `honest-scholar` for the first time. It walks
 you from install to a signed finding to a submitted paper, using one running
@@ -14,7 +14,7 @@ you fill in.
 For the *why* behind the design, read [`README.md`](../README.md) and the specs
 under [`docs/design/`](design/); this guide is the *how*.
 
-## 1. What honest-scholar is (and the two rules it runs on)
+## 1. What Honest Scholar is (and the two rules it runs on)
 
 `honest-scholar` helps you keep research honest — **especially now that AI is in the
 loop**. It is a Claude Code plugin for the **scientific** side of research — idea →
@@ -23,7 +23,7 @@ delegates the *engineering* (design, plans, code) to the bound **engineering
 backend** via the engineering-delegation contract; `honest-scholar` calls out to that
 backend for all of that rather than reimplementing it.
 
-To be clear up front: honest-scholar does **not** certify that your work is honest —
+To be clear up front: Honest Scholar does **not** certify that your work is honest —
 there is no seal of honesty. It gives you the *mechanics* to do honest work and to
 disclose truthfully what you and the AI each did; readers judge the result.
 
@@ -35,7 +35,7 @@ They are not decoration — they change how the skills behave at every step:
    you: whether a hypothesis is confirmed or refuted, whether a result is real,
    whether a paper is worth publishing, whether a thesis is defensible. Each of
    those is recorded in the artifact with a **named human sign-off + date**. You
-   cannot "run" honest-scholar to produce a paper — you drive it. In practice: expect the
+   cannot "run" Honest Scholar to produce a paper — you drive it. In practice: expect the
    skill to stop at every judgement point and ask you. *So the science is honestly
    yours.*
 
@@ -175,7 +175,7 @@ documents, in order, under `docs/research/<paper>/hypotheses/<slug>/`:
    the datasets it needs. **`defend` fires here** on the strategy — expect to
    defend your assumptions and falsifiers before moving on.
 3. **`design.md` / `plan.md`** — *the engineering, delegated to the bound
-   engineering backend* (its `design` → `plan` capabilities). honest-scholar stores the
+   engineering backend* (its `design` → `plan` capabilities). Honest Scholar stores the
    results here but does not design experiments or write code itself. Executing
    the plan produces the runs.
 4. **`findings.md`** — *the verdict:* `confirmed | refuted | inconclusive`, tied
@@ -216,7 +216,7 @@ claim is false is successful science.
 
 ### 4d. How runs become evidence — the experiment-backend contract
 
-honest-scholar defines a **contract**; your repo supplies the implementation (bound in
+Honest Scholar defines a **contract**; your repo supplies the implementation (bound in
 `.honest-scholar/config.yml`, named per paper in `papers.md`). The contract has four
 capabilities:
 
@@ -272,7 +272,7 @@ which decisions, which run-refs back which results) — so it is evidence-based,
 boilerplate. It is opt-in and author-owned: you review, edit, adopt, or decline.
 
 Plainly: every published paper that carries the disclosure points other researchers
-to the tool. But honest-scholar only *supports* honest disclosure — it does **not**
+to the tool. But Honest Scholar only *supports* honest disclosure — it does **not**
 certify that your research is honest, and there is no seal of honesty. The statement
 says what was done and links the record; readers judge.
 
@@ -334,7 +334,7 @@ the throttling that otherwise stalls citation-graph work.
 | `OPENALEX_MAILTO` | OpenAlex | Joins the "polite pool" (a contact email) for faster, more reliable responses. | <https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication> |
 | `RCLONE_CONFIG_<REMOTE>_*` | Private dataset mirror | rclone remote credentials, handed to rclone as scoped env vars (no config file needed). | Per your rclone remote (see `rclone config`). |
 
-honest-scholar keeps keys in a **CLI-managed JSON store** at
+Honest Scholar keeps keys in a **CLI-managed JSON store** at
 `.honest-scholar/keys.json` — never a `.env` — and reads them with
 **`os.environ` > store > unset** precedence, so an environment variable always
 wins (CI / secrets injection is unaffected) and an unset key just degrades the
@@ -363,15 +363,15 @@ value.
 
 ## 9. Everyday tips
 
-- **What honest-scholar will NOT do.** It will not make a material decision for you
+- **What Honest Scholar will NOT do.** It will not make a material decision for you
   (confirm/refute, publish/no-go, defensible), will not write your paper
   unattended, will not hand-copy result numbers, and will not produce a
   productivity score. Every judgement point stops and asks.
 - **Trust the firewall.** If a skill refuses to test a claim it also generated, or
   refuses to adjudicate its own decision, that is by design — use the paired
   skill.
-- **Commits are attributed.** Commits made via honest-scholar skills carry a discovery
-  trailer, so provenance of an automated change is visible in `git log`. honest-scholar
+- **Commits are attributed.** Commits made via Honest Scholar skills carry a discovery
+  trailer, so provenance of an automated change is visible in `git log`. Honest Scholar
   never auto-commits `research-init` scaffolding — you review and commit.
 - **Evidence is run-refs, not numbers.** If a number can't be traced to a run-ref,
   it doesn't go in a findings doc or a paper section.
@@ -388,5 +388,5 @@ value.
 **The shortest possible path:** `research-init` → `hypothesis-exploration
 promote` → `hypothesis-testing` (strategy, examined → delegate design/plan →
 sign findings) → `paper-exploration promote` → `paper-synthesis` (positioning →
-sign decision → sections) → `progress dashboard`. You drive every arrow; honest-scholar
+sign decision → sections) → `progress dashboard`. You drive every arrow; Honest Scholar
 keeps the accounts and makes sure you can defend each signature.

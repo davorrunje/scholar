@@ -1,4 +1,4 @@
-# Disclosing AI use — and citing honest-scholar
+# Disclosing AI use — and citing Honest Scholar
 
 `honest-scholar` helps you use AI in research **honestly**: you (not the AI) make
 and sign off every material decision, you can defend the work, and evidence is
@@ -6,13 +6,13 @@ provenance-tracked. This page is how you *tell your readers that* — a short,
 truthful **AI-use disclosure** you can put in a paper, plus how to **cite** the
 tool.
 
-This is also, deliberately, how honest-scholar spreads: a disclosure that helps
+This is also, deliberately, how Honest Scholar spreads: a disclosure that helps
 you (venues increasingly require an AI-use statement) and, because it names the
 protocol you followed, points other researchers to it. See ADR-0025.
 
 ## What it is *not*
 
-- **Not a seal of honesty.** honest-scholar does not certify that your research is
+- **Not a seal of honesty.** Honest Scholar does not certify that your research is
   honest — it gives you a *structured, truthful way to disclose* what you and the
   AI each did, backed by your own recorded sign-offs. Readers judge; the statement
   just tells them what happened and links the record.
@@ -28,7 +28,7 @@ which `run-ref`s back which results, what the AI drafted) — so it is evidence-
 not boilerplate. Edit freely.
 
 > **Use of AI.** This work was conducted with AI assistance under the
-> *honest-scholar* protocol (github.com/davorrunje/honest-scholar). Every material
+> *Honest Scholar* protocol (github.com/davorrunje/honest-scholar). Every material
 > scientific decision — the hypotheses, whether results are real, what to publish,
 > and all claims — was made and signed off by the named authors, who understand and
 > can defend the work. AI tools were used for [literature search, bookkeeping and
@@ -38,7 +38,7 @@ not boilerplate. Edit freely.
 Keep it truthful: only claim what the record shows, and cut any line that isn't
 true of your project.
 
-## Citing honest-scholar
+## Citing Honest Scholar
 
 For now, cite the repository (a `CITATION.cff` is included, so GitHub's *"Cite this
 repository"* works):
@@ -52,7 +52,7 @@ repository"* works):
 }
 ```
 
-> **Transition:** a short report on honest-scholar will be posted to **arXiv** and
+> **Transition:** a short report on Honest Scholar will be posted to **arXiv** and
 > then submitted to a venue. When the preprint exists, `CITATION.cff`'s
 > `preferred-citation` will point at it, and this BibTeX will be replaced by the
 > arXiv (then published) reference. (Tracking: the "arXiv report" issue.)

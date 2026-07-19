@@ -1,8 +1,8 @@
-# honest-scholar
+# Honest Scholar
 
 *Research you can defend.*
 
-**honest-scholar** helps you keep research honest — especially now that AI is in
+**Honest Scholar** helps you keep research honest — especially now that AI is in
 the loop. You (not the AI) make and sign off every material decision, and you must
 be able to explain and defend the work; the tool keeps the accounts, advises, and
 probes. It **supports** honest, disclosable AI-assisted research — it does **not**
@@ -79,7 +79,7 @@ presence only.
 
 - **Plugin, docs, and full design record:** <https://github.com/davorrunje/honest-scholar>
 - **User guide:** <https://github.com/davorrunje/honest-scholar/blob/main/docs/USER-GUIDE.md>
-- **Disclose your AI use & cite honest-scholar:** <https://github.com/davorrunje/honest-scholar/blob/main/DISCLOSURE.md>
+- **Disclose your AI use & cite Honest Scholar:** <https://github.com/davorrunje/honest-scholar/blob/main/DISCLOSURE.md>
 
 ## Status
 
