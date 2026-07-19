@@ -99,6 +99,9 @@ no_implicit_reexport = true
 [tool.pytest.ini_options]
 addopts = '--cov=honest_scholar --cov-branch --cov-report=term-missing --cov-report=xml'
 testpaths = ["tests"]
+markers = [
+    "live: opt-in integration test against real services (network / rclone); skipped unless HONEST_SCHOLAR_LIVE=1",
+]
 
 [tool.coverage.report]
 fail_under = 100
