@@ -88,9 +88,13 @@ def _set_field(fm_lines: list[str], key: str, value: str) -> list[str]:
             break
         match = key_pat.match(line)
         if match:
+            # A YAML comment needs whitespace before '#' (or the value is entirely
+            # a comment); a '#' *inside* a value is not a comment delimiter.
+            raw_value = match.group(1)
             comment = ""
-            if "#" in match.group(1):
-                comment = "  # " + match.group(1).split("#", 1)[1].strip()
+            cmatch = re.search(r"\s#(.*)$", f" {raw_value}")
+            if cmatch:
+                comment = f"  # {cmatch.group(1).strip()}"
             lines[i] = f"{child_indent}{key}: {value}{comment}"
             return lines
 

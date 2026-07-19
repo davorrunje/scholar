@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 import pytest
+import typer
 from typer.testing import CliRunner
 
 from honest_scholar import cli
@@ -413,3 +414,182 @@ def test_neighbors_couple_only_skips_self_citer() -> None:
     out = graph.neighbors("W1", client=_client(routes), kind="couple", frontier=10)
     assert out["coupling"] == [{"openalex": "W2", "score": 1}]  # self W1 skipped
     assert "cocitation" not in out
+
+
+# --- S2 enrichment + resolve cross-reference (honest-scholar#31) --------------
+
+_S2 = "https://api.semanticscholar.org/graph/v1"
+
+
+def test_resolve_versioned_arxiv_strips_suffix() -> None:
+    work = {"id": "https://openalex.org/W7", "display_name": "T"}
+    # the DOI has no version component; a v4 suffix must be dropped
+    client = _client(
+        {"https://api.openalex.org/works/doi:10.48550/arXiv.2205.11775": work}
+    )
+    assert graph.resolve("arXiv:2205.11775v4", client=client)["resolved"] is True
+
+
+def test_resolve_s2_id_crossrefs_via_doi() -> None:
+    client = _client(
+        {
+            f"{_S2}/paper/CorpusId:12345": {"externalIds": {"DOI": "10.1234/abc"}},
+            "https://api.openalex.org/works/doi:10.1234/abc": _WORK,
+        }
+    )
+    rec = graph.resolve("CorpusId:12345", client=client)
+    assert rec["resolved"] is True
+    assert rec["openalex"] == "W1"
+
+
+def test_resolve_s2_id_crossrefs_via_arxiv() -> None:
+    work = {"id": "https://openalex.org/W7", "display_name": "T"}
+    client = _client(
+        {
+            f"{_S2}/paper/CorpusId:7": {"externalIds": {"ArXiv": "2205.11775"}},
+            "https://api.openalex.org/works/doi:10.48550/arXiv.2205.11775": work,
+        }
+    )
+    assert graph.resolve("CorpusId:7", client=client)["openalex"] == "W7"
+
+
+def test_resolve_s2_crossref_miss_is_not_fatal() -> None:
+    rec = graph.resolve("CorpusId:404", client=_client({}))  # S2 404
+    assert rec["resolved"] is False
+    assert "cross-reference" in rec["reason"]
+
+
+def test_resolve_s2_no_external_ids_is_miss() -> None:
+    client = _client({f"{_S2}/paper/CorpusId:8": {"externalIds": {}}})
+    assert graph.resolve("CorpusId:8", client=client)["resolved"] is False
+
+
+def test_enrich_with_key_populates_s2_context() -> None:
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc": {"externalIds": {"CorpusId": 999}},
+            f"{_S2}/paper/DOI:10.1234/abc/citations": {
+                "data": [
+                    {
+                        "contexts": ["as shown in"],
+                        "intents": ["methodology"],
+                        "isInfluential": True,
+                    },
+                    # a second edge: snippet/intent already set, so it is skipped
+                    {
+                        "contexts": ["also"],
+                        "intents": ["background"],
+                        "isInfluential": False,
+                    },
+                ]
+            },
+        },
+        s2_key="k",
+    )
+    rec = graph.enrich(["W1"], client=client, with_context=True)[0]
+    assert "degraded" not in rec
+    assert rec["context_snippet"] == "as shown in"
+    assert rec["intent"] == "methodology"
+    assert rec["is_influential"] is True
+    assert rec["id"]["s2"] == "CorpusId:999"
+
+
+def test_enrich_with_key_via_arxiv_id() -> None:
+    work = {
+        "id": "https://openalex.org/W2",
+        "ids": {"arxiv": "https://arxiv.org/abs/2205.11775v2"},
+    }
+    client = _client(
+        {
+            "https://api.openalex.org/works/W2": work,
+            f"{_S2}/paper/ARXIV:2205.11775": {"externalIds": {}},  # no CorpusId
+            f"{_S2}/paper/ARXIV:2205.11775/citations": {
+                "data": ["not-a-dict", {"contexts": ["x"], "intents": []}]
+            },
+        },
+        s2_key="k",
+    )
+    rec = graph.enrich(["W2"], client=client, with_context=True)[0]
+    assert rec["context_snippet"] == "x"
+    assert rec["intent"] is None
+    assert rec["is_influential"] is False  # edges present, none influential
+    assert rec["id"]["s2"] is None
+
+
+def test_enrich_with_key_no_addressable_id() -> None:
+    work = {"id": "https://openalex.org/W3", "display_name": "T"}  # no doi/arxiv
+    client = _client({"https://api.openalex.org/works/W3": work}, s2_key="k")
+    rec = graph.enrich(["W3"], client=client, with_context=True)[0]
+    assert rec["context_snippet"] is None
+    assert "degraded" not in rec
+
+
+def test_enrich_with_key_empty_citations_leaves_influential_none() -> None:
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc": {"externalIds": {"CorpusId": 1}},
+            f"{_S2}/paper/DOI:10.1234/abc/citations": {"data": []},
+        },
+        s2_key="k",
+    )
+    rec = graph.enrich(["W1"], client=client, with_context=True)[0]
+    assert rec["is_influential"] is None
+
+
+def test_enrich_with_key_citations_error_returns_partial() -> None:
+    # meta resolves (s2 id set) but the citations sub-resource 404s
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc": {"externalIds": {"CorpusId": 2}},
+        },
+        s2_key="k",
+    )
+    rec = graph.enrich(["W1"], client=client, with_context=True)[0]
+    assert rec["id"]["s2"] == "CorpusId:2"
+    assert rec["context_snippet"] is None
+
+
+def test_enrich_with_key_meta_error_still_reads_citations() -> None:
+    # meta 404s (no CorpusId) but citations resolve
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc/citations": {
+                "data": [
+                    {"contexts": ["c"], "intents": ["result"], "isInfluential": False}
+                ]
+            },
+        },
+        s2_key="k",
+    )
+    rec = graph.enrich(["W1"], client=client, with_context=True)[0]
+    assert rec["id"]["s2"] is None
+    assert rec["context_snippet"] == "c"
+    assert rec["is_influential"] is False
+
+
+def test_neighbors_rejects_unknown_kind() -> None:
+    with pytest.raises(ValueError, match="unknown kind"):
+        graph.neighbors("W1", client=_client({}), kind="bogus")
+
+
+def test_cli_neighbors_bad_kind_exits_1(monkeypatch: pytest.MonkeyPatch) -> None:
+    routes = {"https://api.openalex.org/works/W1": _WORK}
+    monkeypatch.setattr(cli, "_lit_client", lambda: _client(routes))
+    result = runner.invoke(app, ["literature", "neighbors", "W1", "--kind", "bogus"])
+    assert result.exit_code == 1
+
+
+def test_lit_client_rejects_non_mapping_config(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text("- not\n- a mapping\n", encoding="utf-8")
+    with pytest.raises(typer.Exit) as exc:
+        cli._lit_client()
+    assert exc.value.exit_code == 1

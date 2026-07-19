@@ -125,20 +125,28 @@ class Backlog:
         """
         header: list[str] | None = None
         rows: list[Row] = []
+        candidate: list[str] | None = None
         for line in text.splitlines():
             if "|" not in line:
+                candidate = None  # prose breaks a pending header candidate
                 continue
             cells = _split_cells(line)
             if _is_separator(cells):
+                # The GFM separator confirms the preceding pipe line was the header;
+                # this is what distinguishes the table from stray prose pipes.
+                if header is None and candidate is not None:
+                    header = candidate
+                    candidate = None
                 continue
             if header is None:
-                header = cells
+                candidate = cells  # a header only if a separator follows it
                 continue
-            row = {
-                header[i]: (cells[i] if i < len(cells) else "")
-                for i in range(len(header))
-            }
-            rows.append(row)
+            rows.append(
+                {
+                    header[i]: (cells[i] if i < len(cells) else "")
+                    for i in range(len(header))
+                }
+            )
         return cls(level=level, rows=rows)
 
     @classmethod
