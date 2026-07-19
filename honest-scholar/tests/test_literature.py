@@ -18,9 +18,12 @@ runner = CliRunner()
 
 
 class FakeResponse:
-    def __init__(self, status_code: int, payload: Any) -> None:
+    def __init__(
+        self, status_code: int, payload: Any, headers: dict[str, str] | None = None
+    ) -> None:
         self.status_code = status_code
         self._payload = payload
+        self.headers: dict[str, str] = headers or {}
 
     def json(self) -> Any:
         return self._payload
@@ -593,3 +596,154 @@ def test_lit_client_rejects_non_mapping_config(
     with pytest.raises(typer.Exit) as exc:
         cli._lit_client()
     assert exc.value.exit_code == 1
+
+
+# --- rate-limit / transient-error honesty (honest-scholar#41) ----------------
+
+
+def test_http_honors_retry_after_header() -> None:
+    sleeps: list[float] = []
+    session = FakeSession(
+        {
+            "https://x": [
+                FakeResponse(429, {}, {"Retry-After": "7"}),
+                FakeResponse(200, {"ok": 1}),
+            ]
+        }
+    )
+    client = http.HttpClient(session=session, sleep=sleeps.append, cache_dir=None)
+    assert client.get_json("https://x") == {"ok": 1}
+    assert sleeps == [7.0]  # honored the header, not the blind 2**0 backoff
+
+
+def test_http_retry_after_http_date_falls_back_to_backoff() -> None:
+    sleeps: list[float] = []
+    session = FakeSession(
+        {
+            "https://x": [
+                FakeResponse(429, {}, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}),
+                FakeResponse(200, {"ok": 1}),
+            ]
+        }
+    )
+    client = http.HttpClient(session=session, sleep=sleeps.append, cache_dir=None)
+    assert client.get_json("https://x") == {"ok": 1}
+    # An HTTP-date is unparsable → ignored → exponential backoff (2**0) + jitter.
+    assert len(sleeps) == 1
+    assert 1.0 <= sleeps[0] < 2.0
+
+
+def test_http_429_exhaustion_raises_rate_limit_error() -> None:
+    session = FakeSession({"https://x": FakeResponse(429, {})})
+    client = http.HttpClient(
+        session=session, sleep=lambda _s: None, cache_dir=None, max_retries=2
+    )
+    with pytest.raises(http.RateLimitError, match="giving up"):
+        client.get_json("https://x")
+
+
+def test_http_503_with_retry_after_raises_rate_limit_error() -> None:
+    session = FakeSession({"https://x": FakeResponse(503, {}, {"Retry-After": "1"})})
+    client = http.HttpClient(
+        session=session, sleep=lambda _s: None, cache_dir=None, max_retries=2
+    )
+    with pytest.raises(http.RateLimitError):
+        client.get_json("https://x")
+
+
+def test_http_503_without_retry_after_is_plain_http_error() -> None:
+    session = FakeSession({"https://x": FakeResponse(503, {})})
+    client = http.HttpClient(
+        session=session, sleep=lambda _s: None, cache_dir=None, max_retries=2
+    )
+    with pytest.raises(http.HttpError) as exc:
+        client.get_json("https://x")
+    assert not isinstance(exc.value, http.RateLimitError)  # 503 sans header is not RL
+
+
+def test_resolve_rate_limit_propagates_not_miss() -> None:
+    # A throttle must never be recorded as {resolved: False} ("no such work").
+    client = _client(
+        {"https://api.openalex.org/works/W1": FakeResponse(429, {})}, max_retries=2
+    )
+    with pytest.raises(http.RateLimitError):
+        graph.resolve("W1", client=client)
+
+
+def test_resolve_404_still_returns_genuine_miss() -> None:
+    # The genuine not-found path is preserved: 404 → resolved False, not a raise.
+    rec = graph.resolve("W404", client=_client({}))
+    assert rec["resolved"] is False
+
+
+def test_resolve_s2_crossref_rate_limit_propagates() -> None:
+    client = _client({f"{_S2}/paper/CorpusId:9": FakeResponse(429, {})}, max_retries=2)
+    with pytest.raises(http.RateLimitError):
+        graph.resolve("CorpusId:9", client=client)
+
+
+def test_enrich_s2_context_meta_rate_limit_propagates() -> None:
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc": FakeResponse(429, {}),
+        },
+        s2_key="k",
+        max_retries=2,
+    )
+    with pytest.raises(http.RateLimitError):
+        graph.enrich(["W1"], client=client, with_context=True)
+
+
+def test_enrich_s2_context_citations_rate_limit_propagates() -> None:
+    client = _client(
+        {
+            "https://api.openalex.org/works/W1": _WORK,
+            f"{_S2}/paper/DOI:10.1234/abc": {"externalIds": {"CorpusId": 5}},
+            f"{_S2}/paper/DOI:10.1234/abc/citations": FakeResponse(429, {}),
+        },
+        s2_key="k",
+        max_retries=2,
+    )
+    with pytest.raises(http.RateLimitError):
+        graph.enrich(["W1"], client=client, with_context=True)
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["literature", "resolve", "W1"],
+        ["literature", "cites", "W1"],
+        ["literature", "refs", "W1"],
+        ["literature", "enrich", "W1"],
+        ["literature", "neighbors", "W1"],
+    ],
+)
+def test_cli_rate_limit_exits_1_with_actionable_message(
+    argv: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    client = _client(
+        {"https://api.openalex.org/works/W1": FakeResponse(429, {})}, max_retries=2
+    )
+    monkeypatch.setattr(cli, "_lit_client", lambda: client)
+    result = runner.invoke(app, argv)
+    assert result.exit_code == 1
+    assert not isinstance(result.exception, http.RateLimitError)  # no traceback
+    assert "rate-limited" in result.stderr
+    assert "S2_API_KEY" in result.stderr
+
+
+def test_cli_generic_http_error_exits_1_cleanly(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # A non-rate-limit transport failure exits cleanly with a generic message.
+    routes = {
+        "https://api.openalex.org/works/W1": _WORK,
+        "https://api.openalex.org/works": FakeResponse(403, {}),
+    }
+    monkeypatch.setattr(cli, "_lit_client", lambda: _client(routes))
+    result = runner.invoke(app, ["literature", "cites", "W1"])
+    assert result.exit_code == 1
+    assert not isinstance(result.exception, http.HttpError)  # no traceback
+    assert "literature request failed" in result.stderr
+    assert "403" in result.stderr
