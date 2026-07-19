@@ -24,6 +24,12 @@ each consuming repo binds whatever engineering backend it uses (or none) via
 
 ## Conventions
 
+- **Issues & PRs via the local skills.** File follow-ups with the
+  [`create-issue`](.claude/skills/create-issue/SKILL.md) skill (self-contained
+  house format + the close standard) and land changes with the
+  [`create-pr`](.claude/skills/create-pr/SKILL.md) skill (branch → checks →
+  attributed commit → PR). The two are a matched pair (`Closes #NN` ⇄ the close
+  standard).
 - **Record decisions as ADRs.** Any material design decision gets a MADR entry in
   `decisions/` (context · drivers · options · decision · consequences · rejected
   alternatives), linked from `decisions/README.md`.
