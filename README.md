@@ -13,24 +13,33 @@
 
 ---
 
-**`honest-scholar`** helps you keep research honest — *especially now that AI is in
-the loop*. It is a uniform, git-native Claude Code plugin for the *scientific*
-research workflow — idea → literature → hypothesis → test → publish-decision →
-paper → thesis — so a researcher and their collaborators work the same way and
-re-derive neither the workflow nor its rigor per project. The *engineering* is
-delegated to a bound **engineering backend** via the engineering-delegation
-contract, so `honest-scholar` stays domain- and tool-neutral.
+**`honest-scholar`** gives your whole *scientific* research workflow one uniform,
+git-native home inside Claude Code — idea → literature → hypothesis → test →
+publish-decision → paper → thesis — so you and your collaborators work the same way
+and never re-derive the workflow, or its rigor, per project. Concretely, it:
 
-It does **not** certify that your work is honest — there is no seal of honesty. It
-gives you the *mechanics* to do honest work and to disclose truthfully what you and
-the AI each did; readers judge the result.
+- **scouts and positions the literature** over the citation graph (OpenAlex +
+  Semantic Scholar) — forward/backward citations, co-citation and
+  bibliographic-coupling neighbours, a CSL-JSON bib, and a decision triage sidecar;
+- **runs the hypothesis → test → publish-decision lifecycle** with every result
+  traced to a run-ref, refuted ideas retired (not deleted), and named human sign-off
+  on each material decision;
+- **keeps datasets reproducible** — a tiered registry with SHA-256 fixity, a private
+  rclone mirror, datasheets, and Croissant import/export;
+- **builds and checks your understanding** with a Socratic tutor-examiner
+  (`defend`) so you can actually defend the work in review;
+- **delegates the *engineering*** (design, plans, code) to a bound engineering
+  backend, staying domain- and tool-neutral.
+
+Because AI is in the loop, it is also built so the science stays honestly *yours*
+and defensible (see [The mechanics of honesty](#the-mechanics-of-honesty)).
 
 > **New here?** Start with the **[User Guide](docs/USER-GUIDE.md)**.
 >
-> **Status: `v0.0.0`, early.** The design is complete and recorded (see
-> [Design & reasoning](#design--reasoning)); the skills are a first cut with some
-> supporting-script TODOs. See [`STATUS.md`](STATUS.md) for exactly what is done,
-> stubbed, or pending.
+> **Status: pre-release, actively developed.** The design is complete and recorded
+> (see [Design & reasoning](#design--reasoning)); the skills and their supporting
+> `honest-scholar` CLI are implemented. See [`STATUS.md`](STATUS.md) for the current
+> ledger.
 
 ## The mechanics of honesty
 
@@ -120,9 +129,9 @@ consuming repo's `.claude/settings.json`:
 }
 ```
 
-Pin a release with `"ref": "v0.0.0"` inside the marketplace `source` if you want a
-fixed version rather than the default branch. **Status:** early — see
-[`STATUS.md`](STATUS.md).
+By default this tracks the plugin's `main`. Once a plugin release is tagged you can
+pin it by adding a `"ref": "<tag>"` inside the marketplace `source` for a fixed
+version. See [`STATUS.md`](STATUS.md) for the current state.
 
 ## Design & reasoning
 
@@ -134,9 +143,9 @@ The design is captured in three complementary layers:
   with the options considered and the **rejected alternatives and why**.
 - **Reference digests** — the *evidence*: [`resources/references/`](resources/references/)
   — verified primary-source digests behind each skill and principle.
-- **Open proposals (drafts)** — [`docs/design/proposals/`](docs/design/proposals/):
-  first-draft specs for the not-yet-built supporting scripts and for cross-repo
-  thesis aggregation, pending discussion.
+- **Proposals** — [`docs/design/proposals/`](docs/design/proposals/): the design
+  specs for the `honest-scholar` CLI modules (now implemented) and for cross-repo
+  thesis aggregation.
 
 Also: the [User Guide](docs/USER-GUIDE.md), the commit-attribution / discovery
 convention ([`resources/commit-attribution.md`](resources/commit-attribution.md)),

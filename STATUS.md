@@ -1,69 +1,55 @@
-# honest-scholar — build status
+# honest-scholar — status
 
-Built 2026-07-17/18 (initial cut autonomously while the author was away, then
-extended). Commits are authored by **Davor Runje** with `Co-Authored-By: Claude`,
-unsigned. Released `v0.0.0`.
+An honest ledger of what is **done**, **in progress**, and **planned**.
+`honest-scholar` ships two independently-versioned artifacts:
 
-This file is the honest ledger of what is **done**, **drafted**, or **pending**.
-`honest-scholar` is a Claude Code plugin: its primary deliverable is the **skill
-instruction files** (`skills/*/SKILL.md`) plus templates, contracts, and the
-migrated design record. There is intentionally little heavy Python — skills
-orchestrate existing tools (git, gh, rclone, curl→OpenAlex/Semantic Scholar,
-pandoc) and delegate engineering to the bound engineering backend via the
-engineering-delegation contract.
+- the **plugin** — the skill instruction files (`skills/*/SKILL.md`) plus
+  templates, contracts, and the migrated design record (its primary deliverable);
+- the **`honest-scholar` package** — the CLI those skills call, published to PyPI
+  and installed isolated from your project's ML environment.
+
+Commits are authored by **Davor Runje** with a `Co-Authored-By: Claude` trailer.
 
 ## Done
 
-- Public repo created (`davorrunje/honest-scholar`), Apache-2.0.
-- Plugin manifest (`.claude-plugin/plugin.json`), README, `.gitignore`.
-- Design record migrated from the design session:
-  - `docs/design/` — meta-spec + 4 sub-specs.
-  - `decisions/` — 22 MADR ADRs + index.
-  - `resources/references/` — 8 verified-source digests.
-  - `assets/` + `docs/design/visual-identity.md` — v1 visual identity.
-- **All 10 `skills/*/SKILL.md`** authored from the sub-specs (each with valid
+- **All 10 skills** authored and reviewed (`skills/*/SKILL.md`, each with valid
   `name`/`description` frontmatter): `research-init`, `hypothesis-exploration`,
   `hypothesis-testing`, `paper-exploration`, `paper-synthesis`, `thesis`,
   `literature`, `dataset`, `progress`, `defend`.
-  *(The commit that introduced them says "7 skill files" — a cosmetic undercount;
-  all 10 landed in that commit.)*
-- Shared resources: `resources/contracts/experiment-backend.md`,
-  `resources/substrate/asset-registry.md`, `resources/rigor/rigor-kit.md`.
-- `resources/templates/` — 12 staged-doc templates (hypothesis / paper / thesis)
-  with the `progress` status-frontmatter, rigor prompts in strategy/findings,
-  named human sign-off on material-decision docs, and a Toulmin-sextet ledger.
-- **Released `v0.0.0`** — self-marketplace (`.claude-plugin/marketplace.json`,
-  `claude plugin validate` ✔); install via `/plugin marketplace add davorrunje/honest-scholar`
-  then `/plugin install honest-scholar@honest-scholar`. mononet enables it in `.claude/settings.json`
-  (mononet PR #131).
-- **`docs/USER-GUIDE.md`** — end-to-end onboarding (install → `research-init` →
-  the hypothesis/paper/thesis loop → progress/defend), domain-neutral example.
-- **Commit attribution / discovery** — `resources/commit-attribution.md` + a
-  `## Commit attribution` footer on every skill (`Generated-with: honest-scholar` +
-  `HonestScholar-Skill:` trailers).
-- **`docs/design/proposals/`** — 6 first-draft specs (for discussion) for the
-  supporting-script TODOs + cross-repo thesis aggregation. Each is tracked by an
-  issue: **honest-scholar#1–5** (literature graph client; dataset manifest tooling;
-  dataset retrieval/mirror; defend record helper; exploration backlog helper) and
-  **mononet#132** (cross-repo aggregation).
+- **The `honest-scholar` CLI is implemented** and JSON-emitting across all groups:
+  `literature` (citation graph over OpenAlex + Semantic Scholar), `dataset`
+  (manifest / Croissant / SHA-256 retrieval / rclone mirror / audit),
+  `defend record`, `backlog`, and `doctor` — with a strict-mypy, 100%-covered test
+  suite. The design specs live under `docs/design/proposals/`.
+- **Design record** migrated from the design session: `docs/design/` (meta-spec +
+  4 sub-specs), `decisions/` (MADR ADRs + index), `resources/references/` (verified
+  primary-source digests), and the v1 visual identity.
+- **Shared resources**: experiment-backend + engineering contracts, the asset
+  registry / substrate, the rigor kit, and the staged-doc templates (hypothesis /
+  paper / thesis) with the `progress` status-frontmatter, rigor prompts, named
+  human sign-off, and a Toulmin-sextet ledger.
+- **Docs**: `README.md`, `docs/USER-GUIDE.md`, `DISCLOSURE.md`, `RELEASING.md`,
+  `CONTRIBUTING.md`, and the commit-attribution / discovery convention.
+- **Packaging & CI**: self-marketplace (`.claude-plugin/marketplace.json`,
+  `claude plugin validate` ✔); CI matrix, coverage gate, and PyPI Trusted
+  Publishing via GitHub Releases.
 
-## Pending (needs the author, or a follow-up)
+## In progress
 
-- **Review of every SKILL.md** — first-cut drafts; adjust tone/behavior, esp. the
-  `defend` guardrail and the agency/understanding wording.
-- **Discuss the 6 draft proposals**, then implement the supporting scripts
-  (tracked: honest-scholar#1–5, mononet#132). Currently each skill uses an interim
-  tool-orchestrated approach.
-- Plan-time open items from the sub-specs (ledger schema, status-frontmatter
-  fields, `.honest-scholar/` naming, thesis-milestone schema, the engineering-backend
-  delegation seam).
-- Reconcile with PR #128's four earlier research-workflow reference docs in
-  `mononet` (superseded by this repo — close/repoint).
+- **First final release (`v0.1.0`)** — the release-readiness cleanup is underway
+  (see the `v0.1.0` milestone and the linked issues). The package currently
+  publishes as a pre-release (`0.0.0b0`) to TestPyPI/PyPI for validation.
 
-## How to review in the morning
+## Planned
 
-1. Read this file + `README.md`.
-2. Skim `docs/design/00-meta-spec.md` (the whole picture) and `decisions/README.md`.
-3. Read the `skills/*/SKILL.md` you care about most first — suggest `defend`,
+- A citable **arXiv report** describing the skills and their rationale — ideally
+  written *using* `honest-scholar` itself (the preferred citation once it exists).
+- Cross-repo thesis aggregation (design in `docs/design/proposals/`).
+
+## How to review
+
+1. Read this file + [`README.md`](README.md).
+2. Skim [`docs/design/00-meta-spec.md`](docs/design/00-meta-spec.md) (the whole
+   picture) and [`decisions/README.md`](decisions/README.md).
+3. Read the `skills/*/SKILL.md` you care about most — suggest `defend`,
    `hypothesis-testing`, `literature`.
-4. Anything wrong or off-tone: it is all committed in small steps, easy to amend.
