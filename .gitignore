@@ -1,5 +1,6 @@
 # honest-scholar plugin — consumers create these in THEIR repos, never here
 .honest-scholar/cache/          # http + dataset caches (cli.py writes here)
+.honest-scholar/keys.json       # CLI-owned API-key store (0600; ADR-0029)
 .honest-scholar/rclone.conf
 *.rclone.conf
 
