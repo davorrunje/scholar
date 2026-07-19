@@ -76,10 +76,11 @@ consuming repo's `.claude/settings.json`:
 }
 ```
 
-Commit that file and every collaborator gets the same skills auto-enabled. Pin a
-release with `"ref": "v0.0.0"` inside the marketplace `source` for a fixed
-version. Skills are invoked by name (`research-init`, `hypothesis-testing`, …) in
-your Claude Code session.
+Commit that file and every collaborator gets the same skills auto-enabled. This
+tracks the plugin's `main`; once a plugin release is tagged you can pin it with a
+`"ref": "<tag>"` inside the marketplace `source` for a fixed version. Skills are
+invoked by name (`research-init`, `hypothesis-testing`, …) in your Claude Code
+session.
 
 ## 3. First-time setup: `research-init`
 

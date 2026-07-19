@@ -33,16 +33,16 @@ Pre-releases are on TestPyPI (`--index-url https://test.pypi.org/simple/
 
 ```
 honest-scholar --version
-honest-scholar doctor                                        # environment report (implemented)
-honest-scholar literature resolve|cites|refs|enrich|neighbors   # issue #1
-honest-scholar dataset    validate|ingest|emit                    # issue #2
-honest-scholar dataset    fetch|verify|mirror|audit               # issue #3
-honest-scholar defend     record                                # issue #4
-honest-scholar backlog    park|add|list|rank|promote|drop       # issue #5
+honest-scholar doctor                                           # environment report
+honest-scholar literature resolve|cites|refs|enrich|neighbors   # citation graph (OpenAlex + S2)
+honest-scholar dataset    validate|ingest|emit                  # manifest + Croissant
+honest-scholar dataset    fetch|verify|mirror|audit             # SHA-256 retrieval + rclone mirror
+honest-scholar defend     record                                # understanding-status record
+honest-scholar backlog    park|add|list|rank|promote|drop       # exploration backlog
 ```
 
-Currently only `doctor` and `--version` are implemented; the domain sub-commands
-are typed stubs exiting with a pointer to their tracking issue.
+Every command is implemented and emits JSON (the skills parse it). Network- and
+`rclone`-backed commands degrade gracefully when a key or the binary is absent.
 
 ## Learn more
 
