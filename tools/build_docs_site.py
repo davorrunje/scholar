@@ -57,14 +57,14 @@ SITE_DESCRIPTION = (
     "Research you can defend — keep your research honest, "
     "especially now that AI is in the loop."
 )
-# Brand palette (see assets/visual-identity.md). Indigo (#241852) is the *ground*
+# Brand palette (see assets/visual-identity.md). electric blue (#2a1cc8) is the *ground*
 # — carried by the nav logos, dark surfaces, and the assets — so it stays out of
 # `colors`. Mintlify's `colors.primary` drives links/buttons/active states, so the
-# interactive accent is the brand coral: "a single coral accent carries every call
-# to action". `light` is a brighter coral for dark-mode chrome; `dark` (which
-# Mintlify uses as the primary in light mode) is a deeper coral that clears WCAG AA
+# interactive accent is the brand Red: "a single Red accent carries every call
+# to action". `light` is a brighter Red for dark-mode chrome; `dark` (which
+# Mintlify uses as the primary in light mode) is a deeper Red that clears WCAG AA
 # (~4.9:1) for link text on white.
-PRIMARY = "#ff6558"
+PRIMARY = "#f9463c"
 COLOR_LIGHT = "#ff8a7d"
 COLOR_DARK = "#c9402e"
 

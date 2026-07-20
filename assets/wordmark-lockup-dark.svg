@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220">
-  <circle cx="110" cy="110" r="62" fill="#ff6558"></circle>
-  <path d="M78 112 L102 138 L148 78" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"></path>
+  <circle cx="110" cy="110" r="62" fill="#f9463c"></circle>
+  <rect x="91" y="91" width="38" height="38" rx="8" fill="#ffffff"></rect>
   <text x="210" y="110" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="64" fill="#ffffff" letter-spacing="-1">Honest Scholar</text>
-  <text x="210" y="156" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="26" fill="#ff9b8f">Research you can defend.</text>
+  <text x="210" y="156" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="26" fill="#ff8a82">Research you can defend.</text>
 </svg>

@@ -7,9 +7,9 @@
 <p align="center">Keep your research honest — <strong>especially now that AI is in the loop</strong>.</p>
 
 <p align="center">
-  <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/davorrunje/honest-scholar/ci.yml?branch=main&style=flat-square&labelColor=241852&label=CI" alt="CI"></a>
-  <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://img.shields.io/codecov/c/github/davorrunje/honest-scholar?style=flat-square&labelColor=241852&label=coverage" alt="coverage"></a>
-  <a href="https://honest-scholar.science/"><img src="https://img.shields.io/badge/docs-honest--scholar.science-241852?style=flat-square&labelColor=241852" alt="docs"></a>
+  <a href="https://github.com/davorrunje/honest-scholar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/davorrunje/honest-scholar/ci.yml?branch=main&style=flat-square&labelColor=2a1cc8&label=CI" alt="CI"></a>
+  <a href="https://codecov.io/gh/davorrunje/honest-scholar"><img src="https://img.shields.io/codecov/c/github/davorrunje/honest-scholar?style=flat-square&labelColor=2a1cc8&label=coverage" alt="coverage"></a>
+  <a href="https://honest-scholar.science/"><img src="https://img.shields.io/badge/docs-honest--scholar.science-2a1cc8?style=flat-square&labelColor=2a1cc8" alt="docs"></a>
 </p>
 
 ---
