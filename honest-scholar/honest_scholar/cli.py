@@ -123,14 +123,41 @@ literature = typer.Typer(
 app.add_typer(literature, name="literature")
 
 
+def _rps_from_config(lit: object, field_name: str, default: float) -> float:
+    """Read a numeric ``literature.<field_name>`` override from `lit`, or `default`.
+
+    :param lit: The parsed ``literature:`` config block (or ``None``/non-mapping).
+    :param field_name: The config key (``s2_rps`` or ``openalex_rps``).
+    :param default: The value to use when the key is absent.
+    :returns: The configured rps, or `default` when unset.
+    :raises typer.Exit: Code 1 if the key is present but not a number.
+    """
+    raw = lit.get(field_name) if isinstance(lit, dict) else None
+    if raw is None:
+        return default
+    try:
+        return float(raw)
+    except (TypeError, ValueError) as exc:
+        typer.echo(
+            f"invalid .honest-scholar/config.yml: 'literature.{field_name}' "
+            "must be a number",
+            err=True,
+        )
+        raise typer.Exit(code=1) from exc
+
+
 def _lit_client() -> HttpClient:
     """Build the literature HTTP client from config + the key store.
 
     Reads ``literature.mailto`` from ``.honest-scholar/config.yml`` (polite pool),
     falling back to ``OPENALEX_MAILTO``, and sources ``S2_API_KEY`` through the
-    key store — both with ``os.environ`` > store precedence (ADR-0029). Caches
-    responses under ``.honest-scholar/cache/http``. Tests monkeypatch this to
-    inject a fake client.
+    key store — both with ``os.environ`` > store precedence (ADR-0029). Also
+    reads ``literature.s2_rps`` / ``literature.openalex_rps`` — proactive
+    per-host rate-limit caps (honest-scholar#67) — falling back to
+    :class:`HttpClient`'s own conservative defaults (S2 below its 1 req/s
+    per-key ceiling) when absent. Caches responses under
+    ``.honest-scholar/cache/http``. Tests monkeypatch this to inject a fake
+    client.
     """
     from honest_scholar.core.config import load_config
     from honest_scholar.core.http import HttpClient
@@ -148,10 +175,13 @@ def _lit_client() -> HttpClient:
         )
         raise typer.Exit(code=1)
     mailto = lit.get("mailto") if isinstance(lit, dict) else None
+    defaults = HttpClient()
     return HttpClient(
         cache_dir=Path(".honest-scholar/cache/http"),
         mailto=mailto or keys_mod.get("OPENALEX_MAILTO"),
         s2_key=keys_mod.get("S2_API_KEY"),
+        s2_rps=_rps_from_config(lit, "s2_rps", defaults.s2_rps),
+        openalex_rps=_rps_from_config(lit, "openalex_rps", defaults.openalex_rps),
     )
 
 
