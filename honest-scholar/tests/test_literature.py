@@ -402,6 +402,29 @@ def test_lit_client_builds_from_config(
     assert client.mailto == "me@x.org"
 
 
+def test_lit_client_http_cache_defaults_under_cache_root(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    client = cli._lit_client()
+    # Same root the dataset cache and research-init's .gitignore scaffold use
+    # (honest-scholar#65) — no more hardcoded, independently-drifting paths.
+    assert client.cache_dir == cli._DEFAULT_CACHE_ROOT / "http"
+
+
+def test_lit_client_http_cache_follows_configured_cache_dir(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text("cache_dir: .custom-cache\n", encoding="utf-8")
+    client = cli._lit_client()
+    from pathlib import Path
+
+    assert client.cache_dir == Path(".custom-cache/http")
+
+
 class _BadJSON(FakeResponse):
     def json(self) -> object:
         raise ValueError("not json")

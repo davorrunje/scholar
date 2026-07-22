@@ -105,8 +105,10 @@ Light-dep, per SKILL.md and `../../../resources/substrate/asset-registry.md`:
   approximate? What `--top` default?
 - S2 batch endpoint (`/paper/batch`) vs. per-id calls for hydration — batch cuts
   request count but couples to a second response shape.
-- Where does the cache live — gitignored under `.honest-scholar/cache/` shared with the
-  substrate cache, or a private dir? TTL / invalidation policy?
+- ~~Where does the cache live~~ — **settled** (ADR-0031): gitignored under
+  `.honest-scholar/cache/http`, sharing the `cache_dir:`-configured root with
+  the dataset substrate cache (`<cache_dir>/datasets`). TTL / invalidation
+  policy is still open.
 - Does `resolve` need Crossref as a DOI fallback when OpenAlex misses, or is
   OpenAlex-only acceptable for v1?
 

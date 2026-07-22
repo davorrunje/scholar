@@ -104,5 +104,7 @@ deps; HTTP/FTP/SFTP + `doi:`); Tier-A uses git/LFS; Tier-C is instruct-drop-veri
   hash as transport check only.
 - **Croissant version** — target the current MLCommons spec; treat as export
   format, registry is the superset source of truth.
-- **`.datasets-cache/` vs `.honest-scholar/`** — confirm cache directory placement with
-  the meta-spec `.honest-scholar/` decision.
+- **`.datasets-cache/` vs `.honest-scholar/`** — **settled** (ADR-0031): the cache
+  lives under `.honest-scholar/cache/` by default, sourced from a `cache_dir:`
+  key in `config.yml` so `research-init`'s `.gitignore` scaffold and the CLI's
+  runtime cache path cannot drift apart; `.datasets-cache/` is retired.
