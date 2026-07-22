@@ -70,6 +70,8 @@ datasets.yml                     # dataset registry (entries + checksums + tiers
   config.yml                     # rclone remote name, literature anchors, experiment-backend + engineering_backend bindings
   rclone.conf.example            # committed template (remote name/type only)
   rclone.conf                    # gitignored (credentials)
+  # keys.json is NOT scaffolded here — `honest-scholar keys` stores API keys
+  # outside the repo by default (ADR-0031); see the note below.
 ```
 
 Registries are created **empty but valid** (a parseable `papers.md`,
@@ -84,8 +86,17 @@ name** for the private mirror, the **literature anchors** (seed works/authors th
 (which repo-local harness implements the run/evidence/tables/is-current
 contract), and the **engineering-backend binding** (`engineering_backend:` — the
 `design`/`plan`/`implement` delegate the pipeline skills hand engineering off to;
-ADR-0023). `.gitignore` is updated to exclude `.datasets-cache/` and
-`.honest-scholar/rclone.conf`.
+ADR-0023). `.gitignore` is updated to exclude `.datasets-cache/`,
+`.honest-scholar/rclone.conf`, and (defense-in-depth) `.honest-scholar/keys.json`.
+
+**API keys never enter the repo by default.** `honest-scholar keys set` (ADR-0029)
+stores credentials at an XDG config path outside the repo's work tree —
+`$XDG_CONFIG_HOME/honest-scholar/keys.json`, falling back to
+`~/.config/honest-scholar/keys.json` — never at a path this skill scaffolds
+(ADR-0031, honest-scholar#66). An author can opt into the legacy in-repo path
+(`HONEST_SCHOLAR_KEYS_PATH=.honest-scholar/keys.json`), which is why the
+`.gitignore` entry above still exists; `keys set` also warns if the resolved
+store ever sits in a git work tree without being gitignored.
 
 The `thesis/` tree is optional — scaffold it only when the repo is a
 thesis-by-publication; a plain portfolio repo omits the top level.

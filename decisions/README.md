@@ -42,5 +42,6 @@ Migrates to the plugin's `decisions/` alongside `resources/references/`.
 | [0028](0028-100-percent-coverage-gate.md) | 100% statement + branch coverage gate on the package | accepted |
 | [0029](0029-api-key-handling.md) | Unified API-key handling — a CLI-managed JSON store (not `.env`), stdin writes, scoped in-memory env for children | accepted |
 | [0030](0030-docs-site-mintlify.md) | Docs site on Mintlify, published from a generated docs repo to `honest-scholar.science` | accepted |
+| [0031](0031-keys-store-outside-repo-by-default.md) | Key store defaults outside the repo (XDG); in-repo store is an explicit, gitignored opt-in with a committable-store runtime guardrail | accepted |
 
 Format: MADR (Markdown Any Decision Records). Deciders: Davor Runje (with Claude).
