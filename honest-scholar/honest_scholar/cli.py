@@ -17,7 +17,7 @@ import subprocess  # nosec B404 - used only to read `--version` of trusted tools
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Any
 
 import typer
 
@@ -116,6 +116,54 @@ def doctor() -> None:
     raise typer.Exit(code=0)
 
 
+# --- shared cache-root config (honest-scholar#65) ---------------------------------
+_DEFAULT_CACHE_ROOT = Path(".honest-scholar/cache")
+
+
+def _load_config_or_exit() -> dict[str, Any]:
+    """Load ``.honest-scholar/config.yml``, exiting 1 on invalid YAML/mapping.
+
+    :returns: The parsed configuration mapping (empty if the file is absent).
+    :raises typer.Exit: Code 1 if the file exists but is not a valid YAML
+        mapping.
+    """
+    from honest_scholar.core.config import load_config
+
+    try:
+        return load_config()
+    except ValueError as exc:
+        typer.echo(f"invalid .honest-scholar/config.yml: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
+def _cache_root(config: dict[str, Any] | None = None) -> Path:
+    """Resolve the cache root from ``config.yml``'s ``cache_dir:`` key.
+
+    Both the dataset content-addressed cache and the literature HTTP cache
+    live under this single root, and ``research-init`` gitignores exactly
+    this path (see the SKILL.md scaffold). Sourcing it from config instead of
+    hardcoding it in two places is what keeps the scaffolded ``.gitignore``
+    and the runtime cache location from drifting apart (honest-scholar#65).
+
+    :param config: A pre-loaded config mapping; loaded fresh when omitted.
+    :returns: The configured cache root, or :data:`_DEFAULT_CACHE_ROOT` when
+        ``cache_dir`` is unset.
+    :raises typer.Exit: Code 1 if ``cache_dir`` is present but not a string.
+    """
+    if config is None:
+        config = _load_config_or_exit()
+    cache_dir = config.get("cache_dir")
+    if cache_dir is None:
+        return _DEFAULT_CACHE_ROOT
+    if not isinstance(cache_dir, str):
+        typer.echo(
+            "invalid .honest-scholar/config.yml: 'cache_dir' must be a string",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    return Path(cache_dir)
+
+
 # --- literature (honest-scholar#1) ------------------------------------------------
 literature = typer.Typer(
     help="Citation-graph and metadata tools.", no_args_is_help=True
@@ -155,18 +203,13 @@ def _lit_client() -> HttpClient:
     reads ``literature.s2_rps`` / ``literature.openalex_rps`` — proactive
     per-host rate-limit caps (honest-scholar#67) — falling back to
     :class:`HttpClient`'s own conservative defaults (S2 below its 1 req/s
-    per-key ceiling) when absent. Caches responses under
-    ``.honest-scholar/cache/http``. Tests monkeypatch this to inject a fake
-    client.
+    per-key ceiling) when absent. Caches responses under ``<cache_dir>/http``
+    (``cache_dir:`` in config, default ``.honest-scholar/cache/``; see
+    :func:`_cache_root`). Tests monkeypatch this to inject a fake client.
     """
-    from honest_scholar.core.config import load_config
     from honest_scholar.core.http import HttpClient
 
-    try:
-        config = load_config()
-    except ValueError as exc:
-        typer.echo(f"invalid .honest-scholar/config.yml: {exc}", err=True)
-        raise typer.Exit(code=1) from exc
+    config = _load_config_or_exit()
     lit = config.get("literature")
     if lit is not None and not isinstance(lit, dict):
         typer.echo(
@@ -177,7 +220,7 @@ def _lit_client() -> HttpClient:
     mailto = lit.get("mailto") if isinstance(lit, dict) else None
     defaults = HttpClient()
     return HttpClient(
-        cache_dir=Path(".honest-scholar/cache/http"),
+        cache_dir=_cache_root(config) / "http",
         mailto=mailto or keys_mod.get("OPENALEX_MAILTO"),
         s2_key=keys_mod.get("S2_API_KEY"),
         s2_rps=_rps_from_config(lit, "s2_rps", defaults.s2_rps),
@@ -416,7 +459,12 @@ def emit(
     raise typer.Exit(code=1)
 
 
-_DATASET_CACHE = Path(".honest-scholar/cache/datasets")
+def _dataset_cache_dir() -> Path:
+    """Return the dataset content-addressed cache dir, under the cache root.
+
+    :returns: ``<cache_root>/datasets`` (see :func:`_cache_root`).
+    """
+    return _cache_root() / "datasets"
 
 
 def _load_manifest_or_exit(path: str) -> manifest_mod.Manifest:
@@ -475,7 +523,7 @@ def fetch(
     entry = _entry_or_exit(parsed, identifier)
     try:
         paths = retrieval_mod.fetch(
-            entry, cache_dir=_DATASET_CACHE, mirror=_mirror_from(parsed)
+            entry, cache_dir=_dataset_cache_dir(), mirror=_mirror_from(parsed)
         )
     except retrieval_mod.RetrievalError as exc:
         typer.echo(f"fetch failed: {exc}", err=True)
@@ -499,7 +547,7 @@ def verify(
     """
     parsed = _load_manifest_or_exit(manifest)
     entry = _entry_or_exit(parsed, identifier)
-    report = retrieval_mod.verify(entry, cache_dir=_DATASET_CACHE)
+    report = retrieval_mod.verify(entry, cache_dir=_dataset_cache_dir())
     typer.echo(json.dumps(dataclasses.asdict(report) | {"ok": report.ok}, indent=2))
     raise typer.Exit(code=0 if report.ok else 1)
 
@@ -524,7 +572,7 @@ def mirror(
         typer.echo("no mirror configured in the manifest", err=True)
         raise typer.Exit(code=1)
     try:
-        paths = retrieval_mod.fetch(entry, cache_dir=_DATASET_CACHE, mirror=mir)
+        paths = retrieval_mod.fetch(entry, cache_dir=_dataset_cache_dir(), mirror=mir)
         for path, ref in zip(paths, entry.files, strict=True):
             mir.put(path, ref.sha256)
     except retrieval_mod.RetrievalError as exc:
@@ -554,7 +602,7 @@ def audit(
         entry = _entry_or_exit(parsed, identifier)
         parsed = manifest_mod.Manifest(mirror=parsed.mirror, datasets=[entry])
     report = retrieval_mod.audit(
-        parsed, cache_dir=_DATASET_CACHE, mirror=_mirror_from(parsed)
+        parsed, cache_dir=_dataset_cache_dir(), mirror=_mirror_from(parsed)
     )
     typer.echo(
         json.dumps(

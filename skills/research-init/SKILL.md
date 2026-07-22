@@ -65,9 +65,9 @@ docs/research/
     references.json              # CSL-JSON — bibliographic facts (source of truth; ADR-0020)
     triage.yml                    # decision sidecar (role, disposition, rationale), keyed by id/DOI
 datasets.yml                     # dataset registry (entries + checksums + tiers + license)
-.datasets-cache/                 # gitignored materialized data
 .honest-scholar/
-  config.yml                     # rclone remote name, literature anchors, experiment-backend + engineering_backend bindings
+  config.yml                     # rclone remote name, literature anchors, cache_dir, experiment-backend + engineering_backend bindings
+  cache/                         # gitignored materialized data + HTTP cache (path from config.yml `cache_dir:`)
   rclone.conf.example            # committed template (remote name/type only)
   rclone.conf                    # gitignored (credentials)
 ```
@@ -78,14 +78,16 @@ paper comes from the shared templates in
 [`resources/templates/`](../../resources/templates/); every hypothesis/paper/thesis
 artifact carries the status frontmatter block that feeds `progress`.
 
-`.honest-scholar/config.yml` records the four consumer bindings: the **rclone remote
+`.honest-scholar/config.yml` records the five consumer bindings: the **rclone remote
 name** for the private mirror, the **literature anchors** (seed works/authors the
 `literature` capability ranks around), the **experiment-backend binding**
 (which repo-local harness implements the run/evidence/tables/is-current
-contract), and the **engineering-backend binding** (`engineering_backend:` — the
+contract), the **engineering-backend binding** (`engineering_backend:` — the
 `design`/`plan`/`implement` delegate the pipeline skills hand engineering off to;
-ADR-0023). `.gitignore` is updated to exclude `.datasets-cache/` and
-`.honest-scholar/rclone.conf`.
+ADR-0023), and the **cache directory** (`cache_dir:`, default `.honest-scholar/cache/`
+— the CLI's dataset + HTTP caches always live under exactly this path;
+[ADR-0031](../../decisions/0031-config-driven-cache-dir.md)). `.gitignore` is
+updated to exclude the configured `cache_dir:` path and `.honest-scholar/rclone.conf`.
 
 The `thesis/` tree is optional — scaffold it only when the repo is a
 thesis-by-publication; a plain portfolio repo omits the top level.

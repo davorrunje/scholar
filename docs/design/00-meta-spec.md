@@ -433,9 +433,9 @@ the experiment-backend implementation. After `init`/`adopt`, a consumer repo
 │       ├── references.bib                # or CSL-JSON — bibliographic facts
 │       └── triage.yml                    # decision sidecar (keyed by citekey/DOI)
 ├── datasets.yml                          # dataset registry (entries + checksums + tiers)
-├── .datasets-cache/                      # gitignored materialized data
 ├── .honest-scholar/
-│   ├── config.yml                        # rclone remote name, lit anchors, experiment-backend + engineering_backend bindings
+│   ├── config.yml                        # rclone remote name, lit anchors, cache_dir, experiment-backend + engineering_backend bindings
+│   ├── cache/                            # gitignored materialized data + HTTP cache (path from `cache_dir:`; ADR-0031)
 │   ├── rclone.conf                       # gitignored (creds)
 │   └── rclone.conf.example               # committed template (remote name/type only)
 └── <experiment-backend implementation>   # supplied by the consuming project; not shipped with the plugin
@@ -452,8 +452,8 @@ plus an inventory-and-map phase.
 
 - **`init` (greenfield)** — scaffold the `docs/research/` layout, the registries
   (`papers.md`, `datasets.yml`, `references.bib` + `triage.yml`), `.honest-scholar/`
-  config (rclone remote name, literature anchors, experiment-backend +
-  engineering-backend bindings),
+  config (rclone remote name, literature anchors, cache directory,
+  experiment-backend + engineering-backend bindings),
   and the staged-doc templates. Delegates per-item registration to the
   capability skills' own verbs rather than reimplementing them.
 - **`adopt` (backfill)** — inventory an existing repo, propose mappings,

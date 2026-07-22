@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from typer.testing import CliRunner
 
 from honest_scholar.cli import app
+from honest_scholar.dataset import retrieval as retrieval_mod
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     import pytest
 
 runner = CliRunner()
@@ -85,6 +85,65 @@ def test_fetch_and_verify_tier_a(
     verify = runner.invoke(app, ["dataset", "verify", "ds-a"])
     assert verify.exit_code == 0
     assert json.loads(verify.stdout)["ok"] is True
+
+
+def test_fetch_verify_audit_use_configured_cache_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Dataset fetch/verify/audit resolve the cache dir from config.yml (#65).
+
+    The cache directory the CLI actually passes to :mod:`retrieval` must be
+    exactly the one ``research-init`` gitignores — sourced from
+    ``cache_dir:`` instead of a hardcoded literal, so the two cannot drift.
+    """
+    monkeypatch.chdir(_tier_a_project(tmp_path))
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text("cache_dir: .custom-cache\n", encoding="utf-8")
+
+    seen: list[Path] = []
+    original_fetch = retrieval_mod.fetch
+    original_verify = retrieval_mod.verify
+    original_audit = retrieval_mod.audit
+
+    def _fetch_spy(entry, *, cache_dir, mirror=None, **kw):  # type: ignore[no-untyped-def]
+        seen.append(Path(cache_dir))
+        return original_fetch(entry, cache_dir=cache_dir, mirror=mirror, **kw)
+
+    def _verify_spy(entry, *, cache_dir):  # type: ignore[no-untyped-def]
+        seen.append(Path(cache_dir))
+        return original_verify(entry, cache_dir=cache_dir)
+
+    def _audit_spy(manifest, *, cache_dir, mirror=None):  # type: ignore[no-untyped-def]
+        seen.append(Path(cache_dir))
+        return original_audit(manifest, cache_dir=cache_dir, mirror=mirror)
+
+    monkeypatch.setattr(retrieval_mod, "fetch", _fetch_spy)
+    monkeypatch.setattr(retrieval_mod, "verify", _verify_spy)
+    monkeypatch.setattr(retrieval_mod, "audit", _audit_spy)
+
+    assert runner.invoke(app, ["dataset", "fetch", "ds-a"]).exit_code == 0
+    assert runner.invoke(app, ["dataset", "verify", "ds-a"]).exit_code == 0
+    assert runner.invoke(app, ["dataset", "audit"]).exit_code == 0
+
+    # `audit` internally re-runs `verify`, so more than 3 calls may land here —
+    # what matters is that every one of them got the *configured* root, never
+    # the old hardcoded ``.honest-scholar/cache/datasets`` literal.
+    expected = Path(".custom-cache/datasets")
+    assert len(seen) >= 3
+    assert all(path == expected for path in seen)
+
+
+def test_fetch_exits_1_on_invalid_cache_dir_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(_tier_a_project(tmp_path))
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text("cache_dir:\n  - nope\n", encoding="utf-8")
+    result = runner.invoke(app, ["dataset", "fetch", "ds-a"])
+    assert result.exit_code == 1
+    assert "cache_dir" in result.stderr
 
 
 def test_fetch_unknown_id_exits_1(
