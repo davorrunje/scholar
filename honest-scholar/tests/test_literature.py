@@ -701,6 +701,139 @@ def test_http_503_without_retry_after_is_plain_http_error() -> None:
     assert not isinstance(exc.value, http.RateLimitError)  # 503 sans header is not RL
 
 
+# --- proactive rate limiting (honest-scholar#67) ------------------------------
+
+
+class FakeClock:
+    """A deterministic clock/sleep pair: ``sleep`` advances ``now`` in lockstep.
+
+    Keeps the throttle tests fully offline and exact — no real wall-clock time
+    ever elapses, but the elapsed-time arithmetic in
+    :meth:`http.HttpClient._throttle` behaves as if it had.
+    """
+
+    def __init__(self, start: float = 0.0) -> None:
+        self.t = start
+        self.sleeps: list[float] = []
+
+    def now(self) -> float:
+        return self.t
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.t += seconds
+
+
+def test_http_throttle_spaces_back_to_back_s2_calls() -> None:
+    clock = FakeClock()
+    session = FakeSession({"https://s2/a": {"n": 1}, "https://s2/b": {"n": 2}})
+    client = http.HttpClient(
+        session=session,
+        cache_dir=None,
+        s2_rps=1.0,
+        clock=clock.now,
+        sleep=clock.sleep,
+    )
+    client.get_json("https://s2/a", s2=True)
+    client.get_json("https://s2/b", s2=True)
+    # No 429 round-trip involved: the second call alone triggers exactly one
+    # sleep, for the full 1s/req interval (elapsed time since the first was 0).
+    assert clock.sleeps == [1.0]
+    assert clock.t == 1.0
+
+
+def test_http_throttle_no_wait_when_interval_already_elapsed() -> None:
+    clock = FakeClock()
+    session = FakeSession({"https://s2/a": {"n": 1}, "https://s2/b": {"n": 2}})
+    client = http.HttpClient(
+        session=session,
+        cache_dir=None,
+        s2_rps=1.0,
+        clock=clock.now,
+        sleep=clock.sleep,
+    )
+    client.get_json("https://s2/a", s2=True)
+    clock.t += 5.0  # plenty of real time passed between calls
+    client.get_json("https://s2/b", s2=True)
+    assert clock.sleeps == []  # already spaced further apart than min_interval
+
+
+def test_http_throttle_tracks_s2_and_openalex_independently() -> None:
+    clock = FakeClock()
+    session = FakeSession({"https://s2/a": {"n": 1}, "https://oa/a": {"n": 2}})
+    client = http.HttpClient(
+        session=session,
+        cache_dir=None,
+        s2_rps=1.0,
+        openalex_rps=1.0,
+        clock=clock.now,
+        sleep=clock.sleep,
+    )
+    client.get_json("https://s2/a", s2=True)
+    client.get_json("https://oa/a", s2=False)
+    # Different hosts, same instant: neither has a prior send on *its* key.
+    assert clock.sleeps == []
+
+
+def test_http_throttle_disabled_when_rps_is_zero() -> None:
+    clock = FakeClock()
+    session = FakeSession({"https://s2/a": {"n": 1}, "https://s2/b": {"n": 2}})
+    client = http.HttpClient(
+        session=session, cache_dir=None, s2_rps=0.0, clock=clock.now, sleep=clock.sleep
+    )
+    client.get_json("https://s2/a", s2=True)
+    client.get_json("https://s2/b", s2=True)
+    assert clock.sleeps == []
+
+
+def test_http_throttle_defaults_are_conservative_for_s2_and_polite_for_openalex() -> (
+    None
+):
+    client = http.HttpClient(cache_dir=None)
+    assert client.s2_rps < 1.0  # strictly below S2's 1 req/s cumulative ceiling
+    assert client.openalex_rps == 10.0  # OpenAlex's documented ceiling
+
+
+def test_http_throttle_runs_once_per_call_not_per_retry() -> None:
+    # Retries within one get_json() call must keep relying on the existing
+    # reactive Retry-After/backoff handling, unchanged — not get re-throttled.
+    sleeps: list[float] = []
+    session = FakeSession(
+        {"https://x": [FakeResponse(429, {}, {"Retry-After": "7"}), {"ok": 1}]}
+    )
+    client = http.HttpClient(session=session, sleep=sleeps.append, cache_dir=None)
+    assert client.get_json("https://x") == {"ok": 1}
+    assert sleeps == [7.0]  # only the Retry-After sleep — no extra throttle sleep
+
+
+def test_lit_client_reads_rps_from_config(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text(
+        "literature:\n  s2_rps: 0.5\n  openalex_rps: 3\n", encoding="utf-8"
+    )
+    client = cli._lit_client()
+    assert client.s2_rps == 0.5
+    assert client.openalex_rps == 3.0
+
+
+def test_lit_client_rejects_non_numeric_rps(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    cfg = tmp_path / ".honest-scholar"
+    cfg.mkdir()
+    (cfg / "config.yml").write_text(
+        "literature:\n  s2_rps: not-a-number\n", encoding="utf-8"
+    )
+    with pytest.raises(typer.Exit) as exc:
+        cli._lit_client()
+    assert exc.value.exit_code == 1
+
+
 def test_resolve_rate_limit_propagates_not_miss() -> None:
     # A throttle must never be recorded as {resolved: False} ("no such work").
     client = _client(

@@ -1,9 +1,11 @@
 """A small caching JSON-over-HTTP client — the package's house HTTP layer.
 
 Wraps ``requests`` with an on-disk, content-addressed response cache (the
-provenance root — never silently refreshed within a run) and exponential backoff
-on ``429`` / ``5xx``. The transport (`session`) and the sleep function are
-injectable so the client is fully testable without touching the network.
+provenance root — never silently refreshed within a run), a **proactive**
+per-host rate limiter (paces requests *before* sending), and **reactive**
+exponential backoff on ``429`` / ``5xx`` as the fallback. The transport
+(`session`), the clock, and the sleep function are injectable so the client is
+fully testable without touching the network or a real wall clock.
 
 Design: ``docs/design/proposals/literature-citation-graph-client.md`` (deps &
 posture), ``docs/design/proposals/tooling-package.md`` (house HTTP client).
@@ -100,9 +102,16 @@ class HttpClient:
     :param mailto: Email for the OpenAlex polite pool (sent as ``mailto=``).
     :param s2_key: Optional Semantic Scholar API key (sent as ``x-api-key``).
     :param session: The HTTP transport (defaults to a ``requests.Session``).
-    :param sleep: Sleep function for backoff (injectable for tests).
+    :param sleep: Sleep function for backoff and throttling (injectable for tests).
+    :param clock: Monotonic clock for the proactive throttle (injectable for tests).
     :param timeout: Per-request timeout in seconds.
     :param max_retries: Attempts on ``429`` / ``5xx`` before giving up.
+    :param s2_rps: Proactive cap on Semantic Scholar requests/second. Default is
+        conservatively *below* S2's documented per-key ceiling of 1 req/s
+        cumulative, per their "stay below this threshold" guidance. ``0``
+        disables the proactive throttle (reactive backoff still applies).
+    :param openalex_rps: Proactive cap on OpenAlex requests/second — a polite
+        pace under OpenAlex's documented 10 req/s ceiling. ``0`` disables it.
     """
 
     cache_dir: Path | None = None
@@ -110,8 +119,14 @@ class HttpClient:
     s2_key: str | None = None
     session: Session = field(default_factory=requests.Session)
     sleep: object = time.sleep
+    clock: object = time.monotonic
     timeout: float = 30.0
     max_retries: int = 4
+    s2_rps: float = 0.9
+    openalex_rps: float = 10.0
+    _last_request: dict[str, float] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )
 
     def _cached(self, key: str) -> JsonValue | None:
         if self.cache_dir is None:
@@ -168,12 +183,40 @@ class HttpClient:
         if (hit := self._cached(key)) is not None:
             return hit
 
-        value = self._fetch(url, query, request_headers)
+        value = self._fetch(url, query, request_headers, s2=s2)
         self._store(key, value)
         return value
 
+    def _throttle(self, *, s2: bool) -> None:
+        """Proactively pace requests to a host, before the reactive retry loop.
+
+        Sleeps just enough that this send lands at least ``1 / rps`` after the
+        last send to the same host (Semantic Scholar vs. OpenAlex are tracked
+        independently, since each has its own ceiling). This is the *proactive*
+        half of rate-limit handling: it runs once per :meth:`get_json` call — on
+        the first attempt only — so a sweep of many calls self-throttles instead
+        of bursting and collecting ``429``s. Retries *within* one call still rely
+        on the existing reactive backoff/``Retry-After`` handling, unchanged.
+
+        :param s2: Whether this call targets Semantic Scholar (selects
+            ``s2_rps`` vs. ``openalex_rps``, and the per-host tracking key).
+        """
+        rps = self.s2_rps if s2 else self.openalex_rps
+        if rps <= 0:
+            return
+        min_interval = 1.0 / rps
+        key = "s2" if s2 else "openalex"
+        now: float = self.clock()  # type: ignore[operator]
+        last = self._last_request.get(key)
+        if last is not None:
+            wait = min_interval - (now - last)
+            if wait > 0:
+                self.sleep(wait)  # type: ignore[operator]
+                now = self.clock()  # type: ignore[operator]
+        self._last_request[key] = now
+
     def _fetch(
-        self, url: str, query: dict[str, str], headers: dict[str, str]
+        self, url: str, query: dict[str, str], headers: dict[str, str], *, s2: bool
     ) -> JsonValue:
         """Issue the request with retries; the network side of :meth:`get_json`.
 
@@ -181,7 +224,11 @@ class HttpClient:
         backs off exponentially with jitter. A rate-limit signal (``429``, or a
         ``503`` carrying ``Retry-After``) that survives every retry surfaces as a
         :class:`RateLimitError` so it is never mistaken for a permanent miss.
+
+        :param s2: Whether this call targets Semantic Scholar (selects the
+            proactive throttle's rps + tracking key; see :meth:`_throttle`).
         """
+        self._throttle(s2=s2)
         last_error = "no attempt made"
         rate_limited = False
         for attempt in range(self.max_retries):
